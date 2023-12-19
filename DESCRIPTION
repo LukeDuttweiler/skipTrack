@@ -1,12 +1,13 @@
 Package: skipTrack
-Title: What the Package Does (One Line, Title Case)
+Title: Bayesian Hierarchical Models for Identifying Non-Adherence in Mobile Menstrual Cycle Tracking
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Luke", "Duttweiler", , "lduttweiler@hsph.harvard.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-0467-995X"))
+Description: skipTrack implements an in-development Bayesian hierarchical model designed to estimate the posterior probability that a given logged menstrual cycle in a mobile app contains 1 or more true cycles. Currently only uses menstrual cycle length data, will be expanded later.  
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+URL: https://github.com/LukeDuttweiler/skipTrack
+BugReports: https://github.com/LukeDuttweiler/skipTrack/issues
