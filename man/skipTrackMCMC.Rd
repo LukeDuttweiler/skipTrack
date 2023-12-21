@@ -39,8 +39,9 @@ to identify skips in menstrual cycle tracking.
 }
 \examples{
 # Example usage of skipTrackMCMC function
-cycleDat <- simTrackData(1000, skipProb = c(.7, .2, .1))
-result <- skipTrackMCMC(cycleDat)
+#COMMENTED TO SKIP DURING PACKAGE BUILD
+#cycleDat <- simTrackData(1000, skipProb = c(.7, .2, .1))
+#result <- skipTrackMCMC(cycleDat)
 
 }
 \seealso{
