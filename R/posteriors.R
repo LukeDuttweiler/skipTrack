@@ -18,7 +18,7 @@
 #' @examples
 #' mui <- rep(log(31), 10)
 #' postMu(mui, 10)
-postMu <- function(muI, rho, priorMean = log(30), priorPre = .1){
+postMu <- function(muI, rho, priorMean = log(30), priorPre = 1){
   #Check to make sure there are more than one mui values. If not, warn.
   if(length(muI) <= 1){
     warning('muI vector has only one observation. Did you mean to do this?')
@@ -131,7 +131,7 @@ postMui <- function(yij, cij, taui, mu, rho){
 #' ys <- rnorm(10, 30, 1)
 #' cs <- rbinom(10, 2, .1) + 1
 #' postTaui(ys, cs, log(30))
-postTaui <- function(yij, cij, mui, priorA = 1, priorB = 1){
+postTaui <- function(yij, cij, mui, priorA = 1, priorB = .001){
   #If length of yij and cij do not match, throw error
   if(length(yij) != length(cij)){
     stop('Lengths of yij and cij must match.')
@@ -176,18 +176,17 @@ postCij <- function(yij1, pi, mui, taui){
     stop('yij1 cannot be a vector')
   }
 
-  #Pi should sum to 1
-  if(sum(pi) != 1){
-    stop('the pi vector must sum to 1')
-  }
-
   #Get non-normalized probabilities
   probs <- sapply(1:length(pi), function(j){
     #likelihood
     lik <- dlnorm(yij1, meanlog = mui + log(j), sdlog = sqrt(1/taui))
     return(lik*pi[j])
   })
+  probs <- pmax(probs, rep(0,length(probs)))
 
+  if(all(probs == 0)){
+    return(sample(1:length(pi), 1))
+  }
   #Sample from probs and return
   return(sample(1:length(pi), 1, prob = probs))
 }

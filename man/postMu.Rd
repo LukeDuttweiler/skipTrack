@@ -4,7 +4,7 @@
 \alias{postMu}
 \title{Sample a value from the full conditional posterior of mu}
 \usage{
-postMu(muI, rho, priorMean = log(30), priorPre = 0.1)
+postMu(muI, rho, priorMean = log(30), priorPre = 1)
 }
 \arguments{
 \item{muI}{Numeric vector, log of individuals mean values.}
