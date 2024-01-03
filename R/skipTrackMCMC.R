@@ -21,8 +21,12 @@
 #'
 #' @examples
 #' # Example usage of skipTrackMCMC function
+#' cycleDat <- simTrackData(10, skipProb = c(.7, .2, .1)) #Simulated Data
+#' result <- skipTrackMCMC(cycleDat)
+#'
+#' #MORE REALISTIC VERSION
 #' #COMMENTED TO SKIP DURING PACKAGE BUILD
-#' #cycleDat <- simTrackData(1000, skipProb = c(.7, .2, .1))
+#' #cycleDat <- simTrackData(1000, skipProb = c(.7, .2, .1)) #Simulated Data
 #' #result <- skipTrackMCMC(cycleDat)
 #'
 #' @seealso \code{\link{gibbsStep}}
@@ -55,12 +59,13 @@ skipTrackMCMC <- function(cycleDat,
   fullDraws[[1]] <- list(ijDat = ijDat, iDat = iDat,
                          mu = initialParams$mu, rho = initialParams$rho,
                          pi = initialParams$pi, priorAlphas = priorAlphas)
+  #Progress bar
+  pb <- utils::txtProgressBar(min = 0, max = reps, style = 3)
+
   #Do gibbs steps
   for(t in 1:reps){
     fullDraws[[t+1]] <- do.call('gibbsStep', fullDraws[[t]])
-    if(t %% 10 == 0){
-      print(t)
-    }
+    utils::setTxtProgressBar(pb, t)
   }
   return(fullDraws)
 }

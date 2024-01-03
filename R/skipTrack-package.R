@@ -9,5 +9,7 @@
 #' @importFrom stats rlnorm
 #' @importFrom stats rnorm
 #' @importFrom stats rpois
+#' @importFrom utils setTxtProgressBar
+#' @importFrom utils txtProgressBar
 ## usethis namespace: end
 NULL
