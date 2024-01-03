@@ -2,6 +2,10 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom foreach %do%
+#' @importFrom foreach %dopar%
+#' @importFrom parallel detectCores
+#' @importFrom parallel makeCluster
 #' @importFrom stats dlnorm
 #' @importFrom stats rbeta
 #' @importFrom stats rgamma
