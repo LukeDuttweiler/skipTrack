@@ -30,7 +30,7 @@ This function runs skipTrackMCMC on multiple chains,
 either in parallel or sequentially.
 }
 \examples{
-#EXAMPLES SKIPPED TO AVOID LONG PACKAGE BUILD
+#EXAMPLES SKIPPED TO AVOID 10 MINUTE PACKAGE BUILD
 #tstData <- simTrackData(1000, skipProb = c(.8, .15, .05))
 
 # Run skipTrackMulti with parallel processing on 4 chains

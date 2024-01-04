@@ -14,7 +14,10 @@ BugReports: https://github.com/LukeDuttweiler/skipTrack/issues
 Imports: 
     doParallel,
     foreach,
+    genMCMCDiag (>= 0.1.1),
     LaplacesDemon,
     parallel,
     stats,
     utils
+Remotes:  
+    LukeDuttweiler/genMCMCDiag
