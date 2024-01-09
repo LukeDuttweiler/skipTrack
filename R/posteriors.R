@@ -131,7 +131,7 @@ postMui <- function(yij, cij, taui, mu, rho){
 #' ys <- rnorm(10, 30, 1)
 #' cs <- rbinom(10, 2, .1) + 1
 #' postTaui(ys, cs, log(30))
-postTaui <- function(yij, cij, mui, priorA = 1, priorB = .001){
+postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
   #If length of yij and cij do not match, throw error
   if(length(yij) != length(cij)){
     stop('Lengths of yij and cij must match.')

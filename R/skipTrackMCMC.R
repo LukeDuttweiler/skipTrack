@@ -41,13 +41,13 @@ skipTrackMCMC <- function(cycleDat,
                                                tauis = rep(5,
                                                           length(unique(cycleDat$Individual))),
                                                mu = log(30), rho = 1,
-                                               #cs = rep(1, nrow(cycleDat))),
-                                               cs = sample(1:length(pi),
+                                               cs = sample(1:3,
                                                            nrow(cycleDat),
                                                            replace = TRUE)),
                           reps = 1000){
   #Set priorAlphas (currently) as 1s for each pi level
   priorAlphas <- rep(1, length(initialParams$pi))
+
   #Organize data into initial list
   ijDat <- data.frame('Individual' = cycleDat$Individual,
                       'ys' = cycleDat$TrackedCycles,
