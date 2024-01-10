@@ -124,17 +124,23 @@ gibbsStep <- function(ijDat, iDat, mu, rho, pi, priorAlphas){
                         taus = newTauis)
 
   #Now ij level
-  ijDatNew <- lapply(iDat$Individual, function(ind){
-    newCijs <- sapply(ijDat$ys[ijDat$Individual == ind],
-                      postCij,
-                      pi = newPi,
-                      mui = iDatNew$mus[iDatNew$Individual == ind],
-                      taui = iDatNew$taus[iDatNew$Individual == ind])
-    return(data.frame(Individual = ind,
-                      ys = ijDat$ys[ijDat$Individual == ind],
-                      cs = newCijs))
-  })
-  ijDatNew <- do.call('rbind', ijDatNew)
+  #ijDatNew <- lapply(iDat$Individual, function(ind){
+  #  newCijs <- sapply(ijDat$ys[ijDat$Individual == ind],
+  #                    postCij,
+  #                    pi = newPi,
+  #                    mui = iDatNew$mus[iDatNew$Individual == ind],
+  #                    taui = iDatNew$taus[iDatNew$Individual == ind])
+  #  return(data.frame(Individual = ind,
+  #                    ys = ijDat$ys[ijDat$Individual == ind],
+  #                    cs = newCijs))
+  #})
+  #ijDatNew <- do.call('rbind', ijDatNew)
+  ijDatNew <- ijDat
+  for(k in 1:nrow(ijDatNew)){
+    ijDatNew$cs[k] <- postCij(ijDat$ys[k], pi = newPi,
+                              mui = iDatNew$mus[iDatNew$Individual == ijDat$Individual[k]],
+                              taui = iDatNew$taus[iDatNew$Individual == ijDat$Individual[k]])
+  }
 
   return(list(ijDat = ijDatNew, iDat = iDatNew, mu = newMu,
               rho = newRho, pi = newPi, priorAlphas = priorAlphas))
