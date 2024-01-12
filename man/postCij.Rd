@@ -2,28 +2,29 @@
 % Please edit documentation in R/posteriors.R
 \name{postCij}
 \alias{postCij}
-\title{Sample a value from the full conditional posterior of c_ij}
+\title{Sample a vector of values from the full conditional posterior of the c_ij vector}
 \usage{
-postCij(yij1, pi, mui, taui)
+postCij(yijs, pi, muis, tauis)
 }
 \arguments{
-\item{yij1}{Numeric, one cycle length for individual i}
+\item{yijs}{Numeric Vector, cycle lengths}
 
-\item{pi}{Numeric vector, must sum to 1. Sampled probabilities for c_ij}
+\item{pi}{Numeric vector, must sum to 1. Sampled probabilities for c_ijs}
 
-\item{mui}{Numeric, log of sampled mean of individuals yijs}
+\item{muis}{Numeric vector, log of sampled mean for all individuals yijs}
 
-\item{taui}{Numeric > 0, A sampled precision for the yijs}
+\item{tauis}{Numeric vector > 0, sampled precision for all individuals yijs}
 }
 \value{
-Integer
+Integer vector
 }
 \description{
 In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i) The prior for
 c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij can
 take values 1, ..., k where k is the length of pi. This function samples from the
-full conditional posterior of c_ij
+full conditional posterior of all c_ijs, given vectors of equal length yijs, muis, tauis
 }
 \examples{
-postCij(yij1 = 60, pi = c(.7, .2, .1), mui = log(30), taui = 1)
+tst <- simTrackData(1000, skipProb = c(.8, .15, .05)
+postCijNew(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
 }

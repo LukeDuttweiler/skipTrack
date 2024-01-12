@@ -153,7 +153,7 @@ postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
   return(rgamma(1, shape = postA, rate = postB))
 }
 
-#' Sample a value from the full conditional posterior of c_ij
+#' Sample a value from the full conditional posterior of c_ij (OLD VERSION)
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i) The prior for
 #'  c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij can
@@ -170,7 +170,7 @@ postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
 #'
 #' @examples
 #' postCij(yij1 = 60, pi = c(.7, .2, .1), mui = log(30), taui = 1)
-postCij <- function(yij1, pi, mui, taui){
+postCijOLD <- function(yij1, pi, mui, taui){
   #yij1 should be of length 1, otherwise stop
   if(length(yij1) != 1){
     stop('yij1 cannot be a vector')
@@ -189,6 +189,35 @@ postCij <- function(yij1, pi, mui, taui){
   }
   #Sample from probs and return
   return(sample(1:length(pi), 1, prob = probs))
+}
+
+#' Sample a vector of values from the full conditional posterior of the c_ij vector
+#'
+#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i) The prior for
+#'  c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij can
+#'  take values 1, ..., k where k is the length of pi. This function samples from the
+#'  full conditional posterior of all c_ijs, given vectors of equal length yijs, muis, tauis
+#'
+#' @param yijs Numeric Vector, cycle lengths
+#' @param pi Numeric vector, must sum to 1. Sampled probabilities for c_ijs
+#' @param muis Numeric vector, log of sampled mean for all individuals yijs
+#' @param tauis Numeric vector > 0, sampled precision for all individuals yijs
+#'
+#' @return Integer vector
+#' @export
+#'
+#' @examples
+#' tst <- simTrackData(1000, skipProb = c(.8, .15, .05)
+#' postCijNew(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
+postCij <- function(yijs, pi, muis, tauis){
+  probs <- sapply(1:length(pi), function(j){
+    #likelihood
+    lik <- dlnorm(yijs, meanlog = muis + log(j), sdlog = sqrt(1/tauis))
+    return(lik*pi[j])
+  })
+  probs <- pmax(probs, rep(0,length(probs)))
+
+  return(glmnet::rmult(probs))
 }
 
 #' Sample a value from the full conditional posterior of pi

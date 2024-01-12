@@ -128,5 +128,15 @@ stVisualize <- function(mcmcRes){
   muByChain <- muByChain + ggplot2::ggtitle('Sampled Density of Overall Mean by Chain') + ggplot2::xlab('Overall Mean')
   muByChain <- muByChain + ggplot2::theme(legend.position = 'none')
 
-  return(list(cijOverPlt, cijOverTaus, muByChain))
+  #Density of cycle lengths categorized by skip vs density of overall
+  cijDens <- ggplot2::ggplot(data = cijOverDF,
+                             ggplot2::aes(x = ys)) + ggplot2::geom_density()
+  cijDens <- cijDens + ggplot2::geom_density(ggplot2::aes(fill = as.factor(round(cs)),
+                                                          col = as.factor(round(cs))),
+                                             alpha = .3)
+  cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none')
+  cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
+  print(table(round(cijOverDF$cs))/nrow(cijOverDF))
+
+  return(list(cijOverPlt, cijOverTaus, muByChain, cijDens))
 }
