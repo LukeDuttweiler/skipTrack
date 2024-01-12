@@ -141,6 +141,7 @@ gibbsStep <- function(ijDat, iDat, mu, rho, pi, priorAlphas){
                               mui = iDatNew$mus[iDatNew$Individual == ijDat$Individual[k]],
                               taui = iDatNew$taus[iDatNew$Individual == ijDat$Individual[k]])
   }
+  #ijDatNew$cs <- ijUpdate(ijDat, newPi, iDatNew)
 
   return(list(ijDat = ijDatNew, iDat = iDatNew, mu = newMu,
               rho = newRho, pi = newPi, priorAlphas = priorAlphas))

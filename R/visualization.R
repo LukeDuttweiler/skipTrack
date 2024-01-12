@@ -1,4 +1,28 @@
-#This function takes results from simTrackMulti and produces helpful visualizations of the results
+#' Visualize Results from simTrackMulti
+#'
+#' This function takes results from simTrackMulti and produces helpful visualizations of the results.
+#'
+#' @param mcmcRes A list containing MCMC results obtained from simTrackMulti.
+#'
+#' @return A list of three ggplot2 objects:
+#'   \itemize{
+#'     \item{cijOverPlt}{Scatter plot of estimated Cij values against reported cycle length.}
+#'     \item{cijOverTaus}{Scatter plot of estimated Cij values against estimated individual precisions, colored by cycle length.}
+#'     \item{muByChain}{Density plot of the sampled density of overall mean by chain.}
+#'   }
+#'
+#' @examples
+#' # Example usage:
+#' # stVisualize(mcmcResults)
+#'
+#' @seealso
+#' \code{\link{simTrackMulti}} for generating MCMC results to be visualized.
+#'
+#'
+#' @export
+stVisualize <- function(mcmcRes) {
+  # Function body...
+}
 stVisualize <- function(mcmcRes){
   #Collect important variables into dataframes
   #Creates a dataframe with chain/draw specific mus
@@ -91,9 +115,10 @@ stVisualize <- function(mcmcRes){
 
   #Cijs vs tauis overall
   cijOverTaus <- ggplot2::ggplot(data = cijOverDF,
-                                ggplot2::aes(x = taus, y = cs)) + ggplot2::geom_point()
+                                ggplot2::aes(x = taus, y = cs, col = ys)) + ggplot2::geom_point()
   cijOverTaus <- cijOverTaus + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cij Values against Estimated Individual Precisions')
   cijOverTaus <- cijOverTaus + ggplot2::xlab('Estimated Individual Precisions') + ggplot2::ylab('Estimated Cij Values')
+  cijOverTaus <- cijOverTaus + ggplot2::labs(col = 'Cycle Length')
 
   #Density of Overall Mean by Chain
   muByChain <- ggplot2::ggplot(data = muDF,

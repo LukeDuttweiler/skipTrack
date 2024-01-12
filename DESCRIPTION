@@ -19,5 +19,9 @@ Imports:
     parallel,
     stats,
     utils
-Remotes:  
+Remotes: 
     LukeDuttweiler/genMCMCDiag
+Depends: 
+    Rcpp
+LinkingTo:
+    Rcpp

@@ -8,8 +8,8 @@ skipTrackMCMC(
   cycleDat,
   initialParams = list(pi = c(1/3, 1/3, 1/3), muis = rep(log(30),
     length(unique(cycleDat$Individual))), tauis = rep(5,
-    length(unique(cycleDat$Individual))), mu = log(30), rho = 1, cs =
-    sample(1:length(pi), nrow(cycleDat), replace = TRUE)),
+    length(unique(cycleDat$Individual))), mu = log(30), rho = 1, cs = sample(1:3,
+    nrow(cycleDat), replace = TRUE)),
   reps = 1000
 )
 }
