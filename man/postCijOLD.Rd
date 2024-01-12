@@ -24,6 +24,3 @@ c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij 
 take values 1, ..., k where k is the length of pi. This function samples from the
 full conditional posterior of c_ij
 }
-\examples{
-postCij(yij1 = 60, pi = c(.7, .2, .1), mui = log(30), taui = 1)
-}

@@ -70,7 +70,7 @@ postRho <- function(muI, mu, priorA = 1, priorB = 1){
   return(rgamma(1, shape = postA, rate = postB))
 }
 
-#' Sample a value from the full conditional posterior of mu_i
+#' Sample a value from the full conditional posterior of mu_i (OLD VERSION)
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
 #' is given as N(mu, rho). This function draws from the conditional posterior of mu_i.
@@ -83,13 +83,8 @@ postRho <- function(muI, mu, priorA = 1, priorB = 1){
 #' @param rho Numeric > 0, sampled prior precision of mu_i
 #'
 #' @return Numeric
-#' @export
 #'
-#' @examples
-#' ys <- rnorm(10, 30, .1)
-#' cs <- rep(1, 10)
-#' postMui(ys, cs, 4, log(30), 1)
-postMui <- function(yij, cij, taui, mu, rho){
+postMuiOLD <- function(yij, cij, taui, mu, rho){
   #If length of yij and cij do not match, throw error
   if(length(yij) != length(cij)){
     stop('Lengths of yij and cij must match.')
@@ -111,7 +106,42 @@ postMui <- function(yij, cij, taui, mu, rho){
   return(rnorm(1, mean = postMean, sd = sqrt(1/postPre)))
 }
 
-#' Sample a value from the full conditional posterior of tau_i
+#' Sample a value from the full conditional posterior of mu_i
+#'
+#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
+#' is given as N(mu, rho). This function draws from the conditional posterior of mu_i.
+#'
+#' Additionally, note that in order to vectorize the remainder of the MCMC algorithm
+#' this function returns the sampled value repeated for length(yij)
+#'
+#' @param yij Numeric vector, cycle lengths for a single individual
+#' @param cij Positive Integer vector, a sampled vector of length(yij) where the corresponding
+#'  values in cij indicate a sampled number of TRUE cycles in each cycle length given by yij
+#' @param taui Numeric > 0, A sampled precision for the yijs
+#' @param mu Numeric, sampled prior mean of mu_i
+#' @param rho Numeric > 0, sampled prior precision of mu_i
+#'
+#' @return Numeric vector, repeated sampled value of length(yij)
+#' @export
+#'
+#' @examples
+#' ys <- rnorm(10, 30, .1)
+#' cs <- rep(1, 10)
+#' postMui(ys, cs, 4, log(30), 1)
+postMui <- function(yij, cij, taui, mu, rho){
+  #Ni is the length of yij
+  Ni <- length(yij)
+
+  #Set posterior mean and precision
+  postPre <- Ni*taui + rho
+  postMean <- (rho*mu + taui*sum(log(yij/cij)))/postPre
+
+  #Draw from posterior and return
+  dr <- rnorm(1, mean = postMean, sd = sqrt(1/postPre))
+  return(rep(dr, Ni))
+}
+
+#' Sample a value from the full conditional posterior of tau_i (OLD VERSION)
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
 #' is given as Gamma(priorA, priorB). This function draws from the conditional
@@ -125,13 +155,8 @@ postMui <- function(yij, cij, taui, mu, rho){
 #' @param priorB Numeric > 0, prior rate of tau_i
 #'
 #' @return Numeric
-#' @export
 #'
-#' @examples
-#' ys <- rnorm(10, 30, 1)
-#' cs <- rbinom(10, 2, .1) + 1
-#' postTaui(ys, cs, log(30))
-postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
+postTauiOLD <- function(yij, cij, mui, priorA = 1, priorB = .1){
   #If length of yij and cij do not match, throw error
   if(length(yij) != length(cij)){
     stop('Lengths of yij and cij must match.')
@@ -153,6 +178,42 @@ postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
   return(rgamma(1, shape = postA, rate = postB))
 }
 
+#' Sample a value from the full conditional posterior of tau_i
+#'
+#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
+#' is given as Gamma(priorA, priorB). This function draws from the conditional
+#' posterior of tau_i. Note that we parameterize with RATE, not SCALE.
+#'
+#' Additionally, note that in order to vectorize the remainder of the MCMC algorithm
+#' this function returns the sampled value repeated for length(yij)
+#'
+#' @param yij Numeric vector, cycle lengths for a single individual
+#' @param cij Positive Integer vector, a sampled vector of length(yij) where the corresponding
+#'  values in cij indicate a sampled number of TRUE cycles in each cycle length given by yij
+#' @param mui Numeric, log of sampled mean of individuals yijs
+#' @param priorA Numeric > 0, prior shape of tau_i
+#' @param priorB Numeric > 0, prior rate of tau_i
+#'
+#' @return Numeric vector, repeated sampled value of length(yij)
+#' @export
+#'
+#' @examples
+#' ys <- rnorm(10, 30, 1)
+#' cs <- rbinom(10, 2, .1) + 1
+#' postTaui(ys, cs, log(30))
+postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
+  #Ni is the length of yij
+  Ni <- length(yij)
+
+  #Set posterior parameters
+  postA <- priorA + Ni/2
+  postB <- priorB + sum((log(yij/cij) - mui)^2)/2
+
+  #Draw from posterior and return
+  dr <- rgamma(1, shape = postA, rate = postB)
+  return(rep(dr, Ni))
+}
+
 #' Sample a value from the full conditional posterior of c_ij (OLD VERSION)
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i) The prior for
@@ -166,10 +227,6 @@ postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
 #' @param taui Numeric > 0, A sampled precision for the yijs
 #'
 #' @return Integer
-#' @export
-#'
-#' @examples
-#' postCij(yij1 = 60, pi = c(.7, .2, .1), mui = log(30), taui = 1)
 postCijOLD <- function(yij1, pi, mui, taui){
   #yij1 should be of length 1, otherwise stop
   if(length(yij1) != 1){

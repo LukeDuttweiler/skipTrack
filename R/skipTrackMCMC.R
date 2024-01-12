@@ -49,16 +49,19 @@ skipTrackMCMC <- function(cycleDat,
   priorAlphas <- rep(1, length(initialParams$pi))
 
   #Organize data into initial list
-  ijDat <- data.frame('Individual' = cycleDat$Individual,
-                      'ys' = cycleDat$TrackedCycles,
-                      'cs' = initialParams$cs)
   iDat <- data.frame('Individual' = unique(cycleDat$Individual),
                      'mus' = initialParams$muis,
                      'taus' = initialParams$tauis)
+  ijDat <- data.frame('Individual' = cycleDat$Individual,
+                      'ys' = cycleDat$TrackedCycles,
+                      'cs' = initialParams$cs,#)
+                      'muis' = sapply(cycleDat$Individual, function(ind){iDat$mus[iDat$Individual == ind]}),
+                      'tauis' = sapply(cycleDat$Individual, function(ind){iDat$taus[iDat$Individual == ind]}))
   fullDraws <- vector('list', reps + 1)
   fullDraws[[1]] <- list(ijDat = ijDat, iDat = iDat,
                          mu = initialParams$mu, rho = initialParams$rho,
-                         pi = initialParams$pi, priorAlphas = priorAlphas)
+                         pi = initialParams$pi, priorAlphas = priorAlphas,#)
+                         indFirst = !duplicated(ijDat$Individual))
   #Progress bar
   pb <- utils::txtProgressBar(min = 0, max = reps, style = 3)
 
@@ -70,7 +73,7 @@ skipTrackMCMC <- function(cycleDat,
   return(fullDraws)
 }
 
-#' Perform one Gibbs sampling step for our skipTrackMCMC model
+#' Perform one Gibbs sampling step for our skipTrackMCMC model (OLD VERSION)
 #'
 #' This function updates parameters at three levels: global (\code{mu}, \code{rho}, \code{pi}),
 #' individual (\code{mus}, \code{taus}), and individual-observation (\code{ys}, \code{cs}).
@@ -83,6 +86,7 @@ skipTrackMCMC <- function(cycleDat,
 #' @param rho Current value of the global parameter rho.
 #' @param pi Current value of the global parameter pi.
 #' @param priorAlphas Vector of prior alpha values for updating pi.
+#' @param indFirst Logical vector indicating the first instance of each individual in the full data. Not used here.
 #'
 #' @return A list containing the updated data and parameters:
 #' \describe{
@@ -92,6 +96,7 @@ skipTrackMCMC <- function(cycleDat,
 #'   \item{rho}{Updated value of the global parameter rho.}
 #'   \item{pi}{Updated value of the global parameter pi.}
 #'   \item{priorAlphas}{Unchanged vector of prior alpha values for updating pi.}
+#'   \item{indFirst}{Unchanged logical vector indFirst}
 #' }
 #'
 #'
@@ -100,7 +105,7 @@ skipTrackMCMC <- function(cycleDat,
 #'
 #' @keywords gibbs sampling hierarchical model update parameters
 #'
-gibbsStep <- function(ijDat, iDat, mu, rho, pi, priorAlphas){
+gibbsStepOLD <- function(ijDat, iDat, mu, rho, pi, priorAlphas, indFirst){
   #Start with high level
   newMu <- postMu(muI = iDat$mus, rho = rho)
   newRho <- postRho(muI = iDat$mus, mu = newMu)
@@ -108,13 +113,13 @@ gibbsStep <- function(ijDat, iDat, mu, rho, pi, priorAlphas){
 
   #Now i level
   newMuis <- sapply(iDat$Individual, function(ind){
-    postMui(yij = ijDat$ys[ijDat$Individual == ind],
+    postMuiOLD(yij = ijDat$ys[ijDat$Individual == ind],
             cij = ijDat$cs[ijDat$Individual == ind],
             taui = iDat$taus[iDat$Individual == ind],
             mu = newMu, rho = newRho)
   })
   newTauis <- sapply(iDat$Individual, function(ind){
-    postTaui(yij = ijDat$ys[ijDat$Individual == ind],
+    postTauiOLD(yij = ijDat$ys[ijDat$Individual == ind],
              cij = ijDat$cs[ijDat$Individual == ind],
              mui = iDat$mus[iDat$Individual == ind])
   })
@@ -137,12 +142,86 @@ gibbsStep <- function(ijDat, iDat, mu, rho, pi, priorAlphas){
   #ijDatNew <- do.call('rbind', ijDatNew)
   ijDatNew <- ijDat
   for(k in 1:nrow(ijDatNew)){
-    ijDatNew$cs[k] <- postCij(ijDat$ys[k], pi = newPi,
+    ijDatNew$cs[k] <- postCijOLD(ijDat$ys[k], pi = newPi,
                               mui = iDatNew$mus[iDatNew$Individual == ijDat$Individual[k]],
                               taui = iDatNew$taus[iDatNew$Individual == ijDat$Individual[k]])
   }
-  #ijDatNew$cs <- ijUpdate(ijDat, newPi, iDatNew)
+
+  #muisAndTauis <- sapply(ijDatNew$Individual, function(ind){
+  #  return(as.matrix(iDatNew)[iDatNew$Individual == ind, c('mus', 'taus')])
+  #})
+  #ijDatNew$cs <- postCij(ijDatNew$ys, pi = newPi,
+  #                       muis = muisAndTauis[1,], tauis = muisAndTauis[2,])
 
   return(list(ijDat = ijDatNew, iDat = iDatNew, mu = newMu,
               rho = newRho, pi = newPi, priorAlphas = priorAlphas))
 }
+
+#' Perform one Gibbs sampling step for our skipTrackMCMC model
+#'
+#' This function updates parameters at three levels: global (\code{mu}, \code{rho}, \code{pi}),
+#' individual (\code{mus}, \code{taus}), and individual-observation (\code{ys}, \code{cs}).
+#'
+#' @param ijDat A data.frame containing all data at the level of individual-observation (ij),
+#' with columns: Individual, ys, cs.
+#' @param iDat A data.frame containing all data at the level of individual (i),
+#' with columns: Individual, mus, taus.
+#' @param mu Current value of the global parameter mu.
+#' @param rho Current value of the global parameter rho.
+#' @param pi Current value of the global parameter pi.
+#' @param priorAlphas Vector of prior alpha values for updating pi.
+#' @param indFirst Logical vector indicating the first instance of each individual in the full data.
+#'
+#' @return A list containing the updated data and parameters:
+#' \describe{
+#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
+#'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
+#'   \item{mu}{Updated value of the global parameter mu.}
+#'   \item{rho}{Updated value of the global parameter rho.}
+#'   \item{pi}{Updated value of the global parameter pi.}
+#'   \item{priorAlphas}{Unchanged vector of prior alpha values for updating pi.}
+#'   \item{indFirst}{Unchanged logical vector indFirst}
+#' }
+#'
+#'
+#' @seealso \code{\link{postMu}}, \code{\link{postRho}}, \code{\link{postPi}},
+#' \code{\link{postMui}}, \code{\link{postTaui}}, \code{\link{postCij}}
+#'
+#' @keywords gibbs sampling hierarchical model update parameters
+#'
+gibbsStep <- function(ijDat, iDat, mu, rho, pi, priorAlphas, indFirst){
+  #Start with high level
+  newMu <- postMu(muI = iDat$mus, rho = rho)
+  newRho <- postRho(muI = iDat$mus, mu = newMu)
+  newPi <- postPi(ci = ijDat$cs, priorAlphas = priorAlphas)
+
+  #Now i level
+  newMuis <- lapply(iDat$Individual, function(ind){
+    postMui(yij = ijDat$ys[ijDat$Individual == ind],
+            cij = ijDat$cs[ijDat$Individual == ind],
+            taui = iDat$taus[iDat$Individual == ind],
+            mu = newMu, rho = newRho)
+  })
+  newMuis <- do.call('c', newMuis)
+  newTauis <- lapply(iDat$Individual, function(ind){
+    postTaui(yij = ijDat$ys[ijDat$Individual == ind],
+             cij = ijDat$cs[ijDat$Individual == ind],
+             mui = iDat$mus[iDat$Individual == ind])
+  })
+  newTauis <- do.call('c', newTauis)
+
+  iDatNew <- data.frame(Individual = iDat$Individual,
+                        mus = newMuis[indFirst],
+                        taus = newTauis[indFirst])
+
+  ijDatNew <- ijDat
+  ijDatNew$muis <- newMuis
+  ijDatNew$tauis <- newTauis
+
+  ijDatNew$cs <- postCij(ijDatNew$ys, pi = newPi,
+                         muis = ijDatNew$muis, tauis = ijDatNew$tauis)
+
+  return(list(ijDat = ijDatNew, iDat = iDatNew, mu = newMu,
+              rho = newRho, pi = newPi, priorAlphas = priorAlphas, indFirst = indFirst))
+}
+
