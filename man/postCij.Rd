@@ -25,6 +25,6 @@ take values 1, ..., k where k is the length of pi. This function samples from th
 full conditional posterior of all c_ijs, given vectors of equal length yijs, muis, tauis
 }
 \examples{
-tst <- simTrackData(1000, skipProb = c(.8, .15, .05)
-postCijNew(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
+tst <- simTrackData(1000, skipProb = c(.8, .15, .05))
+postCij(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
 }

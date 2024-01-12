@@ -1,8 +1,8 @@
-#' Visualize Results from simTrackMulti
+#' Visualize Results from skipTrackMulti
 #'
-#' This function takes results from simTrackMulti and produces helpful visualizations of the results.
+#' This function takes results from skipTrackMulti and produces helpful visualizations of the results.
 #'
-#' @param mcmcRes A list containing MCMC results obtained from simTrackMulti.
+#' @param mcmcRes A list containing MCMC results obtained from skipTrackMulti.
 #'
 #' @return A list of three ggplot2 objects:
 #'   \itemize{
@@ -16,13 +16,9 @@
 #' # stVisualize(mcmcResults)
 #'
 #' @seealso
-#' \code{\link{simTrackMulti}} for generating MCMC results to be visualized.
-#'
+#' \code{\link{skipTrackMulti}} for generating MCMC results to be visualized.
 #'
 #' @export
-stVisualize <- function(mcmcRes) {
-  # Function body...
-}
 stVisualize <- function(mcmcRes){
   #Collect important variables into dataframes
   #Creates a dataframe with chain/draw specific mus

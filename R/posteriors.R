@@ -264,8 +264,8 @@ postCijOLD <- function(yij1, pi, mui, taui){
 #' @export
 #'
 #' @examples
-#' tst <- simTrackData(1000, skipProb = c(.8, .15, .05)
-#' postCijNew(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
+#' tst <- simTrackData(1000, skipProb = c(.8, .15, .05))
+#' postCij(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
 postCij <- function(yijs, pi, muis, tauis){
   probs <- sapply(1:length(pi), function(j){
     #likelihood

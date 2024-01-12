@@ -2,12 +2,12 @@
 % Please edit documentation in R/visualization.R
 \name{stVisualize}
 \alias{stVisualize}
-\title{Visualize Results from simTrackMulti}
+\title{Visualize Results from skipTrackMulti}
 \usage{
 stVisualize(mcmcRes)
 }
 \arguments{
-\item{mcmcRes}{A list containing MCMC results obtained from simTrackMulti.}
+\item{mcmcRes}{A list containing MCMC results obtained from skipTrackMulti.}
 }
 \value{
 A list of three ggplot2 objects:
@@ -18,7 +18,7 @@ A list of three ggplot2 objects:
 }
 }
 \description{
-This function takes results from simTrackMulti and produces helpful visualizations of the results.
+This function takes results from skipTrackMulti and produces helpful visualizations of the results.
 }
 \examples{
 # Example usage:
@@ -26,5 +26,5 @@ This function takes results from simTrackMulti and produces helpful visualizatio
 
 }
 \seealso{
-\code{\link{simTrackMulti}} for generating MCMC results to be visualized.
+\code{\link{skipTrackMulti}} for generating MCMC results to be visualized.
 }
