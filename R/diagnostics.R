@@ -32,7 +32,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
       draws <- sapply(chain, getElement, name = param)
 
       #Return in expected format
-      return(data.frame(val = draws, Posterior = NA))
+      return(draws)
     })
 
     #Calculate diagnostics and return
@@ -48,7 +48,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
       })
 
       #Return in expected format
-      return(list(val = draws, Posterior = NA))
+      return(draws)
     })
 
     #set method if not specified
@@ -69,7 +69,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
       })
 
       #Return in expected format
-      return(list(val = draws, Posterior = NA))
+      return(draws)
     })
 
     #set method if not specified
@@ -90,7 +90,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
       })
 
       #Return in expected format
-      return(list(val = draws, Posterior = NA))
+      return(draws)
     })
 
     #set method if not specified

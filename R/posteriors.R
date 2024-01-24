@@ -201,7 +201,7 @@ postTauiOLD <- function(yij, cij, mui, priorA = 1, priorB = .1){
 #' ys <- rnorm(10, 30, 1)
 #' cs <- rbinom(10, 2, .1) + 1
 #' postTaui(ys, cs, log(30))
-postTaui <- function(yij, cij, mui, priorA = 1, priorB = .1){
+postTaui <- function(yij, cij, mui, priorA = .01, priorB = .01){
   #Ni is the length of yij
   Ni <- length(yij)
 

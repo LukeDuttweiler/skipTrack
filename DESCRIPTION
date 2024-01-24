@@ -14,7 +14,7 @@ BugReports: https://github.com/LukeDuttweiler/skipTrack/issues
 Imports: 
     doParallel,
     foreach,
-    genMCMCDiag (>= 0.1.1),
+    genMCMCDiag (>= 0.2.0),
     ggplot2,
     glmnet,
     LaplacesDemon,
