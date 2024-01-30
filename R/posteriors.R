@@ -1,5 +1,5 @@
 #This document holds all of the functions that provide random draws from full conditional
-#posteriors.
+#posteriors for the 'Duttweiler' algorithm.
 
 #' Sample a value from the full conditional posterior of mu
 #'
@@ -19,11 +19,6 @@
 #' mui <- rep(log(31), 10)
 #' postMu(mui, 10)
 postMu <- function(muI, rho, priorMean = log(30), priorPre = 1){
-  #Check to make sure there are more than one mui values. If not, warn.
-  if(length(muI) <= 1){
-    warning('muI vector has only one observation. Did you mean to do this?')
-  }
-
   #n is the length of muI
   n <- length(muI)
 

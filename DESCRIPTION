@@ -18,6 +18,7 @@ Imports:
     ggplot2,
     glmnet,
     LaplacesDemon,
+    optimg,
     parallel,
     stats,
     utils

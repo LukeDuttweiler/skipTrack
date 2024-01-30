@@ -4,7 +4,7 @@
 \alias{postTaui}
 \title{Sample a value from the full conditional posterior of tau_i}
 \usage{
-postTaui(yij, cij, mui, priorA = 1, priorB = 0.1)
+postTaui(yij, cij, mui, priorA = 0.01, priorB = 0.01)
 }
 \arguments{
 \item{yij}{Numeric vector, cycle lengths for a single individual}
