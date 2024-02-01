@@ -77,10 +77,24 @@ likVec <- function(pars = c(kappa = 180,
   return(negLLik)
 }
 
-#This function performs hyperparameter inference on a given dataset of individuals and
-#their tracked cycles, assuming the model specified in Li et al. (2022). Default starting values
-#for hyperparameters and optimization tuning parameters are those
-#given in Li et al.
+#' Perform hyperparameter inference assuming the model given in Li et al. (2022) on a cycle length dataset.
+#'
+#' This function performs hyperparameter inference on a given dataset of individuals
+#' and their tracked cycles, assuming the model specified in Li et al. (2022).
+#' Default starting values for hyperparameters and optimization tuning parameters
+#' are those given in Li et al.
+#'
+#' @param cycleDat Data.frame with (at least) columns Individual and TrackedCycles. Individual gives unique individual markers, TrackedCycles gives reported cycle lengths.
+#' @param S Maximum number of possible skipped cycles (see Li et al. for details).
+#' @param startingParams A vector of starting values for hyperparameters
+#'                      (default values from Li et al.).
+#'
+#' @return A list containing the results of hyperparameter inference.
+#'
+#' @seealso
+#' Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
+#'
+#' @export
 liInference <- function(cycleDat, S = 10,
                         startingParams = c(kappa = 180,
                                               gamma = 6,
@@ -90,5 +104,5 @@ liInference <- function(cycleDat, S = 10,
   ret <- optimg::optimg(par = startingParams, fn = likVec, gr = NULL, S = S, cycleDat = cycleDat,
                         method = 'ADAM', control = list(reltol = .001),
                         maxit = 1000, tol = 1e-3, Interval = .01, verbose = TRUE)
-  View(ret)
+  return(ret)
 }
