@@ -2,7 +2,7 @@
 % Please edit documentation in R/skipTrackMCMC.R
 \name{gibbsStep}
 \alias{gibbsStep}
-\title{Perform one Gibbs sampling step for our skipTrackMCMC model}
+\title{Perform one sampling step for our skipTrackMCMC model}
 \usage{
 gibbsStep(ijDat, iDat, mu, rho, pi, priorAlphas, indFirst)
 }

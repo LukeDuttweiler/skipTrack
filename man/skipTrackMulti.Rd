@@ -4,7 +4,16 @@
 \alias{skipTrackMulti}
 \title{Perform skipTrackMCMC on multiple chains using parallel or sequential computing}
 \usage{
-skipTrackMulti(cycleDat, reps = 1000, chains, useParallel = TRUE, ...)
+skipTrackMulti(
+  cycleDat,
+  reps = 1000,
+  chains,
+  useParallel = TRUE,
+  li = FALSE,
+  S = NULL,
+  liHyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20),
+  ...
+)
 }
 \arguments{
 \item{cycleDat}{A data.frame with columns 'Individual' and 'TrackedCycles', representing the observed cycle lengths for each individual.}

@@ -26,7 +26,8 @@ postLambdai <- function(yij, sij, priorK, priorG){
   postG <- priorG + n + sum(sij)
 
   #Return gamma draw
-  return(rgamma(1, shape = postK, rate = postG))
+  dr <- rgamma(1, shape = postK, rate = postG)
+  return(rep(dr, n))
 }
 
 #Function to compute random draw from posterior for pi_i in Li algorithm.
@@ -50,9 +51,9 @@ postPii <- function(sij, currentPii, priorA, priorB, S){
 
   #Flip coin to return new or old
   if(as.logical(rbinom(1, 1, a))){
-    return(possPii)
+    return(rep(possPii, n))
   }else{
-    return(currentPii)
+    return(rep(currentPii, n))
   }
 }
 
@@ -78,7 +79,7 @@ postPii <- function(sij, currentPii, priorA, priorB, S){
 postSij <- function(yijs, pii, lambdai, S){
   probs <- sapply(0:S, function(s){
     #Get truncated geometric probability
-    p <- (pii^s)(1-pii)/(1-pii^(S+1))
+    p <- (pii^s)*(1-pii)/(1-pii^(S+1))
 
     #Get likelihood
     lik <- dpois(yijs, lambda = lambdai*(s+1))

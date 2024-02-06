@@ -20,7 +20,7 @@
 likVec <- function(pars = c(kappa = 180,
                             gamma = 6,
                             alpha = 2,
-                            beta = 20), S, M = 1000, cycleDat, verbose = TRUE, ...){
+                            beta = 20), S, M = 1000, cycleDat, verbose = FALSE, ...){
   if(verbose){
     message(
       paste0('\nParameters: ', pars)
@@ -103,6 +103,8 @@ liInference <- function(cycleDat, S = 10,
   #Perform inference using ADAM
   ret <- optimg::optimg(par = startingParams, fn = likVec, gr = NULL, S = S, cycleDat = cycleDat,
                         method = 'ADAM', control = list(reltol = .001),
-                        maxit = 1000, tol = 1e-3, Interval = .01, verbose = TRUE)
-  return(ret)
+                        maxit = 1000, tol = 1e-3, Interval = .01, verbose = FALSE)
+  par <- ret$par
+  names(par) <- c('kappa', 'gamma', 'alpha', 'beta')
+  return(par)
 }

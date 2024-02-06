@@ -9,7 +9,7 @@ likVec(
   S,
   M = 1000,
   cycleDat,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }

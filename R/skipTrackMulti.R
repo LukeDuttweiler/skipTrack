@@ -30,7 +30,18 @@
 #'
 #' @seealso \code{\link{skipTrackMCMC}}
 #'
-skipTrackMulti <- function(cycleDat, reps = 1000, chains, useParallel = TRUE, ...){
+skipTrackMulti <- function(cycleDat, reps = 1000, chains, useParallel = TRUE, li = FALSE,
+                           S = NULL,
+                           liHyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20), ...){
+  #if li, do hyperparameter inference first
+  if(li){
+    par <- tryCatch(liInference(cycleDat = cycleDat, S = S, startingParams = liHyperparams),
+                    error = function(e){
+                      print(e)
+                      return(liHyperparams)
+                    })
+  }
+
   #Get number of cores
   numCores <- parallel::detectCores()
 
@@ -45,9 +56,13 @@ skipTrackMulti <- function(cycleDat, reps = 1000, chains, useParallel = TRUE, ..
     cl <- parallel::makeCluster(min(c(numCores, chains)))
     doParallel::registerDoParallel(cl)
 
-    #Run skipTrackMCMC on each worker
+    #Run skipTrackMCMC on each worker (or liMCMC if li == TRUE)
     res <- foreach::foreach(1:chains) %dopar% {
-      skipTrackMCMC(cycleDat = cycleDat, reps = reps)
+      if(li){
+        liMCMC(cycleDat = cycleDat, reps = reps, hyperparams = par, S = S)
+      }else{
+        skipTrackMCMC(cycleDat = cycleDat, reps = reps)
+      }
     }
 
     #Stop cluster
@@ -58,7 +73,11 @@ skipTrackMulti <- function(cycleDat, reps = 1000, chains, useParallel = TRUE, ..
   }else{
 
     res <- foreach::foreach(1:chains) %do% {
-      skipTrackMCMC(cycleDat = cycleDat, reps = reps)
+      if(li){
+        liMCMC(cycleDat = cycleDat, reps = reps, hyperparams = par, S = S)
+      }else{
+        skipTrackMCMC(cycleDat = cycleDat, reps = reps)
+      }
     }
 
     #Return

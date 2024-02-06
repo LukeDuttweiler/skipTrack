@@ -132,7 +132,6 @@ stVisualize <- function(mcmcRes){
                                              alpha = .3)
   cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none')
   cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
-  print(table(round(cijOverDF$cs))/nrow(cijOverDF))
 
   return(list(cijOverPlt, cijOverTaus, muByChain, cijDens))
 }
