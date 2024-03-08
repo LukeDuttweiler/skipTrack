@@ -88,8 +88,8 @@ duttSim <- function(i, skipProb, maxCycles){
   numCycles <- max(rpois(1, 7), 1)
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
-  prec <- rgamma(1, 2.5, .001)
-  lmean <- rnorm(1, log(30), .1)
+  prec <- rgamma(1, 1.2, .001)
+  lmean <- rnorm(1, log(30), .13)
 
   #Sample c (true cycles per tracked cycle) values for number of cycles
   cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)

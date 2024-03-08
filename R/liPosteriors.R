@@ -88,5 +88,5 @@ postSij <- function(yijs, pii, lambdai, S){
   })
   probs <- pmax(probs, rep(0, length(probs)))
 
-  return(glmnet::rmult(probs))
+  return(glmnet::rmult(probs)-1)
 }
