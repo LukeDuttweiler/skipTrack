@@ -2,9 +2,9 @@
 % Please edit documentation in R/posteriors.R
 \name{postMui}
 \alias{postMui}
-\title{Sample a value from the full conditional posterior of mu_i}
+\title{Sample a value from the full conditional posterior of mu_i (UPDATED)}
 \usage{
-postMui(yij, cij, taui, mu, rho)
+postMui(yij, cij, taui, xib, rho)
 }
 \arguments{
 \item{yij}{Numeric vector, cycle lengths for a single individual}
@@ -14,7 +14,7 @@ values in cij indicate a sampled number of TRUE cycles in each cycle length give
 
 \item{taui}{Numeric > 0, A sampled precision for the yijs}
 
-\item{mu}{Numeric, sampled prior mean of mu_i}
+\item{xib}{Numeric, result of multiplying x_i^T \%*\% beta}
 
 \item{rho}{Numeric > 0, sampled prior precision of mu_i}
 }
@@ -23,14 +23,9 @@ Numeric vector, repeated sampled value of length(yij)
 }
 \description{
 In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
-is given as N(mu, rho). This function draws from the conditional posterior of mu_i.
+is given as N(x_i^T \%*\% beta, rho). This function draws from the conditional posterior of mu_i.
 }
 \details{
 Additionally, note that in order to vectorize the remainder of the MCMC algorithm
 this function returns the sampled value repeated for length(yij)
-}
-\examples{
-ys <- rnorm(10, 30, .1)
-cs <- rep(1, 10)
-postMui(ys, cs, 4, log(30), 1)
 }

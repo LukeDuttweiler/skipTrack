@@ -30,12 +30,32 @@ postMu <- function(muI, rho, priorMean = log(30), priorPre = 1){
   return(rnorm(1, mean = postMean, sd = sqrt(1/postPre)))
 }
 
+#' Draw from Posterior Distribution for Beta Parameters
+#'
+#' In our model mui follows a normal distribution with mean Xi^T %*% beta and precision rho. Additionally
+#' we assume that beta follows a mvnormal prior with mean 0 and precision rho_0%*%I.This function draws
+#' from the posterior distribution of beta under these assumptions.
+#'
+#'
+#' @param rho0 A scalar representing the prior precision parameter.
+#' @param rho A scalar representing the precision parameter.
+#' @param Xi A matrix of covariates, where each row represents an individual and each column represents a covariate.
+#' @param muI A vector where each element is the mean for individual i.
+#' @return A vector representing a draw from the posterior distribution of beta parameters.
+#'
+#' @details This function assumes that \code{Xi} is a (\code{num Individuals}) x (dimension of beta) matrix of covariates.
+#'
+#' @export
 postBeta <- function(rho0, rho, Xi, muI){
   #Assuming Xi is (num Individuals)x(dimension of beta) matrix of covariates
   XTX <- t(Xi) %*% Xi
   Xmu <- t(Xi) %*% muI
 
+  postPre <- rho0*diag(1, dim(XTX[1])) + rho*XTX
+  postVar <- solve(postPre)
+  postMean <- postVar %*% rho*Xmu
 
+  return(mvtnorm::rmvnorm(1, mean = postMean, postVar))
 }
 
 #' Sample a value from the full conditional posterior of rho (UPDATED)
