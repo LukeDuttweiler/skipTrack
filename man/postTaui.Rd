@@ -2,9 +2,9 @@
 % Please edit documentation in R/posteriors.R
 \name{postTaui}
 \alias{postTaui}
-\title{Sample a value from the full conditional posterior of tau_i}
+\title{Sample a value from the full conditional posterior of tau_i (UPDATED)}
 \usage{
-postTaui(yij, cij, mui, priorA = 0.01, priorB = 0.01)
+postTaui(yij, cij, mui, thetai, phi = 1)
 }
 \arguments{
 \item{yij}{Numeric vector, cycle lengths for a single individual}
@@ -12,26 +12,21 @@ postTaui(yij, cij, mui, priorA = 0.01, priorB = 0.01)
 \item{cij}{Positive Integer vector, a sampled vector of length(yij) where the corresponding
 values in cij indicate a sampled number of TRUE cycles in each cycle length given by yij}
 
-\item{mui}{Numeric, log of sampled mean of individuals yijs}
+\item{mui}{Numeric, log of sampled mean of this individual's yijs}
 
-\item{priorA}{Numeric > 0, prior shape of tau_i}
+\item{thetai}{Numeric, mean of prior (gamma) distribution on taui}
 
-\item{priorB}{Numeric > 0, prior rate of tau_i}
+\item{priorB}{Numeric >0, hyperparameter defaulting to 1, rate parameter for taui prior}
 }
 \value{
 Numeric vector, repeated sampled value of length(yij)
 }
 \description{
 In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
-is given as Gamma(priorA, priorB). This function draws from the conditional
+is given as Gamma(alpha, phi) with thetai = alpha/phi. This function draws from the conditional
 posterior of tau_i. Note that we parameterize with RATE, not SCALE.
 }
 \details{
 Additionally, note that in order to vectorize the remainder of the MCMC algorithm
 this function returns the sampled value repeated for length(yij)
-}
-\examples{
-ys <- rnorm(10, 30, 1)
-cs <- rbinom(10, 2, .1) + 1
-postTaui(ys, cs, log(30))
 }

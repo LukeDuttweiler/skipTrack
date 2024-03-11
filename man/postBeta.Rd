@@ -4,10 +4,10 @@
 \alias{postBeta}
 \title{Draw from Posterior Distribution for Beta Parameters}
 \usage{
-postBeta(rho0, rho, Xi, muI)
+postBeta(rhoBeta = 0.01, rho, Xi, muI)
 }
 \arguments{
-\item{rho0}{A scalar representing the prior precision parameter.}
+\item{rhoBeta}{A scalar representing the prior precision parameter for beta.}
 
 \item{rho}{A scalar representing the precision parameter.}
 
@@ -19,8 +19,8 @@ postBeta(rho0, rho, Xi, muI)
 A vector representing a draw from the posterior distribution of beta parameters.
 }
 \description{
-In our model mui follows a normal distribution with mean Xi^T \%\emph{\% beta and precision rho. Additionally
-we assume that beta follows a mvnormal prior with mean 0 and precision rho_0\%}\%I.This function draws
+In our model mui follows a normal distribution with mean Xi^T \%*\% beta and precision rho. Additionally
+we assume that beta follows a mvnormal prior with mean 0 and precision (rho_Beta) * I.This function draws
 from the posterior distribution of beta under these assumptions.
 }
 \details{

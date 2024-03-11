@@ -3,6 +3,7 @@
 export(liInference)
 export(postBeta)
 export(postCij)
+export(postGamma)
 export(postMu)
 export(postMui)
 export(postPi)

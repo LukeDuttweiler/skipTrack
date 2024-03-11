@@ -33,11 +33,11 @@ postMu <- function(muI, rho, priorMean = log(30), priorPre = 1){
 #' Draw from Posterior Distribution for Beta Parameters
 #'
 #' In our model mui follows a normal distribution with mean Xi^T %*% beta and precision rho. Additionally
-#' we assume that beta follows a mvnormal prior with mean 0 and precision rho_0%*%I.This function draws
+#' we assume that beta follows a mvnormal prior with mean 0 and precision (rho_Beta) * I.This function draws
 #' from the posterior distribution of beta under these assumptions.
 #'
 #'
-#' @param rho0 A scalar representing the prior precision parameter.
+#' @param rhoBeta A scalar representing the prior precision parameter for beta.
 #' @param rho A scalar representing the precision parameter.
 #' @param Xi A matrix of covariates, where each row represents an individual and each column represents a covariate.
 #' @param muI A vector where each element is the mean for individual i.
@@ -46,16 +46,73 @@ postMu <- function(muI, rho, priorMean = log(30), priorPre = 1){
 #' @details This function assumes that \code{Xi} is a (\code{num Individuals}) x (dimension of beta) matrix of covariates.
 #'
 #' @export
-postBeta <- function(rho0, rho, Xi, muI){
+postBeta <- function(rhoBeta = .01, rho, Xi, muI){
   #Assuming Xi is (num Individuals)x(dimension of beta) matrix of covariates
   XTX <- t(Xi) %*% Xi
   Xmu <- t(Xi) %*% muI
 
-  postPre <- rho0*diag(1, dim(XTX[1])) + rho*XTX
+  postPre <- (rhoBeta)*diag(1, dim(XTX)[1]) + rho*XTX
   postVar <- solve(postPre)
-  postMean <- postVar %*% rho*Xmu
+  postMean <- postVar %*% (rho*Xmu)
 
   return(mvtnorm::rmvnorm(1, mean = postMean, postVar))
+}
+
+#' Perform a Metropolis-Hastings Step for Drawing a New Gamma
+#'
+#' Our model assumes that tau_i ~ Gamma(alpha_i, phi) where alpha_i/phi = theta_i and
+#' g(theta_i) = Z_i^T Gamma, where g is the log-link function and Gamma ~ MVNormal(0, 1/rhoGamma * I).
+#' Because of this GLM formulation we cannot simply draw from a posterior here and instead use a
+#' Metropolis-Hastings step with proposal distribution propGamma ~ MVNormal(currentGamma, 1/rhoGamma*I)
+#'
+#' @param taui A vector of length num_Individuals representing precision parameters for individuals.
+#' @param Zi A matrix of covariates, where each row represents an individual and each column represents a covariate.
+#' @param currentGamma A vector (or matrix with 1 row) representing the current Gamma value.
+#' @param phi A scalar, the prior rate for tau_i.
+#' @param rhoGamma A scalar representing the proposal distribution precision parameter.
+#' @details This draw step assumes a log-link function for the Gamma GLM that we are fitting.
+#' @return A list containing the new Gamma value and the corresponding thetai values.
+#' @export
+#'
+postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1){
+  #make sure things are formatted correctly
+  currentGamma <- matrix(currentGamma, nrow = 1)
+
+  #Set proposal covariance matrix
+  sig <- diag(1/rhoGamma, ncol(currentGamma))
+
+  #Assuming Zi is (num Individuals)x(dimension of gamma) matrix of covariates
+
+  #Get proposal draw
+  propGamma <- mvtnorm::rmvnorm(1, mean = currentGamma,
+                                sigma = sig)
+
+  #Calculate thetais under proposal and current, note we are using the log-link, not the canonical
+  propThetas <- Zi %*% t(propGamma)
+  propThetas <- exp(propThetas)
+
+  currentThetas <- Zi %*% t(currentGamma)
+  currentThetas <- exp(currentThetas)
+
+  #Calculate qs
+  qOld <- mvtnorm::dmvnorm(currentGamma, mean = propGamma, sigma = sig)
+  qNew <- mvtnorm::dmvnorm(propGamma, mean = currentGamma, sigma = sig)
+
+  #Calculate ps
+  pOld <- exp(sum(log(dgamma(taui, shape = currentThetas*phi, rate = phi))))
+  pNew <- exp(sum(log(dgamma(taui, shape = propThetas*phi, rate = phi))))
+
+  #Calculate a
+  a <- min(1, (pNew/pOld)*(qOld/qNew))
+
+  #Flip a coin and return
+  if(as.logical(rbinom(1,1,a))){
+    return(list(Gamma = propGamma,
+                thetai = propThetas))
+  }else{
+    return(list(Gamma = currentGamma,
+                thetai = currentThetas))
+  }
 }
 
 #' Sample a value from the full conditional posterior of rho (UPDATED)
@@ -116,10 +173,10 @@ postMui <- function(yij, cij, taui, xib, rho){
   return(rep(dr, Ni))
 }
 
-#' Sample a value from the full conditional posterior of tau_i
+#' Sample a value from the full conditional posterior of tau_i (UPDATED)
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
-#' is given as Gamma(priorA, priorB). This function draws from the conditional
+#' is given as Gamma(alpha, phi) with thetai = alpha/phi. This function draws from the conditional
 #' posterior of tau_i. Note that we parameterize with RATE, not SCALE.
 #'
 #' Additionally, note that in order to vectorize the remainder of the MCMC algorithm
@@ -128,24 +185,19 @@ postMui <- function(yij, cij, taui, xib, rho){
 #' @param yij Numeric vector, cycle lengths for a single individual
 #' @param cij Positive Integer vector, a sampled vector of length(yij) where the corresponding
 #'  values in cij indicate a sampled number of TRUE cycles in each cycle length given by yij
-#' @param mui Numeric, log of sampled mean of individuals yijs
-#' @param priorA Numeric > 0, prior shape of tau_i
-#' @param priorB Numeric > 0, prior rate of tau_i
+#' @param mui Numeric, log of sampled mean of this individual's yijs
+#' @param thetai Numeric, mean of prior (gamma) distribution on taui
+#' @param priorB Numeric >0, hyperparameter defaulting to 1, rate parameter for taui prior
 #'
 #' @return Numeric vector, repeated sampled value of length(yij)
 #' @export
-#'
-#' @examples
-#' ys <- rnorm(10, 30, 1)
-#' cs <- rbinom(10, 2, .1) + 1
-#' postTaui(ys, cs, log(30))
-postTaui <- function(yij, cij, mui, priorA = .01, priorB = .01){
+postTaui <- function(yij, cij, mui, thetai, phi = 1){
   #Ni is the length of yij
   Ni <- length(yij)
 
   #Set posterior parameters
-  postA <- priorA + Ni/2
-  postB <- priorB + sum((log(yij/cij) - mui)^2)/2
+  postA <- thetai/phi + Ni/2
+  postB <- phi + sum((log(yij/cij) - mui)^2)/2
 
   #Draw from posterior and return
   dr <- rgamma(1, shape = postA, rate = postB)
