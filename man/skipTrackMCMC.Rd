@@ -5,7 +5,10 @@
 \title{Perform MCMC sampling for identifying skips in cycle tracking.}
 \usage{
 skipTrackMCMC(
-  cycleDat,
+  Y,
+  cluster,
+  X,
+  Z,
   initialParams = list(pi = c(1/3, 1/3, 1/3), muis = rep(log(30),
     length(unique(cycleDat$Individual))), tauis = rep(5,
     length(unique(cycleDat$Individual))), mu = log(30), rho = 1, cs = sample(1:3,
@@ -14,12 +17,12 @@ skipTrackMCMC(
 )
 }
 \arguments{
-\item{cycleDat}{A data.frame with columns 'Individual' and 'TrackedCycles', representing the observed cycle lengths for each individual.}
-
 \item{initialParams}{A list of initial parameter values for the MCMC algorithm.
 Default values are provided for pi, muis, tauis, mu, rho, and cs.}
 
 \item{reps}{The number of MCMC iterations (steps) to perform. Default is 1000.}
+
+\item{cycleDat}{A data.frame with columns 'Individual' and 'TrackedCycles', representing the observed cycle lengths for each individual.}
 }
 \value{
 A list containing the MCMC draws for each parameter at each iteration. Each element

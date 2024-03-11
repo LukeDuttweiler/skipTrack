@@ -9,7 +9,7 @@ postRho(muI, xib)
 \arguments{
 \item{muI}{Numeric vector, log of individuals mean values.}
 
-\item{mu}{Numeric, a sampled mean of the mu_i values}
+\item{xib}{Numeric vector, result of X \%*\% Beta}
 }
 \value{
 Numeric
@@ -19,8 +19,4 @@ In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior 
 is given as N(mu, rho). This function draws from the conditional posterior of rho, given
 that the prior on rho is a uniform prior on the standard deviation.
 Note that we parameterize with RATE, not SCALE.
-}
-\examples{
-mui <- rep(log(31), 10)
-postRho(mui, log(30))
 }

@@ -34,43 +34,128 @@
 #' @keywords mcmc hierarchical model skipped tracking cycles
 #'
 #' @export
-skipTrackMCMC <- function(cycleDat,
-                          initialParams = list(pi = c(1/3, 1/3, 1/3),
+#'
+skipTrackMCMC <- function(Y,cluster,
+                          X = matrix(1, nrow = length(unique(cluster))),
+                          Z = matrix(1, nrow = length(unique(cluster))),
+                          numSkips = 10,
+                          reps = 1000,
+                          initialParams = list(pi = rep(1/(numSkips+1), numSkips+1),
                                                muis = rep(log(30),
-                                                          length(unique(cycleDat$Individual))),
+                                                          length(unique(cluster))),
                                                tauis = rep(5,
-                                                          length(unique(cycleDat$Individual))),
-                                               mu = log(30), rho = 1,
+                                                          length(unique(cluster))),
+                                               mu = log(30),
+                                               rho = 1,
                                                cs = sample(1:3,
-                                                           nrow(cycleDat),
-                                                           replace = TRUE)),
-                          reps = 1000){
-  #Set priorAlphas (currently) as 1s for each pi level
-  priorAlphas <- rep(1, length(initialParams$pi))
+                                                           length(Y),
+                                                           replace = TRUE),
+                                               alphas = rep(1, numSkips +1),
+                                               Beta = matrix(rep(0, ncol(as.matrix(X))),1),
+                                               Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
+                                               rhoBeta = 1,
+                                               rhoGamma = 1,
+                                               phi = .1)){
+  #Checks for X and Z
+  X <- as.matrix(X)
+  Z <- as.matrix(Z)
+  if(nrow(X) != length(unique(cluster))){
+    stop('X must be a num_individuals x num_covariates matrix')
+  }
+  if(nrow(Z) != length(unique(cluster))){
+    stop('Z must be a num_individuals x num_covariates matrix')
+  }
+
 
   #Organize data into initial list
-  iDat <- data.frame('Individual' = unique(cycleDat$Individual),
+  iDat <- data.frame('Individual' = unique(cluster),
                      'mus' = initialParams$muis,
-                     'taus' = initialParams$tauis)
-  ijDat <- data.frame('Individual' = cycleDat$Individual,
-                      'ys' = cycleDat$TrackedCycles,
+                     'taus' = initialParams$tauis,
+                     'thetas' = exp(Z %*% t(initialParams$Gamma)))
+  ijDat <- data.frame('Individual' = cluster,
+                      'ys' = Y,
                       'cs' = initialParams$cs,#)
-                      'muis' = sapply(cycleDat$Individual, function(ind){iDat$mus[iDat$Individual == ind]}),
-                      'tauis' = sapply(cycleDat$Individual, function(ind){iDat$taus[iDat$Individual == ind]}))
+                      'muis' = sapply(cluster, function(ind){iDat$mus[iDat$Individual == ind]}),
+                      'tauis' = sapply(cluster, function(ind){iDat$taus[iDat$Individual == ind]}))
   fullDraws <- vector('list', reps + 1)
-  fullDraws[[1]] <- list(ijDat = ijDat, iDat = iDat,
-                         mu = initialParams$mu, rho = initialParams$rho,
-                         pi = initialParams$pi, priorAlphas = priorAlphas,#)
-                         indFirst = !duplicated(ijDat$Individual))
+  fullDraws[[1]] <- list(ijDat = ijDat,
+                         iDat = iDat,
+                         rho = initialParams$rho,
+                         pi = initialParams$pi,
+                         Xi = X,
+                         Zi = Z,
+                         Beta = initialParams$Beta,
+                         Gamma = initialParams$Gamma,
+                         priorAlphas = initialParams$alphas,
+                         indFirst = !duplicated(ijDat$Individual),
+                         rhoBeta = initialParams$rhoBeta,
+                         rhoGamma = initialParams$rhoGamma,
+                         phi = initialParams$phi)
   #Progress bar
   pb <- utils::txtProgressBar(min = 0, max = reps, style = 3)
 
   #Do gibbs steps
   for(t in 1:reps){
-    fullDraws[[t+1]] <- do.call('gibbsStep', fullDraws[[t]])
+    fullDraws[[t+1]] <- do.call('sampleStep', fullDraws[[t]])
     utils::setTxtProgressBar(pb, t)
   }
   return(fullDraws)
+}
+
+sampleStep <- function(ijDat, iDat, rho, pi,
+                       Xi, Zi, Beta, Gamma,
+                       priorAlphas, indFirst,
+                       rhoBeta, rhoGamma, phi){
+  #Start with high level (without Gamma and thetais as those are connected)
+  newBeta <- postBeta(rhoBeta = rhoBeta, rho = rho, Xi = Xi, muI = iDat$mus)
+
+  #Set xib based on newBeta
+  xib <- Xi %*% t(newBeta)
+
+  #Continue with high level information
+  newRho <- postRho(muI = iDat$mus, xib = xib)
+  newPi <- postPi(ci = ijDat$cs, priorAlphas = priorAlphas)
+
+  #Now i level
+  newMuis <- lapply(iDat$Individual, function(ind){
+    postMui(yij = ijDat$ys[ijDat$Individual == ind],
+            cij = ijDat$cs[ijDat$Individual == ind],
+            taui = iDat$taus[iDat$Individual == ind],
+            xib = xib, rho = newRho)
+  })
+  newMuis <- do.call('c', newMuis)
+  newTauis <- lapply(iDat$Individual, function(ind){
+    postTaui(yij = ijDat$ys[ijDat$Individual == ind],
+             cij = ijDat$cs[ijDat$Individual == ind],
+             mui = iDat$mus[iDat$Individual == ind],
+             thetai = iDat$thetas[iDat$Individual == ind],
+             phi = phi)
+  })
+  newTauis <- do.call('c', newTauis)
+
+  #High level Gamma Things
+  newGamList <- postGamma(taui = iDat$taus, Zi = Zi, currentGamma = Gamma, phi = phi,
+                          rhoGamma = rhoGamma)
+  newGamma <- newGamList$Gamma
+  newThetas <- newGamList$thetai
+
+  #Create new i level information
+  iDatNew <- data.frame(Individual = iDat$Individual,
+                        mus = newMuis[indFirst],
+                        taus = newTauis[indFirst],
+                        thetas = newThetas)
+
+  ijDatNew <- ijDat
+  ijDatNew$muis <- newMuis
+  ijDatNew$tauis <- newTauis
+
+  ijDatNew$cs <- postCij(ijDatNew$ys, pi = newPi,
+                         muis = ijDatNew$muis, tauis = ijDatNew$tauis)
+
+  return(list(ijDat = ijDatNew, iDat = iDatNew, rho = newRho,
+              pi = newPi, Xi = Xi, Zi = Zi, Beta = newBeta,
+              Gamma = newGamma, priorAlphas = priorAlphas, indFirst = indFirst,
+              rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = phi))
 }
 
 #' Perform one sampling step for our skipTrackMCMC model

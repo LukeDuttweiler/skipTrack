@@ -22,11 +22,11 @@
 stVisualize <- function(mcmcRes){
   #Collect important variables into dataframes
   #Creates a dataframe with chain/draw specific mus
-  muDF <- lapply(1:length(mcmcRes), function(chainI){
-    chainImus <- sapply(mcmcRes[[chainI]], getElement, 'mu')
-    return(data.frame('t' = 1:length(chainImus), 'mu' = chainImus, 'chain' = chainI))
-  })
-  muDF <- do.call('rbind', muDF)
+  #muDF <- lapply(1:length(mcmcRes), function(chainI){
+  #  chainImus <- sapply(mcmcRes[[chainI]], getElement, 'mu')
+  #  return(data.frame('t' = 1:length(chainImus), 'mu' = chainImus, 'chain' = chainI))
+  #})
+  #muDF <- do.call('rbind', muDF)
 
   #Creates a dataframe with chain/draw specific rhos
   rhoDF <- lapply(1:length(mcmcRes), function(chainI){
@@ -117,12 +117,12 @@ stVisualize <- function(mcmcRes){
   cijOverTaus <- cijOverTaus + ggplot2::labs(col = 'Cycle Length')
 
   #Density of Overall Mean by Chain
-  muByChain <- ggplot2::ggplot(data = muDF,
-                               ggplot2::aes(x = exp(mu),
-                                            col = as.factor(chain), fill = as.factor(chain)))
-  muByChain <- muByChain + ggplot2::geom_density(alpha = .3) + ggplot2::theme_minimal()
-  muByChain <- muByChain + ggplot2::ggtitle('Sampled Density of Overall Mean by Chain') + ggplot2::xlab('Overall Mean')
-  muByChain <- muByChain + ggplot2::theme(legend.position = 'none')
+  #muByChain <- ggplot2::ggplot(data = muDF,
+  #                             ggplot2::aes(x = exp(mu),
+  #                                          col = as.factor(chain), fill = as.factor(chain)))
+  #muByChain <- muByChain + ggplot2::geom_density(alpha = .3) + ggplot2::theme_minimal()
+  #muByChain <- muByChain + ggplot2::ggtitle('Sampled Density of Overall Mean by Chain') + ggplot2::xlab('Overall Mean')
+  #muByChain <- muByChain + ggplot2::theme(legend.position = 'none')
 
   #Density of cycle lengths categorized by skip vs density of overall
   cijDens <- ggplot2::ggplot(data = cijOverDF,
@@ -133,5 +133,5 @@ stVisualize <- function(mcmcRes){
   cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none')
   cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
 
-  return(list(cijOverPlt, cijOverTaus, muByChain, cijDens))
+  return(list(cijOverPlt, cijOverTaus, cijDens))
 }

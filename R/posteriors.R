@@ -99,11 +99,11 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1){
   qNew <- mvtnorm::dmvnorm(propGamma, mean = currentGamma, sigma = sig)
 
   #Calculate ps
-  pOld <- exp(sum(log(dgamma(taui, shape = currentThetas*phi, rate = phi))))
-  pNew <- exp(sum(log(dgamma(taui, shape = propThetas*phi, rate = phi))))
+  pOld <- (sum(log(dgamma(taui, shape = currentThetas*phi, rate = phi))))
+  pNew <- (sum(log(dgamma(taui, shape = propThetas*phi, rate = phi))))
 
   #Calculate a
-  a <- min(1, (pNew/pOld)*(qOld/qNew))
+  a <- max(0, min(1, exp(pNew-pOld)*(qOld/qNew)))
 
   #Flip a coin and return
   if(as.logical(rbinom(1,1,a))){
@@ -123,14 +123,10 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1){
 #' Note that we parameterize with RATE, not SCALE.
 #'
 #' @param muI Numeric vector, log of individuals mean values.
-#' @param mu Numeric, a sampled mean of the mu_i values
+#' @param xib Numeric vector, result of X %*% Beta
 #'
 #' @return Numeric
 #' @export
-#'
-#' @examples
-#' mui <- rep(log(31), 10)
-#' postRho(mui, log(30))
 postRho <- function(muI, xib){
   #n is the length of muI
   n <- length(muI)
