@@ -101,9 +101,11 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1){
   #Calculate ps
   pOld <- (sum(log(dgamma(taui, shape = currentThetas*phi, rate = phi))))
   pNew <- (sum(log(dgamma(taui, shape = propThetas*phi, rate = phi))))
+  #pOld <- prod(taui^(currentThetas*phi-1)*exp(-phi*taui))
+  #pNew <- prod(taui^(propThetas*phi-1)*exp(-phi*taui))
 
   #Calculate a
-  a <- max(0, min(1, exp(pNew-pOld)*(qOld/qNew)))
+  a <- max(0, min(1, exp(pNew - pOld)*(qOld/qNew)))
 
   #Flip a coin and return
   if(as.logical(rbinom(1,1,a))){
@@ -192,7 +194,7 @@ postTaui <- function(yij, cij, mui, thetai, phi = 1){
   Ni <- length(yij)
 
   #Set posterior parameters
-  postA <- thetai/phi + Ni/2
+  postA <- thetai*phi + Ni/2
   postB <- phi + sum((log(yij/cij) - mui)^2)/2
 
   #Draw from posterior and return

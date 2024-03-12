@@ -35,6 +35,28 @@ stVisualize <- function(mcmcRes){
   })
   rhoDF <- do.call('rbind', rhoDF)
 
+  #Creates a dataframe with chain/draw specific betas and gammas
+  betaDF <- lapply(1:length(mcmcRes), function(chainI){
+    chainIbetas <- t(sapply(mcmcRes[[chainI]], getElement, 'Beta'))
+    m <- cbind(matrix(1:nrow(chainIbetas), ncol = 1),
+               chainIbetas, matrix(chainI, nrow = nrow(chainIbetas)))
+    df <- as.data.frame(m)
+    names(df) <- c('t', paste0('Beta', 0:(ncol(chainIbetas)-1)), 'chain')
+    return(df)
+  })
+  betaDF <- do.call('rbind', betaDF)
+
+  gammaDF <- lapply(1:length(mcmcRes), function(chainI){
+    chainIgammas <- t(sapply(mcmcRes[[chainI]], getElement, 'Gamma'))
+    m <- cbind(matrix(1:nrow(chainIgammas), ncol = 1),
+               chainIgammas, matrix(chainI, nrow = nrow(chainIgammas)))
+    df <- as.data.frame(m)
+    names(df) <- c('t', paste0('Gamma', 0:(ncol(chainIgammas)-1)), 'chain')
+    return(df)
+  })
+  gammaDF <- do.call('rbind', gammaDF)
+
+
   #Creates a dataframe with chain/draw specific muis and tauis
   iList <- lapply(1:length(mcmcRes), function(chainI){
     chainImus <- lapply(1:length(mcmcRes[[chainI]]), function(t){
@@ -133,5 +155,37 @@ stVisualize <- function(mcmcRes){
   cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none')
   cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
 
-  return(list(cijOverPlt, cijOverTaus, cijDens))
+  #Overall 95% Posterior Intervals for betas
+  betaQuants <- lapply(1:(ncol(betaDF)-3), function(i){
+    ql <- quantile(betaDF[,paste0('Beta', i)], .05)
+    qu <- quantile(betaDF[,paste0('Beta', i)], .95)
+    return(data.frame('Lower' = ql, 'Upper' = qu, 'Beta' = i))
+  })
+  betaQuants <- do.call('rbind', betaQuants)
+
+  betaQuantsChain <- lapply(1:(ncol(betaDF)-3), function(i){
+    byChain <- lapply(1:max(betaDF$chain), function(ch){
+      ql <- quantile(betaDF[betaDF$chain == ch,paste0('Beta', i)], .05)
+      qu <- quantile(betaDF[betaDF$chain == ch,paste0('Beta', i)], .95)
+      return(data.frame('Lower' = ql, 'Upper' = qu, 'Beta' = i, 'chain' = ch))
+    })
+    return(do.call('rbind', byChain))
+  })
+  betaQuantsChain <- do.call('rbind', betaQuantsChain)
+
+  betaPI <- ggplot2::ggplot(data = betaQuants) + ggplot2::geom_errorbar(ggplot2::aes(x = Beta,
+                                                                                     ymin = Lower,
+                                                                                     ymax = Upper))
+  betaPI <- betaPI + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Beta Posterior Intervals')
+
+  betaPIch <- ggplot2::ggplot(data = betaQuantsChain) + ggplot2::geom_errorbar(ggplot2::aes(x = Beta,
+                                                                                     ymin = Lower,
+                                                                                     ymax = Upper,
+                                                                                     col = as.factor(chain)),
+                                                                               position = 'dodge')
+  betaPIch <- betaPIch + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Beta Posterior Intervals - By Chain')
+  betaPIch <- betaPIch + ggplot2::theme(legend.position = 'none')
+
+
+  return(list(cijOverPlt, cijOverTaus, cijDens, betaPI, betaPIch))
 }

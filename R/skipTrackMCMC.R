@@ -45,20 +45,18 @@ skipTrackMCMC <- function(Y,cluster,
                                                           length(unique(cluster))),
                                                tauis = rep(5,
                                                           length(unique(cluster))),
-                                               mu = log(30),
                                                rho = 1,
-                                               cs = sample(1:3,
-                                                           length(Y),
-                                                           replace = TRUE),
+                                               cs = sample(1:3, length(Y), replace = TRUE),
                                                alphas = rep(1, numSkips +1),
                                                Beta = matrix(rep(0, ncol(as.matrix(X))),1),
                                                Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
                                                rhoBeta = 1,
                                                rhoGamma = 1,
-                                               phi = .1)){
+                                               phi = .001)){
   #Checks for X and Z
   X <- as.matrix(X)
   Z <- as.matrix(Z)
+
   if(nrow(X) != length(unique(cluster))){
     stop('X must be a num_individuals x num_covariates matrix')
   }

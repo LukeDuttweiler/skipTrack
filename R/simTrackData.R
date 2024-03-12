@@ -27,7 +27,12 @@
 simTrackData <- function(n,
                          method = c('dutt', 'li'),
                          skipProb = NULL,
-                         maxCycles = length(skipProb)){
+                         maxCycles = length(skipProb),
+                         trueBetas = NULL,
+                         trueGammas = trueBetas,
+                         overlap = 0,
+                         xCovF = NULL,
+                         zCovF = xCovF){
 
   #Checks for built in methods, custom methods are on their own.
   if(is.character(method)){
@@ -48,7 +53,12 @@ simTrackData <- function(n,
   #given method, skipProb, and maxCycles
   if(is.character(method)){
     if(method[1] == 'dutt'){
-      simDat <- lapply(1:n, duttSim, skipProb = skipProb, maxCycles = maxCycles)
+      simDat <- lapply(1:n, duttSim, skipProb = skipProb, maxCycles = maxCycles,
+                       trueBetas = trueBetas,
+                       trueGammas = trueGammas,
+                       overlap = overlap,
+                       xCovF = xCovF,
+                       zCovF = zCovF)
       simDat <- do.call('rbind', simDat)
     }else if(method[1] == 'li'){
       simDat <- lapply(1:n, liSim, skipProb = skipProb, maxCycles = maxCycles)
@@ -63,7 +73,21 @@ simTrackData <- function(n,
     stop('method must be one of the specified characters, or a function')
   }
 
-  return(simDat)
+  #Get X and Z
+  X <- as.matrix(simDat[,grepl('X|Individual', names(simDat))])
+  Z <- as.matrix(simDat[,grepl('Z|Individual', names(simDat))])
+  X <- unique(X)[,-1]
+  Z <- unique(Z)[,-1]
+
+  #Return as list with specific components separated out
+  return(list('Y' = simDat$TrackedCycles,
+              'cluster' = simDat$Individual,
+              'X' = X,
+              'Z' = Z,
+              'Beta' = trueBetas,
+              'Gamma' = trueGammas,
+              'NumTrue' = simDat$NumTrue,
+              'Underlying' = simDat[, grepl('Mean|Prec', names(simDat))]))
 }
 
 #' Simulate user tracked menstrual cycle data for an individual using the dutt method.
@@ -82,14 +106,35 @@ simTrackData <- function(n,
 #'
 #'
 #' @seealso \code{\link{simTrackData}}
-duttSim <- function(i, skipProb, maxCycles){
+duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCovF, zCovF){
   #For each individual, generate the number of (tracked) cycles from poisson(7)
   #(restricted to > 0)
   numCycles <- max(rpois(1, 7), 1)
 
+  #If TRUE xCov or zCov = 0, set mean/precision to parameters specifically,
+  #otherwise, create the number of requested covariates and record effects
+  if(is.null(trueBetas)){
+    lm <- log(30)
+    xi <- NULL
+  }else{
+    xi <- matrix(rnorm(length(trueBetas), .25), nrow = 1)
+    lm <- log(30) + xi %*% trueBetas
+  }
+  if(is.null(trueGammas)){
+    precm <- 1000
+    zi <- NULL
+  }else{
+    #Which x to overlap?
+    whichX <- ifelse(overlap == 0, 0, 1:overlap)
+    zi <- matrix(c(xi[1,whichX],
+                   rnorm(length(trueGammas)-overlap, .25)), nrow = 1)
+    precm <- 1200 + exp(zi %*% trueGammas)
+  }
+
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
-  prec <- rgamma(1, 1.2, .001)
-  lmean <- rnorm(1, log(30), .13)
+  phi0 <- .001 #Constant goes here for phi
+  prec <- rgamma(1, precm*phi0, phi0)
+  lmean <- rnorm(1, lm, .13)
 
   #Sample c (true cycles per tracked cycle) values for number of cycles
   cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)
@@ -97,9 +142,19 @@ duttSim <- function(i, skipProb, maxCycles){
   #Sample tracked cycle lengths
   ys <- round(rlnorm(numCycles, meanlog = lmean + log(cs), sdlog = sqrt(1/prec)))
 
+  #Create as many fake x and z covariates as requested
+  xiF <- matrix(rnorm(length(xCovF), .25), nrow = 1)
+  ziF <- matrix(rnorm(length(zCovF), .25), nrow = 1)
+
+  xi <- as.data.frame(cbind(1, xi, xiF))
+  zi <- as.data.frame(cbind(1, zi, ziF))
+  names(xi) <- paste0('X', 0:(ncol(xi)-1))
+  names(zi) <- paste0('Z', 0:(ncol(zi)-1))
+
   #Return as data.frame
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
                    'LogMean' = lmean, 'LogPrec' = prec)
+  df <- cbind(df, xi, zi)
   return(df)
 }
 
