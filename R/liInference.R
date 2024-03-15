@@ -20,7 +20,7 @@
 likVec <- function(pars = c(kappa = 180,
                             gamma = 6,
                             alpha = 2,
-                            beta = 20), S, M = 1000, cycleDat, verbose = FALSE, ...){
+                            beta = 20), S = 10, M = 1000, cycleDat, verbose = FALSE, ...){
   if(verbose){
     message(
       paste0('\nParameters: ', pars)

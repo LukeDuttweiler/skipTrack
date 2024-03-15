@@ -5,17 +5,30 @@
 \title{Perform skipTrackMCMC on multiple chains using parallel or sequential computing}
 \usage{
 skipTrackMulti(
-  cycleDat,
+  Y,
+  cluster,
+  X = matrix(1, nrow = length(unique(cluster))),
+  Z = matrix(1, nrow = length(unique(cluster))),
+  numSkips = 10,
   reps = 1000,
   chains,
   useParallel = TRUE,
   li = FALSE,
-  S = NULL,
   liHyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20),
   ...
 )
 }
 \arguments{
+\item{Y}{A vector of observed cycle lengths.}
+
+\item{cluster}{A vector indicating the individual cluster/group membership for each observation.}
+
+\item{X}{A matrix of covariates for cycle length mean. Default is a matrix of 1's.}
+
+\item{Z}{A matrix of covariates for cycle length precision. Default is a matrix of 1's.}
+
+\item{numSkips}{The maximum number of skips to allow. Default is 10.}
+
 \item{reps}{The number of MCMC iterations (steps) to perform. Default is 1000.}
 
 \item{chains}{Number of chains to run in parallel or sequentially.}
@@ -25,11 +38,6 @@ skipTrackMulti(
 \item{...}{
   Arguments passed on to \code{\link[=skipTrackMCMC]{skipTrackMCMC}}
   \describe{
-    \item{\code{Y}}{A vector of observed cycle lengths.}
-    \item{\code{cluster}}{A vector indicating the individual cluster/group membership for each observation.}
-    \item{\code{X}}{A matrix of covariates for cycle length mean. Default is a matrix of 1's.}
-    \item{\code{Z}}{A matrix of covariates for cycle length precision. Default is a matrix of 1's.}
-    \item{\code{numSkips}}{The maximum number of skips to allow. Default is 10.}
     \item{\code{initialParams}}{A list of initial parameter values for the MCMC algorithm.
 Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, rhoBeta, rhoGamma, and phi.}
   }}

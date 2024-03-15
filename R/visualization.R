@@ -37,9 +37,19 @@ stVisualize <- function(mcmcRes){
 
   #Creates a dataframe with chain/draw specific betas and gammas
   betaDF <- lapply(1:length(mcmcRes), function(chainI){
-    chainIbetas <- t(sapply(mcmcRes[[chainI]], getElement, 'Beta'))
+    #Extract and arrange
+    chainIbetas <- sapply(mcmcRes[[chainI]], getElement, 'Beta')
+    if(is.matrix(chainIbetas)){
+      chainIbetas <- t(chainIbetas)
+    }else{
+      chainIbetas <- matrix(chainIbetas, ncol = 1)
+    }
+
+    #Add iteration and chain info
     m <- cbind(matrix(1:nrow(chainIbetas), ncol = 1),
                chainIbetas, matrix(chainI, nrow = nrow(chainIbetas)))
+
+    #Turn into df and name correctly
     df <- as.data.frame(m)
     names(df) <- c('t', paste0('Beta', 0:(ncol(chainIbetas)-1)), 'chain')
     return(df)
@@ -156,14 +166,14 @@ stVisualize <- function(mcmcRes){
   cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
 
   #Overall 95% Posterior Intervals for betas
-  betaQuants <- lapply(1:(ncol(betaDF)-3), function(i){
+  betaQuants <- lapply(0:(ncol(betaDF)-3), function(i){
     ql <- quantile(betaDF[,paste0('Beta', i)], .05)
     qu <- quantile(betaDF[,paste0('Beta', i)], .95)
     return(data.frame('Lower' = ql, 'Upper' = qu, 'Beta' = i))
   })
   betaQuants <- do.call('rbind', betaQuants)
 
-  betaQuantsChain <- lapply(1:(ncol(betaDF)-3), function(i){
+  betaQuantsChain <- lapply(0:(ncol(betaDF)-3), function(i){
     byChain <- lapply(1:max(betaDF$chain), function(ch){
       ql <- quantile(betaDF[betaDF$chain == ch,paste0('Beta', i)], .05)
       qu <- quantile(betaDF[betaDF$chain == ch,paste0('Beta', i)], .95)

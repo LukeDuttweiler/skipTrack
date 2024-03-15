@@ -6,7 +6,7 @@
 \usage{
 likVec(
   pars = c(kappa = 180, gamma = 6, alpha = 2, beta = 20),
-  S,
+  S = 10,
   M = 1000,
   cycleDat,
   verbose = FALSE,

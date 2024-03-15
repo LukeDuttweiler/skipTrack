@@ -2,7 +2,6 @@
 % Please edit documentation in R/skipTrackMCMC.R
 \name{skipTrackMCMC}
 \alias{skipTrackMCMC}
-\alias{sampleStep}
 \title{Perform MCMC sampling to identify skips in cycle tracking.}
 \usage{
 skipTrackMCMC(
@@ -17,22 +16,6 @@ skipTrackMCMC(
     sample(1:3, length(Y), replace = TRUE), alphas = rep(1, numSkips + 1), Beta =
     matrix(rep(0, ncol(as.matrix(X))), 1), Gamma = matrix(rep(0, ncol(as.matrix(Z))), 1),
     rhoBeta = 1, rhoGamma = 1, phi = 0.001)
-)
-
-sampleStep(
-  ijDat,
-  iDat,
-  rho,
-  pi,
-  Xi,
-  Zi,
-  Beta,
-  Gamma,
-  priorAlphas,
-  indFirst,
-  rhoBeta,
-  rhoGamma,
-  phi
 )
 }
 \arguments{
@@ -57,10 +40,17 @@ in the list is itself a list containing:
 \describe{
 \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
 \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
-\item{mu}{Updated value of the global parameter mu.}
 \item{rho}{Updated value of the global parameter rho.}
 \item{pi}{Updated value of the global parameter pi.}
+\item{Xi}{Matrix of covariates for cycle length mean.}
+\item{Zi}{Matrix of covariates for cycle length precision.}
+\item{Beta}{Matrix of coefficients for cycle length mean.}
+\item{Gamma}{Matrix of coefficients for cycle length precision.}
 \item{priorAlphas}{Vector of prior alpha values for updating pi.}
+\item{indFirst}{A logical vector indicating the first occurrence of each individual.}
+\item{rhoBeta}{Updated value of the global parameter rhoBeta.}
+\item{rhoGamma}{Updated value of the global parameter rhoGamma.}
+\item{phi}{Value of the parameter phi.}
 }
 }
 \description{
