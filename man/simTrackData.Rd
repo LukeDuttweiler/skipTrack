@@ -8,7 +8,12 @@ simTrackData(
   n,
   method = c("dutt", "li"),
   skipProb = NULL,
-  maxCycles = length(skipProb)
+  maxCycles = length(skipProb),
+  trueBetas = NULL,
+  trueGammas = trueBetas,
+  overlap = 0,
+  xCovF = NULL,
+  zCovF = xCovF
 )
 }
 \arguments{

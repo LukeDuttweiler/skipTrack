@@ -1,22 +1,33 @@
-#' Perform MCMC sampling for identifying skips in cycle tracking.
+#' Perform MCMC sampling to identify skips in cycle tracking.
 #'
-#' This function runs a Markov Chain Monte Carlo (MCMC) algorithm to update parameters in a hierarchical model (specified in...),
+#' This function runs a Markov Chain Monte Carlo (MCMC) algorithm to update parameters in a hierarchical model
 #' to identify skips in menstrual cycle tracking.
 #'
-#' @param cycleDat A data.frame with columns 'Individual' and 'TrackedCycles', representing the observed cycle lengths for each individual.
-#' @param initialParams A list of initial parameter values for the MCMC algorithm.
-#' Default values are provided for pi, muis, tauis, mu, rho, and cs.
+#' @param Y A vector of observed cycle lengths.
+#' @param cluster A vector indicating the individual cluster/group membership for each observation.
+#' @param X A matrix of covariates for cycle length mean. Default is a matrix of 1's.
+#' @param Z A matrix of covariates for cycle length precision. Default is a matrix of 1's.
+#' @param numSkips The maximum number of skips to allow. Default is 10.
 #' @param reps The number of MCMC iterations (steps) to perform. Default is 1000.
+#' @param initialParams A list of initial parameter values for the MCMC algorithm.
+#' Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, rhoBeta, rhoGamma, and phi.
 #'
 #' @return A list containing the MCMC draws for each parameter at each iteration. Each element
 #' in the list is itself a list containing:
 #' \describe{
 #'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
 #'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
-#'   \item{mu}{Updated value of the global parameter mu.}
 #'   \item{rho}{Updated value of the global parameter rho.}
 #'   \item{pi}{Updated value of the global parameter pi.}
+#'   \item{Xi}{Matrix of covariates for cycle length mean.}
+#'   \item{Zi}{Matrix of covariates for cycle length precision.}
+#'   \item{Beta}{Matrix of coefficients for cycle length mean.}
+#'   \item{Gamma}{Matrix of coefficients for cycle length precision.}
 #'   \item{priorAlphas}{Vector of prior alpha values for updating pi.}
+#'   \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
+#'   \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
+#'   \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
+#'   \item{phi}{Value of the parameter phi.}
 #' }
 #'
 #' @examples
@@ -100,6 +111,43 @@ skipTrackMCMC <- function(Y,cluster,
   return(fullDraws)
 }
 
+#' Perform a single step of the MCMC sampling process.
+#'
+#' This function performs a single step of the Markov Chain Monte Carlo (MCMC) algorithm to update parameters
+#' in a hierarchical model used for identifying skips in menstrual cycle tracking.
+#'
+#' @param ijDat A data.frame with individual-observation level parameters: Individual, ys, cs, muis, tauis.
+#' @param iDat A data.frame with individual level parameters: Individual, mus, taus, thetas.
+#' @param rho Updated value of the global parameter rho.
+#' @param pi Updated value of the global parameter pi.
+#' @param Xi A matrix of covariates for cycle length mean.
+#' @param Zi A matrix of covariates for cycle length precision.
+#' @param Beta Matrix of coefficients for cycle length mean.
+#' @param Gamma Matrix of coefficients for cycle length precision.
+#' @param priorAlphas Vector of prior alpha values for updating pi.
+#' @param indFirst A logical vector indicating the first occurrence of each individual.
+#' @param rhoBeta Updated value of the global parameter rhoBeta.
+#' @param rhoGamma Updated value of the global parameter rhoGamma.
+#' @param phi Value of the parameter phi.
+#'
+#' @return A list containing updated parameters after performing a single MCMC step.
+#' The list includes:
+#' \describe{
+#'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
+#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
+#'   \item{rho}{Updated value of the global parameter rho.}
+#'   \item{pi}{Updated value of the global parameter pi.}
+#'   \item{Xi}{Matrix of covariates for cycle length mean.}
+#'   \item{Zi}{Matrix of covariates for cycle length precision.}
+#'   \item{Beta}{Matrix of coefficients for cycle length mean.}
+#'   \item{Gamma}{Matrix of coefficients for cycle length precision.}
+#'   \item{priorAlphas}{Vector of prior alpha values for updating pi.}
+#'   \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
+#'   \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
+#'   \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
+#'   \item{phi}{Value of the parameter phi.}
+#' }
+#'
 sampleStep <- function(ijDat, iDat, rho, pi,
                        Xi, Zi, Beta, Gamma,
                        priorAlphas, indFirst,
@@ -155,72 +203,3 @@ sampleStep <- function(ijDat, iDat, rho, pi,
               Gamma = newGamma, priorAlphas = priorAlphas, indFirst = indFirst,
               rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = phi))
 }
-
-#' Perform one sampling step for our skipTrackMCMC model
-#'
-#' This function updates parameters at three levels: global (\code{mu}, \code{rho}, \code{pi}),
-#' individual (\code{mus}, \code{taus}), and individual-observation (\code{ys}, \code{cs}).
-#'
-#' @param ijDat A data.frame containing all data at the level of individual-observation (ij),
-#' with columns: Individual, ys, cs.
-#' @param iDat A data.frame containing all data at the level of individual (i),
-#' with columns: Individual, mus, taus.
-#' @param mu Current value of the global parameter mu.
-#' @param rho Current value of the global parameter rho.
-#' @param pi Current value of the global parameter pi.
-#' @param priorAlphas Vector of prior alpha values for updating pi.
-#' @param indFirst Logical vector indicating the first instance of each individual in the full data.
-#'
-#' @return A list containing the updated data and parameters:
-#' \describe{
-#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
-#'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
-#'   \item{mu}{Updated value of the global parameter mu.}
-#'   \item{rho}{Updated value of the global parameter rho.}
-#'   \item{pi}{Updated value of the global parameter pi.}
-#'   \item{priorAlphas}{Unchanged vector of prior alpha values for updating pi.}
-#'   \item{indFirst}{Unchanged logical vector indFirst}
-#' }
-#'
-#'
-#' @seealso \code{\link{postMu}}, \code{\link{postRho}}, \code{\link{postPi}},
-#' \code{\link{postMui}}, \code{\link{postTaui}}, \code{\link{postCij}}
-#'
-#' @keywords gibbs sampling hierarchical model update parameters
-#'
-gibbsStep <- function(ijDat, iDat, mu, rho, pi, priorAlphas, indFirst){
-  #Start with high level
-  newMu <- postMu(muI = iDat$mus, rho = rho)
-  newRho <- postRho(muI = iDat$mus, mu = newMu)
-  newPi <- postPi(ci = ijDat$cs, priorAlphas = priorAlphas)
-
-  #Now i level
-  newMuis <- lapply(iDat$Individual, function(ind){
-    postMui(yij = ijDat$ys[ijDat$Individual == ind],
-            cij = ijDat$cs[ijDat$Individual == ind],
-            taui = iDat$taus[iDat$Individual == ind],
-            mu = newMu, rho = newRho)
-  })
-  newMuis <- do.call('c', newMuis)
-  newTauis <- lapply(iDat$Individual, function(ind){
-    postTaui(yij = ijDat$ys[ijDat$Individual == ind],
-             cij = ijDat$cs[ijDat$Individual == ind],
-             mui = iDat$mus[iDat$Individual == ind])
-  })
-  newTauis <- do.call('c', newTauis)
-
-  iDatNew <- data.frame(Individual = iDat$Individual,
-                        mus = newMuis[indFirst],
-                        taus = newTauis[indFirst])
-
-  ijDatNew <- ijDat
-  ijDatNew$muis <- newMuis
-  ijDatNew$tauis <- newTauis
-
-  ijDatNew$cs <- postCij(ijDatNew$ys, pi = newPi,
-                         muis = ijDatNew$muis, tauis = ijDatNew$tauis)
-
-  return(list(ijDat = ijDatNew, iDat = iDatNew, mu = newMu,
-              rho = newRho, pi = newPi, priorAlphas = priorAlphas, indFirst = indFirst))
-}
-

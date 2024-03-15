@@ -2,27 +2,54 @@
 % Please edit documentation in R/skipTrackMCMC.R
 \name{skipTrackMCMC}
 \alias{skipTrackMCMC}
-\title{Perform MCMC sampling for identifying skips in cycle tracking.}
+\alias{sampleStep}
+\title{Perform MCMC sampling to identify skips in cycle tracking.}
 \usage{
 skipTrackMCMC(
   Y,
   cluster,
-  X,
-  Z,
-  initialParams = list(pi = c(1/3, 1/3, 1/3), muis = rep(log(30),
-    length(unique(cycleDat$Individual))), tauis = rep(5,
-    length(unique(cycleDat$Individual))), mu = log(30), rho = 1, cs = sample(1:3,
-    nrow(cycleDat), replace = TRUE)),
-  reps = 1000
+  X = matrix(1, nrow = length(unique(cluster))),
+  Z = matrix(1, nrow = length(unique(cluster))),
+  numSkips = 10,
+  reps = 1000,
+  initialParams = list(pi = rep(1/(numSkips + 1), numSkips + 1), muis = rep(log(30),
+    length(unique(cluster))), tauis = rep(5, length(unique(cluster))), rho = 1, cs =
+    sample(1:3, length(Y), replace = TRUE), alphas = rep(1, numSkips + 1), Beta =
+    matrix(rep(0, ncol(as.matrix(X))), 1), Gamma = matrix(rep(0, ncol(as.matrix(Z))), 1),
+    rhoBeta = 1, rhoGamma = 1, phi = 0.001)
+)
+
+sampleStep(
+  ijDat,
+  iDat,
+  rho,
+  pi,
+  Xi,
+  Zi,
+  Beta,
+  Gamma,
+  priorAlphas,
+  indFirst,
+  rhoBeta,
+  rhoGamma,
+  phi
 )
 }
 \arguments{
-\item{initialParams}{A list of initial parameter values for the MCMC algorithm.
-Default values are provided for pi, muis, tauis, mu, rho, and cs.}
+\item{Y}{A vector of observed cycle lengths.}
+
+\item{cluster}{A vector indicating the individual cluster/group membership for each observation.}
+
+\item{X}{A matrix of covariates for cycle length mean. Default is a matrix of 1's.}
+
+\item{Z}{A matrix of covariates for cycle length precision. Default is a matrix of 1's.}
+
+\item{numSkips}{The maximum number of skips to allow. Default is 10.}
 
 \item{reps}{The number of MCMC iterations (steps) to perform. Default is 1000.}
 
-\item{cycleDat}{A data.frame with columns 'Individual' and 'TrackedCycles', representing the observed cycle lengths for each individual.}
+\item{initialParams}{A list of initial parameter values for the MCMC algorithm.
+Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, rhoBeta, rhoGamma, and phi.}
 }
 \value{
 A list containing the MCMC draws for each parameter at each iteration. Each element
@@ -37,7 +64,7 @@ in the list is itself a list containing:
 }
 }
 \description{
-This function runs a Markov Chain Monte Carlo (MCMC) algorithm to update parameters in a hierarchical model (specified in...),
+This function runs a Markov Chain Monte Carlo (MCMC) algorithm to update parameters in a hierarchical model
 to identify skips in menstrual cycle tracking.
 }
 \examples{

@@ -4,7 +4,7 @@
 \alias{duttSim}
 \title{Simulate user tracked menstrual cycle data for an individual using the dutt method.}
 \usage{
-duttSim(i, skipProb, maxCycles)
+duttSim(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCovF, zCovF)
 }
 \arguments{
 \item{i}{Individual identifier. Character, numeric or integer.}
