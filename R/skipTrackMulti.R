@@ -24,7 +24,8 @@ skipTrackMulti <- function(Y,cluster,
                            liHyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20), ...){
   #if li, do hyperparameter inference first
   if(li){
-    par <- tryCatch(liInference(cycleDat = cycleDat, S = numSkips, startingParams = liHyperparams),
+    par <- tryCatch(liInference(Y = Y, cluster = cluster,
+                                S = numSkips, startingParams = liHyperparams),
                     error = function(e){
                       print(e)
                       return(liHyperparams)
@@ -48,7 +49,7 @@ skipTrackMulti <- function(Y,cluster,
     #Run skipTrackMCMC on each worker (or liMCMC if li == TRUE)
     res <- foreach::foreach(1:chains) %dopar% {
       if(li){
-        liMCMC(cycleDat = cycleDat, reps = reps, hyperparams = par, S = numSkips)
+        liMCMC(Y = Y, cluster = cluster, reps = reps, hyperparams = par, S = numSkips)
       }else{
         skipTrackMCMC(Y = Y, cluster = cluster, X = X, Z = Z, numSkips = numSkips, reps = reps)
       }
@@ -63,7 +64,7 @@ skipTrackMulti <- function(Y,cluster,
 
     res <- foreach::foreach(1:chains) %do% {
       if(li){
-        liMCMC(cycleDat = cycleDat, reps = reps, hyperparams = par, S = numSkips)
+        liMCMC(Y = Y, cluster = cluster, reps = reps, hyperparams = par, S = numSkips)
       }else{
         skipTrackMCMC(Y = Y, cluster = cluster, X = X, Z = Z, numSkips = numSkips, reps = reps)
       }

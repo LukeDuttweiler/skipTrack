@@ -1,4 +1,6 @@
-liMCMC <- function(cycleDat,
+#NEEDS DOCUMENTATION
+liMCMC <- function(Y,
+                   cluster,
                    S,
                    hyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20),
                    initialParams = list(pi = c(1/3, 1/3, 1/3),
@@ -10,6 +12,8 @@ liMCMC <- function(cycleDat,
                                                            nrow(cycleDat),
                                                            replace = TRUE)),
                    reps = 1000){
+  #Create cycleDat
+  cycleDat <- data.frame('TrackedCycles' = Y, 'Individual' = cluster)
 
   #Organize data into initial list
   iDat <- data.frame('Individual' = unique(cycleDat$Individual),

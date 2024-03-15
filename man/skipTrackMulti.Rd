@@ -47,24 +47,8 @@ A list containing the results of skipTrackMCMC for each chain.
 }
 \description{
 This function runs skipTrackMCMC on multiple chains,
-either in parallel or sequentially.
-}
-\examples{
-#EXAMPLES SKIPPED TO AVOID 10 MINUTE PACKAGE BUILD
-#tstData <- simTrackData(1000, skipProb = c(.8, .15, .05))
-
-# Run skipTrackMulti with parallel processing on 4 chains
-#result_parallel <- skipTrackMulti(cycleDat = tstData, reps = 1000, chains = 4,
-# useParallel = TRUE)
-
-# Run skipTrackMulti sequentially on 3 chains
-#result_sequential <- skipTrackMulti(cycleDat = tstData, reps = 1000, chains = 3,
-# useParallel = FALSE)
-
-# View the results
-#View(result_parallel)
-#View(result_sequential)
-
+either in parallel or sequentially. If li == TRUE can run the method given in Li. This ignores
+any covariates given.
 }
 \seealso{
 \code{\link{skipTrackMCMC}}

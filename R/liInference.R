@@ -95,11 +95,14 @@ likVec <- function(pars = c(kappa = 180,
 #' Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
 #'
 #' @export
-liInference <- function(cycleDat, S = 10,
+liInference <- function(Y,cluster, S = 10,
                         startingParams = c(kappa = 180,
                                               gamma = 6,
                                               alpha = 2,
                                               beta = 20)){
+  #Create cycleDat
+  cycleDat <- data.frame('TrackedCycles' = Y, 'Individual' = cluster)
+
   #Perform inference using ADAM
   ret <- optimg::optimg(par = startingParams, fn = likVec, gr = NULL, S = S, cycleDat = cycleDat,
                         method = 'ADAM', control = list(reltol = .001),

@@ -133,7 +133,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
   phi0 <- .001 #Constant goes here for phi
-  prec <- rgamma(1, precm*phi0, phi0)
+  prec <- max(1,rgamma(1, precm*phi0, phi0)) #Don't let precision get absurdly low
   lmean <- rnorm(1, lm, .13)
 
   #Sample c (true cycles per tracked cycle) values for number of cycles
