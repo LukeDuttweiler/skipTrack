@@ -121,14 +121,14 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
     lm <- log(30) + xi %*% trueBetas
   }
   if(is.null(trueGammas)){
-    precm <- 1000
+    precm <- 800
     zi <- NULL
   }else{
     #Which x to overlap?
     whichX <- ifelse(overlap == 0, 0, 1:overlap)
     zi <- matrix(c(xi[1,whichX],
                    rnorm(length(trueGammas)-overlap, .25)), nrow = 1)
-    precm <- 1200 + exp(zi %*% trueGammas)
+    precm <- 800 + exp(zi %*% trueGammas)
   }
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)

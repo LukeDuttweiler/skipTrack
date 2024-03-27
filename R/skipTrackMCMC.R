@@ -9,6 +9,7 @@
 #' @param Z A matrix of covariates for cycle length precision. Default is a matrix of 1's.
 #' @param numSkips The maximum number of skips to allow. Default is 10.
 #' @param reps The number of MCMC iterations (steps) to perform. Default is 1000.
+#' @param fixedSkips If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.
 #' @param initialParams A list of initial parameter values for the MCMC algorithm.
 #' Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, rhoBeta, rhoGamma, and phi.
 #'
@@ -28,6 +29,7 @@
 #'   \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
 #'   \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
 #'   \item{phi}{Value of the parameter phi.}
+#'   \item{fixedSkips}{Logical. Indicates if skips were fixed.}
 #' }
 #'
 #' @examples
@@ -51,6 +53,7 @@ skipTrackMCMC <- function(Y,cluster,
                           Z = matrix(1, nrow = length(unique(cluster))),
                           numSkips = 10,
                           reps = 1000,
+                          fixedSkips = FALSE,
                           initialParams = list(pi = rep(1/(numSkips+1), numSkips+1),
                                                muis = rep(log(30),
                                                           length(unique(cluster))),
@@ -64,6 +67,30 @@ skipTrackMCMC <- function(Y,cluster,
                                                rhoBeta = 1,
                                                rhoGamma = 1,
                                                phi = .001)){
+  #Set initial params default list
+  ip <- list(pi = rep(1/(numSkips+1), numSkips+1),
+             muis = rep(log(30),
+                        length(unique(cluster))),
+             tauis = rep(5,
+                         length(unique(cluster))),
+             rho = 1,
+             cs = sample(1:3, length(Y), replace = TRUE),
+             alphas = rep(1, numSkips +1),
+             Beta = matrix(rep(0, ncol(as.matrix(X))),1),
+             Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
+             rhoBeta = 1,
+             rhoGamma = 1,
+             phi = .001)
+
+  #Replace anything that needs replacing
+  for(i in 1:length(initialParams)){
+    nm <- names(initialParams)[i]
+    ip[nm] <- initialParams[nm]
+  }
+
+  #Replace whole thing
+  initialParams <- ip
+
   #Checks for X and Z
   X <- as.matrix(X)
   Z <- as.matrix(Z)
@@ -99,7 +126,8 @@ skipTrackMCMC <- function(Y,cluster,
                          indFirst = !duplicated(ijDat$Individual),
                          rhoBeta = initialParams$rhoBeta,
                          rhoGamma = initialParams$rhoGamma,
-                         phi = initialParams$phi)
+                         phi = initialParams$phi,
+                         fixedSkips = fixedSkips)
   #Progress bar
   pb <- utils::txtProgressBar(min = 0, max = reps, style = 3)
 
@@ -129,6 +157,7 @@ skipTrackMCMC <- function(Y,cluster,
 #' @param rhoBeta Updated value of the global parameter rhoBeta.
 #' @param rhoGamma Updated value of the global parameter rhoGamma.
 #' @param phi Value of the parameter phi.
+#' @param fixedSkips Logical. If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.
 #'
 #' @return A list containing updated parameters after performing a single MCMC step.
 #' The list includes:
@@ -146,12 +175,13 @@ skipTrackMCMC <- function(Y,cluster,
 #'   \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
 #'   \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
 #'   \item{phi}{Value of the parameter phi.}
+#'   \item{fixedSkips}{Logical. Fixed skips input.}
 #' }
 #'
 sampleStep <- function(ijDat, iDat, rho, pi,
                        Xi, Zi, Beta, Gamma,
                        priorAlphas, indFirst,
-                       rhoBeta, rhoGamma, phi){
+                       rhoBeta, rhoGamma, phi, fixedSkips){
   #Start with high level (without Gamma and thetais as those are connected)
   newBeta <- postBeta(rhoBeta = rhoBeta, rho = rho, Xi = Xi, muI = iDat$mus)
 
@@ -195,11 +225,15 @@ sampleStep <- function(ijDat, iDat, rho, pi,
   ijDatNew$muis <- newMuis
   ijDatNew$tauis <- newTauis
 
-  ijDatNew$cs <- postCij(ijDatNew$ys, pi = newPi,
-                         muis = ijDatNew$muis, tauis = ijDatNew$tauis)
+  if(fixedSkips){
+    ijDatNew$cs <- ijDat$cs
+  }else{
+    ijDatNew$cs <- postCij(ijDatNew$ys, pi = newPi,
+                           muis = ijDatNew$muis, tauis = ijDatNew$tauis)
+  }
 
   return(list(ijDat = ijDatNew, iDat = iDatNew, rho = newRho,
               pi = newPi, Xi = Xi, Zi = Zi, Beta = newBeta,
               Gamma = newGamma, priorAlphas = priorAlphas, indFirst = indFirst,
-              rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = phi))
+              rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = phi, fixedSkips = fixedSkips))
 }
