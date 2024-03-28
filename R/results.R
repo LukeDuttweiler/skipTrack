@@ -37,7 +37,20 @@ stResults <- function(mcmcRes){
     return(df)
   })
   gammaDF <- do.call('rbind', gammaDF)
-  View(betaDF)
-  View(gammaDF)
-  stop()
+
+  betaQuants <- lapply(0:(ncol(betaDF)-3), function(i){
+    ql <- quantile(betaDF[,paste0('Beta', i)], .05)
+    qu <- quantile(betaDF[,paste0('Beta', i)], .95)
+    return(data.frame('Lower' = ql, 'Upper' = qu, 'Beta' = i))
+  })
+  betaQuants <- do.call('rbind', betaQuants)
+
+  gammaQuants <- lapply(0:(ncol(gammaDF)-3), function(i){
+    ql <- quantile(gammaDF[,paste0('Gamma', i)], .05)
+    qu <- quantile(gammaDF[,paste0('Gamma', i)], .95)
+    return(data.frame('Lower' = ql, 'Upper' = qu, 'Gamma' = i))
+  })
+  gammaQuants <- do.call('rbind', gammaQuants)
+
+  View(gammaQuants)
 }

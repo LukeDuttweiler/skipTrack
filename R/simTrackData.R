@@ -131,7 +131,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
       whichX <- 1:overlap
     }
     zi <- matrix(c(xi[1,whichX],
-                   rnorm(length(trueGammas)-overlap, .25)), nrow = 1)
+                   rnorm(length(trueGammas)-overlap, 3)), nrow = 1)
     precm <- 800 + exp(zi %*% trueGammas)
   }
 
