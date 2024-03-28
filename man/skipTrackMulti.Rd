@@ -38,6 +38,7 @@ skipTrackMulti(
 \item{...}{
   Arguments passed on to \code{\link[=skipTrackMCMC]{skipTrackMCMC}}
   \describe{
+    \item{\code{fixedSkips}}{If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
     \item{\code{initialParams}}{A list of initial parameter values for the MCMC algorithm.
 Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, rhoBeta, rhoGamma, and phi.}
   }}

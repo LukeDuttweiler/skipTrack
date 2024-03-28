@@ -5,18 +5,19 @@
 \title{Perform hyperparameter inference assuming the model given in Li et al. (2022) on a cycle length dataset.}
 \usage{
 liInference(
-  cycleDat,
+  Y,
+  cluster,
   S = 10,
   startingParams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20)
 )
 }
 \arguments{
-\item{cycleDat}{Data.frame with (at least) columns Individual and TrackedCycles. Individual gives unique individual markers, TrackedCycles gives reported cycle lengths.}
-
 \item{S}{Maximum number of possible skipped cycles (see Li et al. for details).}
 
 \item{startingParams}{A vector of starting values for hyperparameters
 (default values from Li et al.).}
+
+\item{cycleDat}{Data.frame with (at least) columns Individual and TrackedCycles. Individual gives unique individual markers, TrackedCycles gives reported cycle lengths.}
 }
 \value{
 A list containing the results of hyperparameter inference.

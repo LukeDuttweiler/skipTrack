@@ -17,7 +17,8 @@ sampleStep(
   indFirst,
   rhoBeta,
   rhoGamma,
-  phi
+  phi,
+  fixedSkips
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ sampleStep(
 \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
 
 \item{phi}{Value of the parameter phi.}
+
+\item{fixedSkips}{Logical. If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
 }
 \value{
 A list containing updated parameters after performing a single MCMC step.
@@ -64,6 +67,7 @@ The list includes:
 \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
 \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
 \item{phi}{Value of the parameter phi.}
+\item{fixedSkips}{Logical. Fixed skips input.}
 }
 }
 \description{

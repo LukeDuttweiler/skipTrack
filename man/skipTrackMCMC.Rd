@@ -11,6 +11,7 @@ skipTrackMCMC(
   Z = matrix(1, nrow = length(unique(cluster))),
   numSkips = 10,
   reps = 1000,
+  fixedSkips = FALSE,
   initialParams = list(pi = rep(1/(numSkips + 1), numSkips + 1), muis = rep(log(30),
     length(unique(cluster))), tauis = rep(5, length(unique(cluster))), rho = 1, cs =
     sample(1:3, length(Y), replace = TRUE), alphas = rep(1, numSkips + 1), Beta =
@@ -30,6 +31,8 @@ skipTrackMCMC(
 \item{numSkips}{The maximum number of skips to allow. Default is 10.}
 
 \item{reps}{The number of MCMC iterations (steps) to perform. Default is 1000.}
+
+\item{fixedSkips}{If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
 
 \item{initialParams}{A list of initial parameter values for the MCMC algorithm.
 Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, rhoBeta, rhoGamma, and phi.}
@@ -51,6 +54,7 @@ in the list is itself a list containing:
 \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
 \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
 \item{phi}{Value of the parameter phi.}
+\item{fixedSkips}{Logical. Indicates if skips were fixed.}
 }
 }
 \description{
