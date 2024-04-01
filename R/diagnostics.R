@@ -60,6 +60,50 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
     return(genMCMCDiag::genDiagnostic(mcmcExt, method = method,
                                       distance = genMCMCDiag::hammingDist, ...))
 
+  }else if(param == 'betas'){ #Continued alternative methods specific to skipTrack
+
+    #Extract cijs
+    mcmcExt <- lapply(mcmcRes, function(chain){
+      #Get list of Beta draws
+      draws <- lapply(chain, function(d){
+        return(d$Beta)
+      })
+
+      #Return in expected format
+      return(draws)
+    })
+
+    #set method if not specified
+    if(is.null(method)){
+      method <- 'ts'
+    }
+
+    #Calculate diagnostics and return
+    return(genMCMCDiag::genDiagnostic(mcmcExt, method = method,
+                                      distance = genMCMCDiag::hammingDist, ...))
+
+  }else if(param == 'gammas'){ #Continued alternative methods specific to skipTrack
+
+    #Extract cijs
+    mcmcExt <- lapply(mcmcRes, function(chain){
+      #Get list of Beta draws
+      draws <- lapply(chain, function(d){
+        return(d$Gamma)
+      })
+
+      #Return in expected format
+      return(draws)
+    })
+
+    #set method if not specified
+    if(is.null(method)){
+      method <- 'ts'
+    }
+
+    #Calculate diagnostics and return
+    return(genMCMCDiag::genDiagnostic(mcmcExt, method = method,
+                                      distance = genMCMCDiag::hammingDist, ...))
+
   }else if(param == 'muis'){
     #Extract muis
     mcmcExt <- lapply(mcmcRes, function(chain){

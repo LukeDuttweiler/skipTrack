@@ -65,7 +65,7 @@ skipTrackMCMC <- function(Y,cluster,
                                                Beta = matrix(rep(0, ncol(as.matrix(X))),1),
                                                Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
                                                rhoBeta = 1,
-                                               rhoGamma = 1,
+                                               rhoGamma = 1000,
                                                phi = .001)){
   #Set initial params default list
   ip <- list(pi = rep(1/(numSkips+1), numSkips+1),
@@ -210,7 +210,7 @@ sampleStep <- function(ijDat, iDat, rho, pi,
   newTauis <- do.call('c', newTauis)
 
   #High level Gamma Things
-  newGamList <- postGamma(taui = iDat$taus, Zi = Zi, currentGamma = Gamma, phi = phi,
+  newGamList <- postGamma(taui = newTauis[indFirst], Zi = Zi, currentGamma = Gamma, phi = phi,
                           rhoGamma = rhoGamma)
   newGamma <- newGamList$Gamma
   newThetas <- newGamList$thetai

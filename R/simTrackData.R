@@ -131,13 +131,13 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
       whichX <- 1:overlap
     }
     zi <- matrix(c(xi[1,whichX],
-                   rnorm(length(trueGammas)-overlap, 3)), nrow = 1)
-    precm <- 800 + exp(zi %*% trueGammas)
+                   rnorm(length(trueGammas)-overlap, 0)), nrow = 1)
+    precm <- exp(7.5 + zi %*% trueGammas)
   }
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
   phi0 <- .001 #Constant goes here for phi
-  prec <- max(4,rgamma(1, precm*phi0, phi0)) #Don't let precision get absurdly low
+  prec <- max(4, rgamma(1, shape = precm*phi0, rate = phi0)) #Don't let precision get absurdly low
   lmean <- rnorm(1, lm, .13)
 
   #Sample c (true cycles per tracked cycle) values for number of cycles

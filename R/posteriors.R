@@ -105,7 +105,7 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1){
   #pNew <- prod(taui^(propThetas*phi-1)*exp(-phi*taui))
 
   #Calculate a
-  a <- max(0, min(1, exp(pNew - pOld)*(qOld/qNew)))
+  a <- max(0, min(1, exp(pNew-pOld)*(qOld/qNew)))
 
   #Flip a coin and return
   if(as.logical(rbinom(1,1,a))){

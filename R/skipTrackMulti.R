@@ -51,7 +51,8 @@ skipTrackMulti <- function(Y,cluster,
       if(li){
         liMCMC(Y = Y, cluster = cluster, reps = reps, hyperparams = par, S = numSkips)
       }else{
-        skipTrackMCMC(Y = Y, cluster = cluster, X = X, Z = Z, numSkips = numSkips, reps = reps)
+        skipTrackMCMC(Y = Y, cluster = cluster, X = X, Z = Z, numSkips = numSkips, reps = reps,
+                      ...)
       }
     }
 
@@ -66,7 +67,8 @@ skipTrackMulti <- function(Y,cluster,
       if(li){
         liMCMC(Y = Y, cluster = cluster, reps = reps, hyperparams = par, S = numSkips)
       }else{
-        skipTrackMCMC(Y = Y, cluster = cluster, X = X, Z = Z, numSkips = numSkips, reps = reps)
+        skipTrackMCMC(Y = Y, cluster = cluster, X = X, Z = Z, numSkips = numSkips, reps = reps,
+                      ...)
       }
     }
 

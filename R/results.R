@@ -22,7 +22,7 @@ stResults <- function(mcmcRes){
   betaDF <- do.call('rbind', betaDF)
 
   gammaDF <- lapply(1:length(mcmcRes), function(chainI){
-    chainIgammas <- sapply(mcmcRes[[chainI]], getElement, 'Gamma')
+    chainIgammas <- sapply(mcmcRes[[chainI]][750:1000], getElement, 'Gamma')
 
     if(is.matrix(chainIgammas)){
       chainIgammas <- t(chainIgammas)
@@ -52,5 +52,6 @@ stResults <- function(mcmcRes){
   })
   gammaQuants <- do.call('rbind', gammaQuants)
 
-  View(gammaQuants)
+  print(betaQuants)
+  print(gammaQuants)
 }
