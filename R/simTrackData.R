@@ -121,7 +121,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
     lm <- log(30) + xi %*% trueBetas
   }
   if(is.null(trueGammas)){
-    precm <- 800
+    precm <- exp(7.5)
     zi <- NULL
   }else{
     #Which x to overlap?

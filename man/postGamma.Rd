@@ -4,7 +4,7 @@
 \alias{postGamma}
 \title{Perform a Metropolis-Hastings Step for Drawing a New Gamma}
 \usage{
-postGamma(taui, Zi, currentGamma, phi = 1, rhoGamma = 1)
+postGamma(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000)
 }
 \arguments{
 \item{taui}{A vector of length num_Individuals representing precision parameters for individuals.}

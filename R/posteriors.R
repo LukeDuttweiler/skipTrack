@@ -74,7 +74,7 @@ postBeta <- function(rhoBeta = .01, rho, Xi, muI){
 #' @return A list containing the new Gamma value and the corresponding thetai values.
 #' @export
 #'
-postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1){
+postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000){
   #make sure things are formatted correctly
   currentGamma <- matrix(currentGamma, nrow = 1)
 
