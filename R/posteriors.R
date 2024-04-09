@@ -226,7 +226,7 @@ postCij <- function(yijs, pi, muis, tauis){
     lik <- dlnorm(yijs, meanlog = muis + log(j), sdlog = sqrt(1/tauis))
     return(lik*pi[j])
   })
-  probs <- pmax(probs, rep(0,length(probs)))
+  probs <- pmax(probs, rep(5e-324,length(probs)))
 
   return(glmnet::rmult(probs))
 }
