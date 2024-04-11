@@ -144,7 +144,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
   cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)
 
   #Sample tracked cycle lengths
-  ys <- round(rlnorm(numCycles, meanlog = lmean + log(cs), sdlog = sqrt(1/prec)))
+  ys <- rlnorm(numCycles, meanlog = lmean + log(cs), sdlog = sqrt(1/prec))
 
   #Create as many fake x and z covariates as requested
   xiF <- matrix(rnorm(length(xCovF), .25), nrow = 1)
