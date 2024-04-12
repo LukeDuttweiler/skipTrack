@@ -121,7 +121,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
     lm <- log(30) + xi %*% trueBetas
   }
   if(is.null(trueGammas)){
-    precm <- exp(7.5)
+    precm <- exp(6.5)
     zi <- NULL
   }else{
     #Which x to overlap?
@@ -132,11 +132,11 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
     }
     zi <- matrix(c(xi[1,whichX],
                    rnorm(length(trueGammas)-overlap, 0)), nrow = 1)
-    precm <- exp(7.5 + zi %*% trueGammas)
+    precm <- exp(6.5 + zi %*% trueGammas)
   }
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
-  phi0 <- .001 #Constant goes here for phi
+  phi0 <- .005 #Constant goes here for phi
   prec <- max(4, rgamma(1, shape = precm*phi0, rate = phi0)) #Don't let precision get absurdly low
   lmean <- rnorm(1, lm, .13)
 
@@ -144,7 +144,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
   cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)
 
   #Sample tracked cycle lengths
-  ys <- rlnorm(numCycles, meanlog = lmean + log(cs), sdlog = sqrt(1/prec))
+  ys <- round(rlnorm(numCycles, meanlog = lmean + log(cs), sdlog = sqrt(1/prec)))
 
   #Create as many fake x and z covariates as requested
   xiF <- matrix(rnorm(length(xCovF), .25), nrow = 1)
