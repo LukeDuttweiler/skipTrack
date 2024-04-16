@@ -117,7 +117,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
     lm <- log(30)
     xi <- NULL
   }else{
-    xi <- matrix(rnorm(length(trueBetas), .25), nrow = 1)
+    xi <- matrix(rnorm(length(trueBetas), 0), nrow = 1)
     lm <- log(30) + xi %*% trueBetas
   }
   if(is.null(trueGammas)){
