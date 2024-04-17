@@ -53,7 +53,7 @@ postBeta <- function(rhoBeta = .01, rho, Xi, muI){
 
   postPre <- (rhoBeta)*diag(1, dim(XTX)[1]) + rho*XTX
   postVar <- solve(postPre)
-  postMean <- postVar %*% (rho*Xmu)
+  postMean <- (rho*Xmu) %*% postVar
 
   return(mvtnorm::rmvnorm(1, mean = postMean, postVar))
 }
