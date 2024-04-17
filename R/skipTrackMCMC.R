@@ -197,9 +197,10 @@ sampleStep <- function(ijDat, iDat, rho, pi,
     postMui(yij = ijDat$ys[ijDat$Individual == ind],
             cij = ijDat$cs[ijDat$Individual == ind],
             taui = iDat$taus[iDat$Individual == ind],
-            xib = xib, rho = newRho)
+            xib = xib[iDat$Individual == ind], rho = newRho)
   })
   newMuis <- do.call('c', newMuis)
+
   newTauis <- lapply(iDat$Individual, function(ind){
     postTaui(yij = ijDat$ys[ijDat$Individual == ind],
              cij = ijDat$cs[ijDat$Individual == ind],
