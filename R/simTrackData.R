@@ -1,22 +1,22 @@
 #' Simulate user-tracked menstrual cycle data for multiple individuals using specified method.
 #'
 #' This function generates synthetic data for user tracked menstrual cycles given the specified method,
-#' skip probabilities, and maximum cycles. It supports built-in methods ('dutt', 'li') and custom methods.
+#' skip probabilities, and maximum cycles. It supports built-in methods ('duttweiler', 'li') and custom methods.
 #'
 #' @param n Number of individuals to simulate data for.
-#' @param method Method for data simulation. Can be a character ('dutt', 'li') or a custom function.
+#' @param method Method for data simulation. Can be a character ('duttweiler', 'li') or a custom function.
 #' @param skipProb Vector of probabilities for number of true cycles per tracked cycle. For
 #' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
 #' will contain 2 true cycles and 10% will contain 3 true cycles. Default is NULL. If
 #' method == 'li', this should be ignored.
 #' @param maxCycles Maximum number of cycles for generating skip cycles. Default is the length of skipProb.
-#' If method == 'li' this must be specified, if method == 'dutt', leave as default.
+#' If method == 'li' this must be specified, if method == 'duttweiler', leave as default.
 #'
 #' @return A data.frame with information dependent on the method.
 #'
 #' @examples
 #' # Example usage of simTrackData function using the dutt method
-#' resultDutt <- simTrackData(1000, method = 'dutt', skipProb = c(.7, .2, .1))
+#' resultDutt <- simTrackData(1000, method = 'duttweiler', skipProb = c(.7, .2, .1))
 #'
 #' #Example usage using the li method
 #' resultLi <- simTrackData(1000, method = 'li', maxCycles = 3)
@@ -25,11 +25,11 @@
 #'
 #' @export
 simTrackData <- function(n,
-                         method = c('dutt', 'li'),
+                         method = c('duttweiler', 'li'),
                          skipProb = NULL,
                          maxCycles = length(skipProb),
                          trueBetas = NULL,
-                         trueGammas = trueBetas,
+                         trueGammas = NULL,
                          overlap = 0,
                          xCovF = NULL,
                          zCovF = xCovF){
@@ -42,7 +42,7 @@ simTrackData <- function(n,
     }
 
     #If method is dutt, make sure maxCycles is length(skipProb)
-    if((method[1] == 'dutt') & maxCycles != length(skipProb)){
+    if((method[1] == 'duttweiler') & maxCycles != length(skipProb)){
       stop(
         'for method dutt, maxCycles should be the length of skipProb'
       )
@@ -52,7 +52,7 @@ simTrackData <- function(n,
   #n gives the number of individuals, for each individual simulate tracked cycles
   #given method, skipProb, and maxCycles
   if(is.character(method)){
-    if(method[1] == 'dutt'){
+    if(method[1] == 'duttweiler'){
       simDat <- lapply(1:n, duttSim, skipProb = skipProb, maxCycles = maxCycles,
                        trueBetas = trueBetas,
                        trueGammas = trueGammas,
@@ -70,7 +70,7 @@ simTrackData <- function(n,
     simDat <- lapply(1:n, method, skipProb = skipProb, maxCycles = maxCycles)
     simDat <- do.call('rbind', simDat)
   }else{
-    stop('method must be one of the specified characters, or a function')
+    stop('method must be one of the specified characters, or a function taking skipProb and maxCycles')
   }
 
   #Get X and Z
@@ -78,6 +78,18 @@ simTrackData <- function(n,
   Z <- as.matrix(simDat[,grepl('Z|Individual', names(simDat))])
   X <- unique(X)[,-1]
   Z <- unique(Z)[,-1]
+
+  #Get trueBetas and trueGammas based on settings
+  if(is.null(trueBetas)){
+    trueBetas <- simDat$Beta0[1]
+  }else{
+    trueBetas <- c(simDat$Beta0[1], trueBetas)
+  }
+  if(is.null(trueGammas)){
+    trueGammas <- simDat$Gamma0[1]
+  }else{
+    trueGammas <- c(simDat$Gamma0[1], trueGammas)
+  }
 
   #Return as list with specific components separated out
   return(list('Y' = simDat$TrackedCycles,
@@ -87,7 +99,7 @@ simTrackData <- function(n,
               'Beta' = trueBetas,
               'Gamma' = trueGammas,
               'NumTrue' = simDat$NumTrue,
-              'Underlying' = simDat[, grepl('Mean|Prec', names(simDat))]))
+              'Underlying' = simDat[, grepl('Mean|Prec', names(simDat)), drop = F]))
 }
 
 #' Simulate user tracked menstrual cycle data for an individual using the dutt method.
@@ -157,7 +169,8 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
 
   #Return as data.frame
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
-                   'LogMean' = lmean, 'LogPrec' = prec)
+                   'LogMean' = lmean, 'LogPrec' = prec, 'Beta0' = log(30), 'Gamma0' = 5.5)
+
   df <- cbind(df, xi, zi)
   return(df)
 }
@@ -194,7 +207,12 @@ liSim <- function(i, skipProb, maxCycles){
   ys <- rpois(numCycles, indMean*(1+numSkips))
 
   #Return as data.frame
+  #NOTE: Beta0 is log(30) here as our model assumes a distribution on log(Y) not just Y,
+  #Gamma0 is entered as 4.2. NOT SURE WHY, but this seems to give close to consistent results. Need to
+  #figure out details here.
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = numSkips + 1,
-                   'Mean' = indMean, 'SkipProb' = indSkip)
+                   'Mean' = indMean, 'SkipProb' = indSkip,
+                   'X0' = 1, 'Z0' = 1, Beta0 = log(30), Gamma0 = log(60))
+
   return(df)
 }

@@ -6,11 +6,11 @@
 \usage{
 simTrackData(
   n,
-  method = c("dutt", "li"),
+  method = c("duttweiler", "li"),
   skipProb = NULL,
   maxCycles = length(skipProb),
   trueBetas = NULL,
-  trueGammas = trueBetas,
+  trueGammas = NULL,
   overlap = 0,
   xCovF = NULL,
   zCovF = xCovF
@@ -19,7 +19,7 @@ simTrackData(
 \arguments{
 \item{n}{Number of individuals to simulate data for.}
 
-\item{method}{Method for data simulation. Can be a character ('dutt', 'li') or a custom function.}
+\item{method}{Method for data simulation. Can be a character ('duttweiler', 'li') or a custom function.}
 
 \item{skipProb}{Vector of probabilities for number of true cycles per tracked cycle. For
 example, (.7, .2, .1) means that 70\% of observed cycles will contain one true cycle, 20\%
@@ -27,18 +27,18 @@ will contain 2 true cycles and 10\% will contain 3 true cycles. Default is NULL.
 method == 'li', this should be ignored.}
 
 \item{maxCycles}{Maximum number of cycles for generating skip cycles. Default is the length of skipProb.
-If method == 'li' this must be specified, if method == 'dutt', leave as default.}
+If method == 'li' this must be specified, if method == 'duttweiler', leave as default.}
 }
 \value{
 A data.frame with information dependent on the method.
 }
 \description{
 This function generates synthetic data for user tracked menstrual cycles given the specified method,
-skip probabilities, and maximum cycles. It supports built-in methods ('dutt', 'li') and custom methods.
+skip probabilities, and maximum cycles. It supports built-in methods ('duttweiler', 'li') and custom methods.
 }
 \examples{
 # Example usage of simTrackData function using the dutt method
-resultDutt <- simTrackData(1000, method = 'dutt', skipProb = c(.7, .2, .1))
+resultDutt <- simTrackData(1000, method = 'duttweiler', skipProb = c(.7, .2, .1))
 
 #Example usage using the li method
 resultLi <- simTrackData(1000, method = 'li', maxCycles = 3)

@@ -94,8 +94,8 @@ stResults <- function(mcmcRes, dat = NULL, burnIn = 750){
 
   #If supplied, get truth from dat
   if(!is.null(dat)){
-    trueBetas <- c(log(30), dat$Beta)
-    trueGammas <- c(5.5, dat$Gamma)
+    trueBetas <- dat$Beta
+    trueGammas <- dat$Gamma
     trueCijs <- dat$NumTrue
 
     #Attach to quantiles
