@@ -1,6 +1,6 @@
 Package: skipTrack
 Title: Bayesian Hierarchical Models for Identifying Non-Adherence in Mobile Menstrual Cycle Tracking
-Version: 0.0.7.10
+Version: 0.0.7.11
 Authors@R: 
     person("Luke", "Duttweiler", , "lduttweiler@hsph.harvard.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0467-995X"))

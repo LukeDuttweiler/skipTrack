@@ -65,7 +65,7 @@ skipTrackMCMC <- function(Y,cluster,
                                                Beta = matrix(rep(0, ncol(as.matrix(X))),1),
                                                Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
                                                rhoBeta = .01,
-                                               rhoGamma = 1000,
+                                               rhoGamma = 100,
                                                phi = .01)){
   #Set initial params default list
   ip <- list(pi = rep(1/(numSkips+1), numSkips+1),
@@ -79,7 +79,7 @@ skipTrackMCMC <- function(Y,cluster,
              Beta = matrix(rep(0, ncol(as.matrix(X))),1),
              Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
              rhoBeta = .01,
-             rhoGamma = 1000,
+             rhoGamma = 100,
              phi = .01)
 
   #Replace anything that needs replacing
