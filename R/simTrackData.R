@@ -133,7 +133,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
     lm <- log(30) + xi %*% trueBetas
   }
   if(is.null(trueGammas)){
-    precm <- exp(5.5)
+    precm <- exp(6.5)
     zi <- NULL
   }else{
     #Which x to overlap?
@@ -144,7 +144,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
     }
     zi <- matrix(c(xi[1,whichX],
                    rnorm(length(trueGammas)-overlap, 0)), nrow = 1)
-    precm <- exp(5.5 + zi %*% trueGammas)
+    precm <- exp(6.5 + zi %*% trueGammas)
   }
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
@@ -169,7 +169,7 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
 
   #Return as data.frame
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
-                   'LogMean' = lmean, 'LogPrec' = prec, 'Beta0' = log(30), 'Gamma0' = 5.5)
+                   'LogMean' = lmean, 'LogPrec' = prec, 'Beta0' = log(30), 'Gamma0' = 6.5)
 
   df <- cbind(df, xi, zi)
   return(df)
