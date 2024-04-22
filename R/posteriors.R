@@ -117,6 +117,49 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000){
   }
 }
 
+#' Sample a value from the full conditional posterior of phi
+#'
+#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
+#' is given as Gamma(thetai*phi, phi). This function draws from the conditional posterior of phi,
+#' given that the prior on phi is gamma(nu0, delta0). The function calculates individual shape
+#' parameters given the previous phi.
+#' Note that we parameterize with RATE, not SCALE.
+#'
+#' @param taui Numeric vector, individuals precisions.
+#' @param thetai Numeric vector. individuals precisions means (estimate)
+#' @param oldPhi Previous draw of phi
+#' @param nu0 Shape parameter of prior on phi
+#' @param delta0 Rate parameter of prior on phi
+#'
+#' @return Numeric
+#' @export
+postPhi <- function(taui, thetai, currentPhi, rhoPhi = 1000){
+  #Draw proposal phi
+  propPhi <- rgamma(1, currentPhi*rhoPhi, rate = rhoPhi)
+
+  #Calculate nuis
+  currentNus <- thetai*currentPhi
+  propNus <- thetai*propPhi
+
+  #Calculate qs
+  qOld <- dnorm(currentPhi, mean = propPhi, sd = rhoPhi)
+  qNew <- dnorm(propPhi, mean = currentPhi, sd = rhoPhi)
+
+  #Calculate ps
+  pOld <- sum(log(dgamma(taui, shape = currentNus, rate = currentPhi)))
+  pNew <- sum(log(dgamma(taui, shape = propNus, rate = propPhi)))
+
+  #Calculate a
+  a <- max(0, min(1, exp(pNew-pOld)*(qOld/qNew)))
+
+  #Flip a coin and return
+  if(as.logical(rbinom(1,1,a))){
+    return(propPhi)
+  }else{
+    return(currentPhi)
+  }
+}
+
 #' Sample a value from the full conditional posterior of rho (UPDATED)
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i

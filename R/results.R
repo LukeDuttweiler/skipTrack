@@ -57,7 +57,6 @@ stResults <- function(mcmcRes, dat = NULL, burnIn = 750){
   })
   gammaDF <- do.call('rbind', gammaDF)
 
-
   betaQuants <- lapply(0:(ncol(betaDF)-3), function(i){
     ql <- quantile(betaDF[,paste0('Beta', i)], .025)
     mn <- mean(betaDF[,paste0('Beta', i)])

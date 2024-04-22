@@ -216,6 +216,9 @@ sampleStep <- function(ijDat, iDat, rho, pi,
   newGamma <- newGamList$Gamma
   newThetas <- newGamList$thetai
 
+  #High Level, Phi
+  newPhi <- postPhi(taui = newTauis[indFirst], thetai = newThetas, currentPhi = phi)
+
   #Create new i level information
   iDatNew <- data.frame(Individual = iDat$Individual,
                         mus = newMuis[indFirst],
@@ -236,5 +239,5 @@ sampleStep <- function(ijDat, iDat, rho, pi,
   return(list(ijDat = ijDatNew, iDat = iDatNew, rho = newRho,
               pi = newPi, Xi = Xi, Zi = Zi, Beta = newBeta,
               Gamma = newGamma, priorAlphas = priorAlphas, indFirst = indFirst,
-              rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = phi, fixedSkips = fixedSkips))
+              rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = newPhi, fixedSkips = fixedSkips))
 }
