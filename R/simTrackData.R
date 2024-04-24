@@ -25,7 +25,7 @@
 #'
 #' @export
 simTrackData <- function(n,
-                         method = c('duttweiler', 'li'),
+                         method = c('duttweiler', 'li', 'mixture'),
                          skipProb = NULL,
                          maxCycles = length(skipProb),
                          trueBetas = NULL,
@@ -62,6 +62,14 @@ simTrackData <- function(n,
       simDat <- do.call('rbind', simDat)
     }else if(method[1] == 'li'){
       simDat <- lapply(1:n, liSim, skipProb = skipProb, maxCycles = maxCycles)
+      simDat <- do.call('rbind', simDat)
+    }else if(method[1] == 'mixture'){
+      simDat <- lapply(1:n, mixSim,
+                       skipProb = skipProb,
+                       maxCycles = maxCycles,
+                       trueBetas = trueBetas,
+                       trueGammas = trueGammas,
+                       overlap = overlap)
       simDat <- do.call('rbind', simDat)
     }else{
       stop('specified method is unknown.')
@@ -213,6 +221,66 @@ liSim <- function(i, skipProb, maxCycles){
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = numSkips + 1,
                    'Mean' = indMean, 'SkipProb' = indSkip,
                    'X0' = 1, 'Z0' = 1, Beta0 = log(30), Gamma0 = log(60))
+
+  return(df)
+}
+
+mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
+  #For each individual, generate the number of (tracked) cycles from poisson(7)
+  #(restricted to > 0)
+  numCycles <- max(rpois(1, 7), 1)
+
+  #Per cycle generate numTrue
+  cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)
+
+  #If TRUE xCov or zCov = 0, set mean/precision to parameters specifically,
+  #otherwise, create the number of requested covariates and record effects
+  if(is.null(trueBetas)){
+    m <- 30
+    xi <- NULL
+  }else{
+    xi <- matrix(rnorm(length(trueBetas), 0), nrow = 1)
+    m <- 30 + xi %*% trueBetas
+  }
+
+  #Get individual mean based on trueBetas
+  indMean <- round(rgamma(1, m*5, 5))
+
+  #Create probabilities affected by Gammas which sort individuals into 3 regularity categories
+  if(is.null(trueGammas)){
+    p <- .5
+    zi <- NULL
+  }else{
+    #Which x to overlap?
+    if(overlap == 0){
+      whichX <- 0
+    }else{
+      whichX <- 1:overlap
+    }
+    zi <- matrix(c(xi[1,whichX],
+                   rnorm(length(trueGammas)-overlap, 0)), nrow = 1)
+    linComp <- zi %*% trueGammas
+    p <- exp(linComp)/(1+exp(linComp))
+  }
+
+  #Draw category given p
+  indCat <- rbinom(1, 2, p)
+
+  #Different behavior depending on category
+  if(indCat == 0){
+    ys <- rpois(numCycles, lambda = indMean*cs)
+  }else if(indCat == 1){
+    ys <- sapply(cs, function(drC){
+      indMean*drC + sample((-2:2)*drC, 1, replace = TRUE, prob = c(.1, .15,.5, .15, .1))
+    })
+  }else if(indCat == 2){
+    ys <- indMean*cs
+  }
+
+
+  df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
+                   'Mean' = indMean,
+                   'X0' = 1, 'Z0' = 1, Beta0 = 30, Gamma0 = .5)
 
   return(df)
 }

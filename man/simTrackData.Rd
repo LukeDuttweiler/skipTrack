@@ -6,7 +6,7 @@
 \usage{
 simTrackData(
   n,
-  method = c("duttweiler", "li"),
+  method = c("duttweiler", "li", "mixture"),
   skipProb = NULL,
   maxCycles = length(skipProb),
   trueBetas = NULL,
