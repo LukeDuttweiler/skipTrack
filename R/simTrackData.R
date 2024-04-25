@@ -271,16 +271,23 @@ mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
     ys <- rpois(numCycles, lambda = indMean*cs)
   }else if(indCat == 1){
     ys <- sapply(cs, function(drC){
-      indMean*drC + sample((-2:2)*drC, 1, replace = TRUE, prob = c(.1, .15,.5, .15, .1))
+      indMean*drC + sum(sample((-2:2), drC, replace = TRUE, prob = c(.05, .25,.4, .25, .05)))
     })
   }else if(indCat == 2){
     ys <- indMean*cs
   }
 
+  #Create X Z dfs
+  xi <- as.data.frame(cbind(1, xi))
+  zi <- as.data.frame(cbind(1, zi))
+  names(xi) <- paste0('X', 0:(ncol(xi)-1))
+  names(zi) <- paste0('Z', 0:(ncol(zi)-1))
+
 
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
-                   'Mean' = indMean,
-                   'X0' = 1, 'Z0' = 1, Beta0 = 30, Gamma0 = .5)
+                   'Mean' = indMean, Beta0 = log(30), Gamma0 = 15)
+
+  df <- cbind(df, xi, zi)
 
   return(df)
 }
