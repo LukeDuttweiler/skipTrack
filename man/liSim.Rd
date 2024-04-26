@@ -4,7 +4,7 @@
 \alias{liSim}
 \title{Simulate user tracked menstrual cycle data for an individual using the li method.}
 \usage{
-liSim(i, skipProb, maxCycles)
+liSim(i, skipProb, maxCycles, trueBetas, trueGammas = NULL)
 }
 \arguments{
 \item{i}{Individual identifier. Character, numeric or integer.}

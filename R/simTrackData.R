@@ -61,7 +61,8 @@ simTrackData <- function(n,
                        zCovF = zCovF)
       simDat <- do.call('rbind', simDat)
     }else if(method[1] == 'li'){
-      simDat <- lapply(1:n, liSim, skipProb = skipProb, maxCycles = maxCycles)
+      simDat <- lapply(1:n, liSim, skipProb = skipProb, maxCycles = maxCycles,
+                       trueBetas = trueBetas, trueGammas = trueGammas)
       simDat <- do.call('rbind', simDat)
     }else if(method[1] == 'mixture'){
       simDat <- lapply(1:n, mixSim,
@@ -196,7 +197,11 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
 #' 'NumTrue', 'Mean', 'SkipProb'.
 #'
 #' @seealso \code{\link{simTrackData}}
-liSim <- function(i, skipProb, maxCycles){
+liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL){
+  if(!is.null(trueGammas)){
+    warning('Li data generation method does not take covs for precision, trueGamma input will be ignored')
+  }
+
   #For each individual, generate the number of (tracked) cycles from poisson(7)
   #(restricted to > 0)
   numCycles <- max(rpois(1, 7), 1)
@@ -211,6 +216,18 @@ liSim <- function(i, skipProb, maxCycles){
   numSkips <- rgeom(numCycles, 1-indSkip)
   numSkips <- pmin(numSkips, rep(maxCycles-1, numCycles))
 
+  #If there are trueBeta values, adjust individual mean for those
+  if(is.null(trueBetas)){
+    chnge <- 0
+    xi <- NULL
+  }else{
+    xi <- matrix(rnorm(length(trueBetas), 0), nrow = 1)
+    chnge <- xi %*% trueBetas
+  }
+
+  #Adjust based on change (on log scale)
+  indMean <- as.numeric(exp(log(indMean) + chnge))
+
   #For each tracked cycle, draw a length (dependent on numSkips)
   ys <- rpois(numCycles, indMean*(1+numSkips))
 
@@ -220,7 +237,13 @@ liSim <- function(i, skipProb, maxCycles){
   #figure out details here.
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = numSkips + 1,
                    'Mean' = indMean, 'SkipProb' = indSkip,
-                   'X0' = 1, 'Z0' = 1, Beta0 = log(30), Gamma0 = log(60))
+                   'Z0' = 1, Beta0 = log(30), Gamma0 = log(60))
+
+  xi <- as.data.frame(cbind(1, xi))
+  names(xi) <- paste0('X', 0:(ncol(xi)-1))
+
+
+  df <- cbind(df, xi)
 
   return(df)
 }
