@@ -2,12 +2,12 @@
 % Please edit documentation in R/visualization.R
 \name{stVisualize}
 \alias{stVisualize}
-\title{Visualize Results from skipTrackMulti}
+\title{Visualize Results from skipTrack.fit}
 \usage{
 stVisualize(mcmcRes)
 }
 \arguments{
-\item{mcmcRes}{A list containing MCMC results obtained from skipTrackMulti.}
+\item{mcmcRes}{A list containing MCMC results obtained from skipTrack.fit.}
 }
 \value{
 A list of three ggplot2 objects:
@@ -18,13 +18,13 @@ A list of three ggplot2 objects:
 }
 }
 \description{
-This function takes results from skipTrackMulti and produces helpful visualizations of the results.
+This function takes results from skipTrack.fit and produces helpful visualizations of the results.
 }
 \examples{
 # Example usage:
-# stVisualize(mcmcResults)
+# stVisualize(stFitObject)
 
 }
 \seealso{
-\code{\link{skipTrackMulti}} for generating MCMC results to be visualized.
+\code{\link{skipTrack.fit}} for generating MCMC results to be visualized.
 }

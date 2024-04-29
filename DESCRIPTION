@@ -25,7 +25,3 @@ Imports:
     utils
 Remotes: 
     LukeDuttweiler/genMCMCDiag
-Depends: 
-    Rcpp
-LinkingTo:
-    Rcpp

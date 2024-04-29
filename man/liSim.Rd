@@ -12,10 +12,14 @@ liSim(i, skipProb, maxCycles, trueBetas, trueGammas = NULL)
 \item{skipProb}{Vector, ignored for this method.}
 
 \item{maxCycles}{Integer, Maximum possible number of true cycles per tracked cycle.}
+
+\item{trueBetas}{Optional. True values for generated mean regression coefficients.}
+
+\item{trueGammas}{NULL, left for consistency. Will throw error if specified.}
 }
 \value{
 A data.frame with columns 'Individual', 'TrackedCycles',
-'NumTrue', 'Mean', 'SkipProb'.
+'NumTrue', 'Mean', 'SkipProb', 'Z0', 'Beta0', 'Gamma0', 'X0', ..., 'Xn' where n = length(trueBetas).
 }
 \description{
 This function generates synthetic data for user tracked menstrual cycles for a

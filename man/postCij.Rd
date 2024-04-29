@@ -24,7 +24,3 @@ c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij 
 take values 1, ..., k where k is the length of pi. This function samples from the
 full conditional posterior of all c_ijs, given vectors of equal length yijs, muis, tauis
 }
-\examples{
-tst <- simTrackData(1000, skipProb = c(.8, .15, .05))
-postCij(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
-}

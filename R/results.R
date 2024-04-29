@@ -1,28 +1,35 @@
-#' Function to get inference results on Betas and Gammas and cijs
+#' Get a table of Inference results from skipTrack.fit
 #'
 #' This function calculates inference results on Betas, Gammas, and cijs based on the provided MCMC results.
 #' It returns summaries such as quantiles and confidence intervals for Betas, Gammas, and cijs, as well as Gelman-Rubin diagnostics.
-#' Note that true values and converage are included in the output if dat is supplied, but otherwise not.
+#' Note that true values and converage are included in the output if trueVals is supplied, but otherwise not.
 #'
-#' @param mcmcRes A list of MCMC results.
-#' @param dat Optional data frame containing true values for Betas, Gammas, and cijs.
-#' @param burnIn Number of iterations to discard as burn-in.
+#' @param stFit Object result of skipTrack.fit function.
+#' @param trueVals Optional list containing true values for Betas, Gammas, and cijs.
+#' @param burnIn Number of skipTrack iterations to discard as burn-in.
+#'
 #' @return A list containing the following elements:
-#'   \item{Betas}{Quantiles and (if dat is supplied) true values for Betas.}
-#'   \item{Gammas}{Quantiles and (if dat is supplied) true values for Gammas.}
+#'   \item{Betas}{95% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
+#'   \item{Gammas}{95% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
 #'   \item{GammaGR}{Gelman-Rubin diagnostics for Gammas.}
-#'   \item{Cijs}{Confidence intervals and (if dat is supplied) true values for cijs.}
+#'   \item{Cijs}{Wald confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
 #'   \item{CijGR}{Gelman-Rubin diagnostics for cijs.}
+#'
 #' @examples
-#' # Example usage:
-#' # stResults(mcmcRes, dat = my_data, burnIn = 750)
+#' # Example usage with simulated data (which includes access to ground truth):
+#' #
+#' # stResults(stFitObject, trueVals = simulatedData, burnIn = 750)
+#' #
+#' # Example usage with real data:
+#' #
+#' # stResults(stFitObject, burnIn = 750)
 #'
 #' @export
-stResults <- function(mcmcRes, dat = NULL, burnIn = 750){
+stResults <- function(stFit, trueVals = NULL, burnIn = 750){
   #Creates a dataframe with chain/draw specific betas and gammas
-  betaDF <- lapply(1:length(mcmcRes), function(chainI){
+  betaDF <- lapply(1:length(stFit), function(chainI){
     #Extract and arrange
-    chainIbetas <- sapply(mcmcRes[[chainI]][burnIn:length(mcmcRes[[chainI]])], getElement, 'Beta')
+    chainIbetas <- sapply(stFit[[chainI]][burnIn:length(stFit[[chainI]])], getElement, 'Beta')
     if(is.matrix(chainIbetas)){
       chainIbetas <- t(chainIbetas)
     }else{
@@ -40,8 +47,8 @@ stResults <- function(mcmcRes, dat = NULL, burnIn = 750){
   })
   betaDF <- do.call('rbind', betaDF)
 
-  gammaDF <- lapply(1:length(mcmcRes), function(chainI){
-    chainIgammas <- sapply(mcmcRes[[chainI]][burnIn:length(mcmcRes[[chainI]])], getElement, 'Gamma')
+  gammaDF <- lapply(1:length(stFit), function(chainI){
+    chainIgammas <- sapply(stFit[[chainI]][burnIn:length(stFit[[chainI]])], getElement, 'Gamma')
 
     if(is.matrix(chainIgammas)){
       chainIgammas <- t(chainIgammas)
@@ -74,7 +81,7 @@ stResults <- function(mcmcRes, dat = NULL, burnIn = 750){
   gammaQuants <- do.call('rbind', gammaQuants)
 
   #Get cijs and confidence intervals
-  cijs <- lapply(mcmcRes, function(ch){
+  cijs <- lapply(stFit, function(ch){
     chainCs <- sapply(ch, function(dr){
       return(dr$ijDat$cs)
     })
@@ -91,11 +98,11 @@ stResults <- function(mcmcRes, dat = NULL, burnIn = 750){
                        'Upper' = cijMeans + qnorm(.975)*cijSDs)
 
 
-  #If supplied, get truth from dat
-  if(!is.null(dat)){
-    trueBetas <- dat$Beta
-    trueGammas <- dat$Gamma
-    trueCijs <- dat$NumTrue
+  #If supplied, get truth from trueVals
+  if(!is.null(trueVals)){
+    trueBetas <- trueVals$Beta
+    trueGammas <- trueVals$Gamma
+    trueCijs <- trueVals$NumTrue
 
     #Attach to quantiles
     betaQuants$TrueVals <- trueBetas[1:nrow(betaQuants)]
@@ -110,7 +117,7 @@ stResults <- function(mcmcRes, dat = NULL, burnIn = 750){
 
   return(list('Betas' = betaQuants,
               'Gammas' = gammaQuants,
-              'GammaGR' = stDiag(mcmcRes = mcmcRes, 'gammas', 'lanfear')@diagnostics$gelmanRubin$`Point est.`,
+              'GammaGR' = stDiag(stFit = stFit, 'gammas', 'lanfear')@diagnostics$gelmanRubin$`Point est.`,
               'Cijs' = cijCIs,
-              'CijGR' = stDiag(mcmcRes = mcmcRes, 'cijs', 'lanfear')@diagnostics$gelmanRubin$`Point est.`))
+              'CijGR' = stDiag(stFit = stFit, 'cijs', 'lanfear')@diagnostics$gelmanRubin$`Point est.`))
 }

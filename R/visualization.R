@@ -1,8 +1,8 @@
-#' Visualize Results from skipTrackMulti
+#' Visualize Results from skipTrack.fit
 #'
-#' This function takes results from skipTrackMulti and produces helpful visualizations of the results.
+#' This function takes results from skipTrack.fit and produces helpful visualizations of the results.
 #'
-#' @param mcmcRes A list containing MCMC results obtained from skipTrackMulti.
+#' @param mcmcRes A list containing MCMC results obtained from skipTrack.fit.
 #'
 #' @return A list of three ggplot2 objects:
 #'   \itemize{
@@ -13,20 +13,15 @@
 #'
 #' @examples
 #' # Example usage:
-#' # stVisualize(mcmcResults)
+#' # stVisualize(stFitObject)
 #'
 #' @seealso
-#' \code{\link{skipTrackMulti}} for generating MCMC results to be visualized.
+#' \code{\link{skipTrack.fit}} for generating MCMC results to be visualized.
 #'
 #' @export
+#'
 stVisualize <- function(mcmcRes){
   #Collect important variables into dataframes
-  #Creates a dataframe with chain/draw specific mus
-  #muDF <- lapply(1:length(mcmcRes), function(chainI){
-  #  chainImus <- sapply(mcmcRes[[chainI]], getElement, 'mu')
-  #  return(data.frame('t' = 1:length(chainImus), 'mu' = chainImus, 'chain' = chainI))
-  #})
-  #muDF <- do.call('rbind', muDF)
 
   #Creates a dataframe with chain/draw specific rhos
   rhoDF <- lapply(1:length(mcmcRes), function(chainI){
@@ -197,5 +192,5 @@ stVisualize <- function(mcmcRes){
   betaPIch <- betaPIch + ggplot2::theme(legend.position = 'none')
 
 
-  return(list(cijOverPlt, cijOverTaus, cijDens, betaPI, betaPIch))
+  return(list(cijOverPlt, cijOverTaus, cijDens))
 }

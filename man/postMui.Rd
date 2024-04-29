@@ -2,7 +2,7 @@
 % Please edit documentation in R/posteriors.R
 \name{postMui}
 \alias{postMui}
-\title{Sample a value from the full conditional posterior of mu_i (UPDATED)}
+\title{Sample a value from the full conditional posterior of mu_i}
 \usage{
 postMui(yij, cij, taui, xib, rho)
 }
@@ -14,7 +14,7 @@ values in cij indicate a sampled number of TRUE cycles in each cycle length give
 
 \item{taui}{Numeric > 0, A sampled precision for the yijs}
 
-\item{xib}{Numeric, result of multiplying x_i^T \%*\% beta}
+\item{xib}{Numeric, result of multiplying x_i^T \%*\% beta (single value, not vector)}
 
 \item{rho}{Numeric > 0, sampled prior precision of mu_i}
 }

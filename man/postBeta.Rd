@@ -24,5 +24,5 @@ we assume that beta follows a mvnormal prior with mean 0 and precision (rho_Beta
 from the posterior distribution of beta under these assumptions.
 }
 \details{
-This function assumes that \code{Xi} is a (\code{num Individuals}) x (dimension of beta) matrix of covariates.
+This function assumes that \code{Xi} is a (num Individuals) x (dimension of beta) matrix of covariates.
 }

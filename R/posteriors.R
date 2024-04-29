@@ -1,34 +1,5 @@
 #This document holds all of the functions that provide random draws from full conditional
-#posteriors for the 'Duttweiler' algorithm.
-
-#' Sample a value from the full conditional posterior of mu
-#'
-#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
-#' is given as N(mu, rho). This function draws from the conditional posterior of mu, given
-#' that the prior on mu is N(priorMean, priorPre).
-#'
-#' @param muI Numeric vector, log of individuals mean values.
-#' @param rho Numeric > 0, a sampled precision of the mu_i values
-#' @param priorMean Numeric, prior mean of mu, default is log(30) to match common menstrual cycle lengths
-#' @param priorPre Numeric > 0, prior precision of mu, default is 1 to have little influence
-#'
-#' @return Numeric
-#' @export
-#'
-#' @examples
-#' mui <- rep(log(31), 10)
-#' postMu(mui, 10)
-postMu <- function(muI, rho, priorMean = log(30), priorPre = 1){
-  #n is the length of muI
-  n <- length(muI)
-
-  #Set Posterior Mean and precision
-  postPre <- priorPre + n*rho
-  postMean <- (priorPre*priorMean + rho*sum(muI))/postPre
-
-  #Draw value for mu and return
-  return(rnorm(1, mean = postMean, sd = sqrt(1/postPre)))
-}
+#posteriors for the 'duttweiler' algorithm.
 
 #' Draw from Posterior Distribution for Beta Parameters
 #'
@@ -36,14 +7,13 @@ postMu <- function(muI, rho, priorMean = log(30), priorPre = 1){
 #' we assume that beta follows a mvnormal prior with mean 0 and precision (rho_Beta) * I.This function draws
 #' from the posterior distribution of beta under these assumptions.
 #'
-#'
 #' @param rhoBeta A scalar representing the prior precision parameter for beta.
 #' @param rho A scalar representing the precision parameter.
 #' @param Xi A matrix of covariates, where each row represents an individual and each column represents a covariate.
 #' @param muI A vector where each element is the mean for individual i.
 #' @return A vector representing a draw from the posterior distribution of beta parameters.
 #'
-#' @details This function assumes that \code{Xi} is a (\code{num Individuals}) x (dimension of beta) matrix of covariates.
+#' @details This function assumes that \code{Xi} is a (num Individuals) x (dimension of beta) matrix of covariates.
 #'
 #' @export
 postBeta <- function(rhoBeta = .01, rho, Xi, muI){
@@ -61,20 +31,21 @@ postBeta <- function(rhoBeta = .01, rho, Xi, muI){
 #' Perform a Metropolis-Hastings Step for Drawing a New Gamma
 #'
 #' Our model assumes that tau_i ~ Gamma(alpha_i, phi) where alpha_i/phi = theta_i and
-#' g(theta_i) = Z_i^T Gamma, where g is the log-link function and Gamma ~ MVNormal(0, 1/rhoGamma * I).
+#' g(theta_i) = Z_i^T Gamma, where g is the log-link function.
 #' Because of this GLM formulation we cannot simply draw from a posterior here and instead use a
-#' Metropolis-Hastings step with proposal distribution propGamma ~ MVNormal(currentGamma, 1/rhoGamma*I)
+#' Metropolis-Hastings step with proposal distribution propGamma ~ MVNormal(currentGamma, rhoGamma*I)
 #'
 #' @param taui A vector of length num_Individuals representing precision parameters for individuals.
 #' @param Zi A matrix of covariates, where each row represents an individual and each column represents a covariate.
 #' @param currentGamma A vector (or matrix with 1 row) representing the current Gamma value.
 #' @param phi A scalar, the prior rate for tau_i.
 #' @param rhoGamma A scalar representing the proposal distribution precision parameter.
-#' @details This draw step assumes a log-link function for the Gamma GLM that we are fitting.
-#' @return A list containing the new Gamma value and the corresponding thetai values.
-#' @export
 #'
-postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000){
+#' @details This draw step assumes a log-link function for the Gamma GLM that we are fitting.
+#'
+#' @return A list containing the new Gamma value and the corresponding thetai values.
+#'
+postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = .01){
   #make sure things are formatted correctly
   currentGamma <- matrix(currentGamma, nrow = 1)
 
@@ -101,8 +72,6 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000){
   #Calculate ps
   pOld <- (sum(log(dgamma(taui, shape = currentThetas*phi, rate = phi))))
   pNew <- (sum(log(dgamma(taui, shape = propThetas*phi, rate = phi))))
-  #pOld <- prod(taui^(currentThetas*phi-1)*exp(-phi*taui))
-  #pNew <- prod(taui^(propThetas*phi-1)*exp(-phi*taui))
 
   #Calculate a
   a <- max(0, min(1, exp(pNew-pOld)*(qOld/qNew)))
@@ -117,22 +86,19 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000){
   }
 }
 
-#' Sample a value from the full conditional posterior of phi
+#' Metropolis-Hastings step to draw a new value for phi.
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
-#' is given as Gamma(thetai*phi, phi). This function draws from the conditional posterior of phi,
-#' given that the prior on phi is gamma(nu0, delta0). The function calculates individual shape
-#' parameters given the previous phi.
+#' is given as Gamma(thetai*phi, phi). This function uses a MH step to draw a new sample of phi.
+#' Proposal distribution is Gamma(currentPhi*rhoPhi, rhoPhi).
 #' Note that we parameterize with RATE, not SCALE.
 #'
 #' @param taui Numeric vector, individuals precisions.
 #' @param thetai Numeric vector. individuals precisions means (estimate)
-#' @param oldPhi Previous draw of phi
-#' @param nu0 Shape parameter of prior on phi
-#' @param delta0 Rate parameter of prior on phi
+#' @param currentPhi Previous draw of phi
+#' @param rhoPhi Proposal rate for gamma distribution that draws proposal for phi, default is 1000.
 #'
-#' @return Numeric
-#' @export
+#' @return Numeric, new draw of phi
 postPhi <- function(taui, thetai, currentPhi, rhoPhi = 1000){
   #Draw proposal phi
   propPhi <- rgamma(1, currentPhi*rhoPhi, rate = rhoPhi)
@@ -160,18 +126,17 @@ postPhi <- function(taui, thetai, currentPhi, rhoPhi = 1000){
   }
 }
 
-#' Sample a value from the full conditional posterior of rho (UPDATED)
+#' Sample a value from the full conditional posterior of rho
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
 #' is given as N(mu, rho). This function draws from the conditional posterior of rho, given
 #' that the prior on rho is a uniform prior on the standard deviation.
-#' Note that we parameterize with RATE, not SCALE.
 #'
 #' @param muI Numeric vector, log of individuals mean values.
-#' @param xib Numeric vector, result of X %*% Beta
+#' @param xib Numeric vector, result of X %*% Beta, same length as muI.
 #'
 #' @return Numeric
-#' @export
+#'
 postRho <- function(muI, xib){
   #n is the length of muI
   n <- length(muI)
@@ -184,7 +149,7 @@ postRho <- function(muI, xib){
   return(rgamma(1, shape = postA, rate = postB))
 }
 
-#' Sample a value from the full conditional posterior of mu_i (UPDATED)
+#' Sample a value from the full conditional posterior of mu_i
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
 #' is given as N(x_i^T %*% beta, rho). This function draws from the conditional posterior of mu_i.
@@ -196,11 +161,11 @@ postRho <- function(muI, xib){
 #' @param cij Positive Integer vector, a sampled vector of length(yij) where the corresponding
 #'  values in cij indicate a sampled number of TRUE cycles in each cycle length given by yij
 #' @param taui Numeric > 0, A sampled precision for the yijs
-#' @param xib Numeric, result of multiplying x_i^T %*% beta
+#' @param xib Numeric, result of multiplying x_i^T %*% beta (single value, not vector)
 #' @param rho Numeric > 0, sampled prior precision of mu_i
 #'
 #' @return Numeric vector, repeated sampled value of length(yij)
-#' @export
+#'
 postMui <- function(yij, cij, taui, xib, rho){
   #Ni is the length of yij
   Ni <- length(yij)
@@ -214,10 +179,10 @@ postMui <- function(yij, cij, taui, xib, rho){
   return(rep(dr, Ni))
 }
 
-#' Sample a value from the full conditional posterior of tau_i (UPDATED)
+#' Sample a value from the full conditional posterior of tau_i
 #'
 #' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
-#' is given as Gamma(alpha, phi) with thetai = alpha/phi. This function draws from the conditional
+#' is given as Gamma(thetai*phi, phi). This function draws from the conditional
 #' posterior of tau_i. Note that we parameterize with RATE, not SCALE.
 #'
 #' Additionally, note that in order to vectorize the remainder of the MCMC algorithm
@@ -228,10 +193,9 @@ postMui <- function(yij, cij, taui, xib, rho){
 #'  values in cij indicate a sampled number of TRUE cycles in each cycle length given by yij
 #' @param mui Numeric, log of sampled mean of this individual's yijs
 #' @param thetai Numeric, mean of prior (gamma) distribution on taui
-#' @param priorB Numeric >0, hyperparameter defaulting to 1, rate parameter for taui prior
+#' @param phi Numeric, rate for Taui prior
 #'
 #' @return Numeric vector, repeated sampled value of length(yij)
-#' @export
 postTaui <- function(yij, cij, mui, thetai, phi = 1){
   #Ni is the length of yij
   Ni <- length(yij)
@@ -258,17 +222,16 @@ postTaui <- function(yij, cij, mui, thetai, phi = 1){
 #' @param tauis Numeric vector > 0, sampled precision for all individuals yijs
 #'
 #' @return Integer vector
-#' @export
 #'
-#' @examples
-#' tst <- simTrackData(1000, skipProb = c(.8, .15, .05))
-#' postCij(tst$TrackedCycles, pi = c(.7, .2, .1), muis = tst$LogMean, tauis = tst$LogPrec)
 postCij <- function(yijs, pi, muis, tauis){
   probs <- sapply(1:length(pi), function(j){
     #likelihood
     lik <- dlnorm(yijs, meanlog = muis + log(j), sdlog = sqrt(1/tauis))
     return(lik*pi[j])
   })
+
+  #Set minimum at machine 0. Prevents the situation where all probabilities are 0 and we get
+  #an error
   probs <- pmax(probs, rep(5e-324,length(probs)))
 
   return(glmnet::rmult(probs))
@@ -285,11 +248,7 @@ postCij <- function(yijs, pi, muis, tauis){
 #' @param priorAlphas Numeric vector, prior dirichlet parameters for pi
 #'
 #' @return Numeric vector
-#' @export
 #'
-#' @examples
-#' cs <- rbinom(1000, 2, .2) + 1
-#' postPi(cs, priorAlphas = c(1,1,1))
 postPi <- function(ci, priorAlphas){
   #Get posterior dirichlet parameters
   postAlphas <- sapply(1:length(priorAlphas), function(k){

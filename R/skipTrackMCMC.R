@@ -1,23 +1,23 @@
 #' Perform MCMC sampling to identify skips in cycle tracking.
 #'
-#' This function runs a Markov Chain Monte Carlo (MCMC) algorithm to update parameters in a hierarchical model
-#' to identify skips in menstrual cycle tracking.
+#' This function runs a single Markov Chain Monte Carlo (MCMC) chain to update parameters in
+#' the skipTrack hierarchical model, accounting for possible skips in tracking.
 #'
 #' @param Y A vector of observed cycle lengths.
 #' @param cluster A vector indicating the individual cluster/group membership for each observation.
-#' @param X A matrix of covariates for cycle length mean. Default is a matrix of 1's.
-#' @param Z A matrix of covariates for cycle length precision. Default is a matrix of 1's.
+#' @param X A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.
+#' @param Z A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.
 #' @param numSkips The maximum number of skips to allow. Default is 10.
 #' @param reps The number of MCMC iterations (steps) to perform. Default is 1000.
 #' @param fixedSkips If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.
 #' @param initialParams A list of initial parameter values for the MCMC algorithm.
-#' Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, rhoBeta, rhoGamma, and phi.
+#' Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.
 #'
 #' @return A list containing the MCMC draws for each parameter at each iteration. Each element
 #' in the list is itself a list containing:
 #' \describe{
-#'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
-#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
+#'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs, muis, tauis.}
+#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus, thetas.}
 #'   \item{rho}{Updated value of the global parameter rho.}
 #'   \item{pi}{Updated value of the global parameter pi.}
 #'   \item{Xi}{Matrix of covariates for cycle length mean.}
@@ -27,8 +27,9 @@
 #'   \item{priorAlphas}{Vector of prior alpha values for updating pi.}
 #'   \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
 #'   \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
-#'   \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
+#'   \item{rhoGamma}{Value of the proposal parameter rhoGamma.}
 #'   \item{phi}{Value of the parameter phi.}
+#'   \item{rhoPhi}{Value of the proposal parameter rhoPhi.}
 #'   \item{fixedSkips}{Logical. Indicates if skips were fixed.}
 #' }
 #'
@@ -42,9 +43,8 @@
 #' #cycleDat <- simTrackData(1000, skipProb = c(.7, .2, .1)) #Simulated Data
 #' #result <- skipTrackMCMC(cycleDat)
 #'
-#' @seealso \code{\link{gibbsStep}}
+#' @seealso \code{\link{sampleStep}}
 #'
-#' @keywords mcmc hierarchical model skipped tracking cycles
 #'
 #' @export
 #'
@@ -65,8 +65,9 @@ skipTrackMCMC <- function(Y,cluster,
                                                Beta = matrix(rep(0, ncol(as.matrix(X))),1),
                                                Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
                                                rhoBeta = .01,
-                                               rhoGamma = 100,
-                                               phi = .01)){
+                                               rhoGamma = .01,
+                                               phi = .01,
+                                               rhoPhi = 1000)){
   #Set initial params default list
   ip <- list(pi = rep(1/(numSkips+1), numSkips+1),
              muis = rep(log(30),
@@ -79,8 +80,8 @@ skipTrackMCMC <- function(Y,cluster,
              Beta = matrix(rep(0, ncol(as.matrix(X))),1),
              Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
              rhoBeta = .01,
-             rhoGamma = 100,
-             phi = .01)
+             rhoGamma = .01,
+             phi = .01, rhoPhi = 1000)
 
   #Replace anything that needs replacing
   for(i in 1:length(initialParams)){
@@ -127,6 +128,7 @@ skipTrackMCMC <- function(Y,cluster,
                          rhoBeta = initialParams$rhoBeta,
                          rhoGamma = initialParams$rhoGamma,
                          phi = initialParams$phi,
+                         rhoPhi = initialParams$rhoPhi,
                          fixedSkips = fixedSkips)
   #Progress bar
   pb <- utils::txtProgressBar(min = 0, max = reps, style = 3)
@@ -139,7 +141,7 @@ skipTrackMCMC <- function(Y,cluster,
   return(fullDraws)
 }
 
-#' Perform a single step of the MCMC sampling process.
+#' Perform a single step of the MCMC sampling process for skipTrack
 #'
 #' This function performs a single step of the Markov Chain Monte Carlo (MCMC) algorithm to update parameters
 #' in a hierarchical model used for identifying skips in menstrual cycle tracking.
@@ -148,22 +150,23 @@ skipTrackMCMC <- function(Y,cluster,
 #' @param iDat A data.frame with individual level parameters: Individual, mus, taus, thetas.
 #' @param rho Updated value of the global parameter rho.
 #' @param pi Updated value of the global parameter pi.
-#' @param Xi A matrix of covariates for cycle length mean.
-#' @param Zi A matrix of covariates for cycle length precision.
-#' @param Beta Matrix of coefficients for cycle length mean.
-#' @param Gamma Matrix of coefficients for cycle length precision.
+#' @param Xi A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.
+#' @param Z A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.
+#' @param Beta Matrix (1 x length(Beta)) of coefficients for cycle length mean.
+#' @param Gamma Matrix of (1 x length(Gamma)) coefficients for cycle length precision.
 #' @param priorAlphas Vector of prior alpha values for updating pi.
 #' @param indFirst A logical vector indicating the first occurrence of each individual.
 #' @param rhoBeta Updated value of the global parameter rhoBeta.
-#' @param rhoGamma Updated value of the global parameter rhoGamma.
+#' @param rhoGamma Value of the proposal parameter rhoGamma.
 #' @param phi Value of the parameter phi.
+#' @param rhoPhi Value of the proposal parameter rhoPhi.
 #' @param fixedSkips Logical. If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.
 #'
 #' @return A list containing updated parameters after performing a single MCMC step.
 #' The list includes:
 #' \describe{
 #'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
-#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
+#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus, thetas.}
 #'   \item{rho}{Updated value of the global parameter rho.}
 #'   \item{pi}{Updated value of the global parameter pi.}
 #'   \item{Xi}{Matrix of covariates for cycle length mean.}
@@ -173,15 +176,16 @@ skipTrackMCMC <- function(Y,cluster,
 #'   \item{priorAlphas}{Vector of prior alpha values for updating pi.}
 #'   \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
 #'   \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
-#'   \item{rhoGamma}{Updated value of the global parameter rhoGamma.}
+#'   \item{rhoGamma}{Value of the proposal parameter rhoGamma.}
 #'   \item{phi}{Value of the parameter phi.}
+#'   \item{rhoPhi}{Value of the proposal parameter rhoPhi.}
 #'   \item{fixedSkips}{Logical. Fixed skips input.}
 #' }
 #'
 sampleStep <- function(ijDat, iDat, rho, pi,
                        Xi, Zi, Beta, Gamma,
                        priorAlphas, indFirst,
-                       rhoBeta, rhoGamma, phi, fixedSkips){
+                       rhoBeta, rhoGamma, phi, rhoPhi, fixedSkips){
   #Start with high level (without Gamma and thetais as those are connected)
   newBeta <- postBeta(rhoBeta = rhoBeta, rho = rho, Xi = Xi, muI = iDat$mus)
 
@@ -217,7 +221,8 @@ sampleStep <- function(ijDat, iDat, rho, pi,
   newThetas <- newGamList$thetai
 
   #High Level, Phi
-  newPhi <- postPhi(taui = newTauis[indFirst], thetai = newThetas, currentPhi = phi)
+  newPhi <- postPhi(taui = newTauis[indFirst], thetai = newThetas, currentPhi = phi,
+                    rhoPhi = rhoPhi)
 
   #Create new i level information
   iDatNew <- data.frame(Individual = iDat$Individual,
@@ -239,5 +244,6 @@ sampleStep <- function(ijDat, iDat, rho, pi,
   return(list(ijDat = ijDatNew, iDat = iDatNew, rho = newRho,
               pi = newPi, Xi = Xi, Zi = Zi, Beta = newBeta,
               Gamma = newGamma, priorAlphas = priorAlphas, indFirst = indFirst,
-              rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = newPhi, fixedSkips = fixedSkips))
+              rhoBeta = rhoBeta, rhoGamma = rhoGamma, phi = newPhi, rhoPhi = rhoPhi,
+              fixedSkips = fixedSkips))
 }

@@ -4,7 +4,7 @@
 \alias{postGamma}
 \title{Perform a Metropolis-Hastings Step for Drawing a New Gamma}
 \usage{
-postGamma(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000)
+postGamma(taui, Zi, currentGamma, phi = 1, rhoGamma = 0.01)
 }
 \arguments{
 \item{taui}{A vector of length num_Individuals representing precision parameters for individuals.}
@@ -22,9 +22,9 @@ A list containing the new Gamma value and the corresponding thetai values.
 }
 \description{
 Our model assumes that tau_i ~ Gamma(alpha_i, phi) where alpha_i/phi = theta_i and
-g(theta_i) = Z_i^T Gamma, where g is the log-link function and Gamma ~ MVNormal(0, 1/rhoGamma * I).
+g(theta_i) = Z_i^T Gamma, where g is the log-link function.
 Because of this GLM formulation we cannot simply draw from a posterior here and instead use a
-Metropolis-Hastings step with proposal distribution propGamma ~ MVNormal(currentGamma, 1/rhoGamma*I)
+Metropolis-Hastings step with proposal distribution propGamma ~ MVNormal(currentGamma, rhoGamma*I)
 }
 \details{
 This draw step assumes a log-link function for the Gamma GLM that we are fitting.

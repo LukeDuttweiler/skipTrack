@@ -2,32 +2,37 @@
 % Please edit documentation in R/results.R
 \name{stResults}
 \alias{stResults}
-\title{Function to get inference results on Betas and Gammas and cijs}
+\title{Get a table of Inference results from skipTrack.fit}
 \usage{
-stResults(mcmcRes, dat = NULL, burnIn = 750)
+stResults(stFit, trueVals = NULL, burnIn = 750)
 }
 \arguments{
-\item{mcmcRes}{A list of MCMC results.}
+\item{stFit}{Object result of skipTrack.fit function.}
 
-\item{dat}{Optional data frame containing true values for Betas, Gammas, and cijs.}
+\item{trueVals}{Optional list containing true values for Betas, Gammas, and cijs.}
 
-\item{burnIn}{Number of iterations to discard as burn-in.}
+\item{burnIn}{Number of skipTrack iterations to discard as burn-in.}
 }
 \value{
 A list containing the following elements:
-\item{Betas}{Quantiles and (if dat is supplied) true values for Betas.}
-\item{Gammas}{Quantiles and (if dat is supplied) true values for Gammas.}
+\item{Betas}{95\% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
+\item{Gammas}{95\% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
 \item{GammaGR}{Gelman-Rubin diagnostics for Gammas.}
-\item{Cijs}{Confidence intervals and (if dat is supplied) true values for cijs.}
+\item{Cijs}{Wald confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
 \item{CijGR}{Gelman-Rubin diagnostics for cijs.}
 }
 \description{
 This function calculates inference results on Betas, Gammas, and cijs based on the provided MCMC results.
 It returns summaries such as quantiles and confidence intervals for Betas, Gammas, and cijs, as well as Gelman-Rubin diagnostics.
-Note that true values and converage are included in the output if dat is supplied, but otherwise not.
+Note that true values and converage are included in the output if trueVals is supplied, but otherwise not.
 }
 \examples{
-# Example usage:
-# stResults(mcmcRes, dat = my_data, burnIn = 750)
+# Example usage with simulated data (which includes access to ground truth):
+#
+# stResults(stFitObject, trueVals = simulatedData, burnIn = 750)
+#
+# Example usage with real data:
+#
+# stResults(stFitObject, burnIn = 750)
 
 }

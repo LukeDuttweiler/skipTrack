@@ -2,14 +2,14 @@
 % Please edit documentation in R/posteriors.R
 \name{postRho}
 \alias{postRho}
-\title{Sample a value from the full conditional posterior of rho (UPDATED)}
+\title{Sample a value from the full conditional posterior of rho}
 \usage{
 postRho(muI, xib)
 }
 \arguments{
 \item{muI}{Numeric vector, log of individuals mean values.}
 
-\item{xib}{Numeric vector, result of X \%*\% Beta}
+\item{xib}{Numeric vector, result of X \%*\% Beta, same length as muI.}
 }
 \value{
 Numeric
@@ -18,5 +18,4 @@ Numeric
 In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
 is given as N(mu, rho). This function draws from the conditional posterior of rho, given
 that the prior on rho is a uniform prior on the standard deviation.
-Note that we parameterize with RATE, not SCALE.
 }

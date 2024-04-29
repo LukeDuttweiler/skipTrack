@@ -2,7 +2,7 @@
 % Please edit documentation in R/posteriors.R
 \name{postPhi}
 \alias{postPhi}
-\title{Sample a value from the full conditional posterior of phi}
+\title{Metropolis-Hastings step to draw a new value for phi.}
 \usage{
 postPhi(taui, thetai, currentPhi, rhoPhi = 1000)
 }
@@ -11,19 +11,16 @@ postPhi(taui, thetai, currentPhi, rhoPhi = 1000)
 
 \item{thetai}{Numeric vector. individuals precisions means (estimate)}
 
-\item{oldPhi}{Previous draw of phi}
+\item{currentPhi}{Previous draw of phi}
 
-\item{nu0}{Shape parameter of prior on phi}
-
-\item{delta0}{Rate parameter of prior on phi}
+\item{rhoPhi}{Proposal rate for gamma distribution that draws proposal for phi, default is 1000.}
 }
 \value{
-Numeric
+Numeric, new draw of phi
 }
 \description{
 In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
-is given as Gamma(thetai*phi, phi). This function draws from the conditional posterior of phi,
-given that the prior on phi is gamma(nu0, delta0). The function calculates individual shape
-parameters given the previous phi.
+is given as Gamma(thetai\emph{phi, phi). This function uses a MH step to draw a new sample of phi.
+Proposal distribution is Gamma(currentPhi}rhoPhi, rhoPhi).
 Note that we parameterize with RATE, not SCALE.
 }

@@ -1,21 +1,25 @@
-#' Perform skipTrackMCMC on multiple chains using parallel or sequential computing
+#' Runs the skipTrack Model, using multiple MCMC chains
 #'
 #' This function runs skipTrackMCMC on multiple chains,
-#' either in parallel or sequentially. If li == TRUE can run the method given in Li. This ignores
-#' any covariates given.
+#' either in parallel or sequentially.
+#' If li == TRUE can perform estimation using the model given in Li et al. (2022).
 #'
 #' @inheritParams skipTrackMCMC
 #' @inheritDotParams skipTrackMCMC
 #'
 #' @param chains Number of chains to run in parallel or sequentially.
-#' @param useParallel Logical, indicating whether to use parallel processing.
+#' @param useParallel Logical, indicating whether to use parallel processing. Default is TRUE.
+#' @param li Logical, if TRUE runs the estimation given the model provided in Li et al. (2022).
+#' This model does not estimate covariates, so these will be ignored.
+#' @param liHyperparams Named numeric vector, the hyperparameters named in the Li algorithm. Defaults
+#' are provided, will only be used if li == TRUE
 #'
 #' @return A list containing the results of skipTrackMCMC for each chain.
 #' @export
 #'
 #' @seealso \code{\link{skipTrackMCMC}}
 #'
-skipTrackMulti <- function(Y,cluster,
+skipTrack.fit <- function(Y,cluster,
                            X = matrix(1, nrow = length(unique(cluster))),
                            Z = matrix(1, nrow = length(unique(cluster))),
                            numSkips = 10,

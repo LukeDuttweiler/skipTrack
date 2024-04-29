@@ -8,7 +8,7 @@
 #' @inheritDotParams genMCMCDiag::genDiagnostic diagnostics distance verbose
 #'
 #' @return A mcmcDiag object of MCMC diagnostics for the specified parameter
-#' @details If the parameter is one of 'mu' or 'rho' (the univariate parameters),
+#' @details If the parameter is 'rho' (the univariate parameters),
 #'   the function extracts the specified parameter from the MCMC results and calculates
 #'   diagnostics using the genDiagnostic function with the
 #'   standard method. If the parameter is 'cijs', 'muis', or 'tauis', the

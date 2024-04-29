@@ -2,7 +2,7 @@
 % Please edit documentation in R/skipTrackMCMC.R
 \name{sampleStep}
 \alias{sampleStep}
-\title{Perform a single step of the MCMC sampling process.}
+\title{Perform a single step of the MCMC sampling process for skipTrack}
 \usage{
 sampleStep(
   ijDat,
@@ -18,6 +18,7 @@ sampleStep(
   rhoBeta,
   rhoGamma,
   phi,
+  rhoPhi,
   fixedSkips
 )
 }
@@ -30,13 +31,11 @@ sampleStep(
 
 \item{pi}{Updated value of the global parameter pi.}
 
-\item{Xi}{A matrix of covariates for cycle length mean.}
+\item{Xi}{A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.}
 
-\item{Zi}{A matrix of covariates for cycle length precision.}
+\item{Beta}{Matrix (1 x length(Beta)) of coefficients for cycle length mean.}
 
-\item{Beta}{Matrix of coefficients for cycle length mean.}
-
-\item{Gamma}{Matrix of coefficients for cycle length precision.}
+\item{Gamma}{Matrix of (1 x length(Gamma)) coefficients for cycle length precision.}
 
 \item{priorAlphas}{Vector of prior alpha values for updating pi.}
 
@@ -44,18 +43,22 @@ sampleStep(
 
 \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
 
-\item{rhoGamma}{Updated value of the global parameter rhoGamma.}
+\item{rhoGamma}{Value of the proposal parameter rhoGamma.}
 
 \item{phi}{Value of the parameter phi.}
 
+\item{rhoPhi}{Value of the proposal parameter rhoPhi.}
+
 \item{fixedSkips}{Logical. If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
+
+\item{Z}{A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.}
 }
 \value{
 A list containing updated parameters after performing a single MCMC step.
 The list includes:
 \describe{
 \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
-\item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus.}
+\item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus, thetas.}
 \item{rho}{Updated value of the global parameter rho.}
 \item{pi}{Updated value of the global parameter pi.}
 \item{Xi}{Matrix of covariates for cycle length mean.}
@@ -65,8 +68,9 @@ The list includes:
 \item{priorAlphas}{Vector of prior alpha values for updating pi.}
 \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
 \item{rhoBeta}{Updated value of the global parameter rhoBeta.}
-\item{rhoGamma}{Updated value of the global parameter rhoGamma.}
+\item{rhoGamma}{Value of the proposal parameter rhoGamma.}
 \item{phi}{Value of the parameter phi.}
+\item{rhoPhi}{Value of the proposal parameter rhoPhi.}
 \item{fixedSkips}{Logical. Fixed skips input.}
 }
 }

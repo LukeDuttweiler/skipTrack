@@ -19,31 +19,37 @@ simTrackData(
 \arguments{
 \item{n}{Number of individuals to simulate data for.}
 
-\item{method}{Method for data simulation. Can be a character ('duttweiler', 'li') or a custom function.}
+\item{method}{Method for data simulation. Can be a character ('duttweiler', 'li', 'mixture') or a custom function.}
 
 \item{skipProb}{Vector of probabilities for number of true cycles per tracked cycle. For
 example, (.7, .2, .1) means that 70\% of observed cycles will contain one true cycle, 20\%
 will contain 2 true cycles and 10\% will contain 3 true cycles. Default is NULL. If
-method == 'li', this should be ignored.}
+method == 'li', leave as default.}
 
 \item{maxCycles}{Maximum number of cycles for generating skip cycles. Default is the length of skipProb.
-If method == 'li' this must be specified, if method == 'duttweiler', leave as default.}
+If method == 'li', this must be specified; if method == 'duttweiler', leave as default.}
+
+\item{trueBetas}{Optional. True values for the mean regression coefficients (not counting intercept which is automatic based on the method).}
+
+\item{trueGammas}{Optional. True values for the precision regression coefficients (not counting intercept which is automatic based on the method).}
+
+\item{overlap}{Optional. Number of shared (non-intercept) covariates between X and Z.}
 }
 \value{
-A data.frame with information dependent on the method.
+A list with information dependent on the method.
 }
 \description{
-This function generates synthetic data for user tracked menstrual cycles given the specified method,
-skip probabilities, and maximum cycles. It supports built-in methods ('duttweiler', 'li') and custom methods.
+This function generates synthetic data for user-tracked menstrual cycles given the specified method,
+skip probabilities, and maximum cycles. It supports built-in methods ('duttweiler', 'li', 'mixture') and custom methods.
 }
 \examples{
 # Example usage of simTrackData function using the dutt method
 resultDutt <- simTrackData(1000, method = 'duttweiler', skipProb = c(.7, .2, .1))
 
-#Example usage using the li method
+# Example usage using the li method
 resultLi <- simTrackData(1000, method = 'li', maxCycles = 3)
 
 }
 \seealso{
-\code{\link{duttSim}}, \code{\link{liSim}}
+\code{\link{duttSim}}, \code{\link{liSim}}, \code{\link{mixSim}}
 }

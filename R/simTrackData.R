@@ -1,27 +1,30 @@
 #' Simulate user-tracked menstrual cycle data for multiple individuals using specified method.
 #'
-#' This function generates synthetic data for user tracked menstrual cycles given the specified method,
-#' skip probabilities, and maximum cycles. It supports built-in methods ('duttweiler', 'li') and custom methods.
+#' This function generates synthetic data for user-tracked menstrual cycles given the specified method,
+#' skip probabilities, and maximum cycles. It supports built-in methods ('duttweiler', 'li', 'mixture') and custom methods.
 #'
 #' @param n Number of individuals to simulate data for.
-#' @param method Method for data simulation. Can be a character ('duttweiler', 'li') or a custom function.
+#' @param method Method for data simulation. Can be a character ('duttweiler', 'li', 'mixture') or a custom function.
 #' @param skipProb Vector of probabilities for number of true cycles per tracked cycle. For
 #' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
 #' will contain 2 true cycles and 10% will contain 3 true cycles. Default is NULL. If
-#' method == 'li', this should be ignored.
+#' method == 'li', leave as default.
 #' @param maxCycles Maximum number of cycles for generating skip cycles. Default is the length of skipProb.
-#' If method == 'li' this must be specified, if method == 'duttweiler', leave as default.
+#' If method == 'li', this must be specified; if method == 'duttweiler', leave as default.
+#' @param trueBetas Optional. True values for the mean regression coefficients (not counting intercept which is automatic based on the method).
+#' @param trueGammas Optional. True values for the precision regression coefficients (not counting intercept which is automatic based on the method).
+#' @param overlap Optional. Number of shared (non-intercept) covariates between X and Z.
 #'
-#' @return A data.frame with information dependent on the method.
+#' @return A list with information dependent on the method.
 #'
 #' @examples
 #' # Example usage of simTrackData function using the dutt method
 #' resultDutt <- simTrackData(1000, method = 'duttweiler', skipProb = c(.7, .2, .1))
 #'
-#' #Example usage using the li method
+#' # Example usage using the li method
 #' resultLi <- simTrackData(1000, method = 'li', maxCycles = 3)
 #'
-#' @seealso \code{\link{duttSim}}, \code{\link{liSim}}
+#' @seealso \code{\link{duttSim}}, \code{\link{liSim}}, \code{\link{mixSim}}
 #'
 #' @export
 simTrackData <- function(n,
@@ -114,25 +117,28 @@ simTrackData <- function(n,
 #' Simulate user tracked menstrual cycle data for an individual using the dutt method.
 #'
 #' This function generates synthetic data for user tracked menstrual cycles for a
-#' single individual using the dutt method.
+#' single individual using the duttweiler method.
 #'
 #' @param i Individual identifier. Character, numeric or integer.
 #' @param skipProb Vector of probabilities for number of true cycles per tracked cycle. For
 #' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
 #' will contain 2 true cycles and 10% will contain 3 true cycles.
 #' @param maxCycles Maximum number of true cycles per tracked cycle. Ignored.
+#' @param trueBetas Optional. True values for generated mean regression coefficients.
+#' @param trueGammas Optional. True values for the generated precision regression coefficients.
+#' @param overlap Optional. Number of shared covariates between X and Z.
 #'
 #' @return A data.frame with columns 'Individual', 'TrackedCycles', 'NumTrue',
-#'  'LogMean', 'LogPrec'.
-#'
+#'  'LogMean', 'LogPrec', 'Beta0', 'Gamma0', 'X0',...,'Xn', 'Z0',...,'Zm'. Where n = length(trueBetas)
+#'  and m = length(trueGammas).
 #'
 #' @seealso \code{\link{simTrackData}}
-duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCovF, zCovF){
+duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
   #For each individual, generate the number of (tracked) cycles from poisson(7)
   #(restricted to > 0)
   numCycles <- max(rpois(1, 7), 1)
 
-  #If TRUE xCov or zCov = 0, set mean/precision to parameters specifically,
+  #If trueBetas or trueGammas don't exist, set mean/precision to given average,
   #otherwise, create the number of requested covariates and record effects
   if(is.null(trueBetas)){
     lm <- log(30)
@@ -167,12 +173,8 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
   #Sample tracked cycle lengths
   ys <- round(rlnorm(numCycles, meanlog = lmean + log(cs), sdlog = sqrt(1/prec)))
 
-  #Create as many fake x and z covariates as requested
-  xiF <- matrix(rnorm(length(xCovF), .25), nrow = 1)
-  ziF <- matrix(rnorm(length(zCovF), .25), nrow = 1)
-
-  xi <- as.data.frame(cbind(1, xi, xiF))
-  zi <- as.data.frame(cbind(1, zi, ziF))
+  xi <- as.data.frame(cbind(1, xi))
+  zi <- as.data.frame(cbind(1, zi))
   names(xi) <- paste0('X', 0:(ncol(xi)-1))
   names(zi) <- paste0('Z', 0:(ncol(zi)-1))
 
@@ -192,9 +194,11 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, xCov
 #' @param i Individual identifier. Character, numeric or integer.
 #' @param skipProb Vector, ignored for this method.
 #' @param maxCycles Integer, Maximum possible number of true cycles per tracked cycle.
+#' @param trueBetas Optional. True values for generated mean regression coefficients.
+#' @param trueGammas NULL, left for consistency. Will throw error if specified.
 #'
 #' @return A data.frame with columns 'Individual', 'TrackedCycles',
-#' 'NumTrue', 'Mean', 'SkipProb'.
+#' 'NumTrue', 'Mean', 'SkipProb', 'Z0', 'Beta0', 'Gamma0', 'X0', ..., 'Xn' where n = length(trueBetas).
 #'
 #' @seealso \code{\link{simTrackData}}
 liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL){
@@ -248,6 +252,25 @@ liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL){
   return(df)
 }
 
+#' Simulate user tracked menstrual cycle data for an individual using the mixture method.
+#'
+#' This function generates synthetic data for user tracked menstrual cycles for a
+#' single individual using the mixture method.
+#'
+#' @param i Individual identifier. Character, numeric, or integer.
+#' @param skipProb Vector of probabilities for the number of true cycles per tracked cycle. For
+#' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
+#' will contain 2 true cycles, and 10% will contain 3 true cycles.
+#' @param maxCycles Maximum number of true cycles per tracked cycle.
+#' @param trueBetas Optional. True values for generated mean regression coefficients.
+#' @param trueGammas Optional. True values for the generated precision regression coefficients.
+#' @param overlap Optional. Number of shared covariates between X and Z.
+#'
+#' @return A data.frame with columns 'Individual', 'TrackedCycles', 'NumTrue',
+#' 'Mean', 'Beta0', 'Gamma0', 'X0',...,'Xn', 'Z0',...,'Zm', where n = length(trueBetas)
+#'  and m = length(trueGammas).
+#'
+#' @seealso \code{\link{simTrackData}}
 mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
   #For each individual, generate the number of (tracked) cycles from poisson(7)
   #(restricted to > 0)

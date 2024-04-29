@@ -2,7 +2,7 @@
 % Please edit documentation in R/posteriors.R
 \name{postTaui}
 \alias{postTaui}
-\title{Sample a value from the full conditional posterior of tau_i (UPDATED)}
+\title{Sample a value from the full conditional posterior of tau_i}
 \usage{
 postTaui(yij, cij, mui, thetai, phi = 1)
 }
@@ -16,14 +16,14 @@ values in cij indicate a sampled number of TRUE cycles in each cycle length give
 
 \item{thetai}{Numeric, mean of prior (gamma) distribution on taui}
 
-\item{priorB}{Numeric >0, hyperparameter defaulting to 1, rate parameter for taui prior}
+\item{phi}{Numeric, rate for Taui prior}
 }
 \value{
 Numeric vector, repeated sampled value of length(yij)
 }
 \description{
 In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
-is given as Gamma(alpha, phi) with thetai = alpha/phi. This function draws from the conditional
+is given as Gamma(thetai*phi, phi). This function draws from the conditional
 posterior of tau_i. Note that we parameterize with RATE, not SCALE.
 }
 \details{

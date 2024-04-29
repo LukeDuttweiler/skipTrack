@@ -20,7 +20,3 @@ c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij 
 take values 1, ..., k where k is the length of pi. This function samples from the
 posterior of pi = pi1, ..., pik, assuming that pi follows Dirichlet(priorAlphas)
 }
-\examples{
-cs <- rbinom(1000, 2, .2) + 1
-postPi(cs, priorAlphas = c(1,1,1))
-}
