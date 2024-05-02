@@ -1,73 +1,81 @@
-#' Simulate user-tracked menstrual cycle data for multiple individuals using specified method.
+#' Simulate user-tracked menstrual cycle data for multiple individuals
 #'
-#' This function generates synthetic data for user-tracked menstrual cycles given the specified method,
-#' skip probabilities, and maximum cycles. It supports built-in methods ('duttweiler', 'li', 'mixture') and custom methods.
+#' This function generates synthetic data for user-tracked menstrual cycles given a generative model,
+#' skip probabilities, maximum cycles and covariates (depending on the model).
+#' It supports built-in models ('skipTrack', 'li', 'mixture') and custom models written as functions.
 #'
 #' @param n Number of individuals to simulate data for.
-#' @param method Method for data simulation. Can be a character ('duttweiler', 'li', 'mixture') or a custom function.
+#' @param model model for data simulation. Can be a character ('skipTrack', 'li', 'mixture') or a custom function.
 #' @param skipProb Vector of probabilities for number of true cycles per tracked cycle. For
 #' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
 #' will contain 2 true cycles and 10% will contain 3 true cycles. Default is NULL. If
-#' method == 'li', leave as default.
+#' model == 'li', skipProb values are set and user input will be ignored.
 #' @param maxCycles Maximum number of cycles for generating skip cycles. Default is the length of skipProb.
-#' If method == 'li', this must be specified; if method == 'duttweiler', leave as default.
-#' @param trueBetas Optional. True values for the mean regression coefficients (not counting intercept which is automatic based on the method).
-#' @param trueGammas Optional. True values for the precision regression coefficients (not counting intercept which is automatic based on the method).
-#' @param overlap Optional. Number of shared (non-intercept) covariates between X and Z.
+#' If model == 'li', this must be specified; if model == 'skipTrack' or 'mixture', leave as default.
+#' @param trueBetas Optional. True values for the mean regression coefficients (not counting intercept which is automatic based on the model).
+#' @param trueGammas Optional. True values for the precision regression coefficients (not counting intercept which is automatic based on the model). Precision covariates not available for model == 'li'.
+#' @param overlap Optional. Number of (non-intercept) columns shared between X and Z. Columns are shared from left to right.
 #'
-#' @return A list with information dependent on the method.
+#' @return A list containing:
+#' \describe{
+#'  \item{'Y'}{Tracked cycles from the simulated data.}
+#'  \item{'cluster'}{Individual identifiers from the simulated data.}
+#'  \item{'X'}{Covariate matrix for Betas (mean cycle length).}
+#'  \item{'Z'}{Covariate matrix for Gammas (regularity).}
+#'  \item{'Beta'}{True beta coefficients.}
+#'  \item{'Gamma'}{True gamma coefficients.}
+#'  \item{'NumTrue'}{Number of true cycles in each tracked cycle. Order matches Y.}
+#'  \item{'Underlying'}{Subset of the simulated data containing individual level information. For 'skipTrack' - individual mean and precision for log(cycle lengths), for 'li' - individual mean for cycle lengths, for 'mixture' - individual mean for cycle lengths}
+#'}
+#'
 #'
 #' @examples
-#' # Example usage of simTrackData function using the dutt method
-#' resultDutt <- simTrackData(1000, method = 'duttweiler', skipProb = c(.7, .2, .1))
+#' # Example usage of skipTrack.simulate function using the skipTrack generative model
+#' resultSt <- skipTrack.simulate(1000, model = 'skipTrack', skipProb = c(.7, .2, .1))
 #'
-#' # Example usage using the li method
-#' resultLi <- simTrackData(1000, method = 'li', maxCycles = 3)
+#' # Example usage using the li model
+#' resultLi <- skipTrack.simulate(1000, model = 'li', maxCycles = 3)
 #'
-#' @seealso \code{\link{duttSim}}, \code{\link{liSim}}, \code{\link{mixSim}}
+#' @seealso \code{\link{stSim}}, \code{\link{liSim}}, \code{\link{mixSim}}
 #'
 #' @export
-simTrackData <- function(n,
-                         method = c('duttweiler', 'li', 'mixture'),
+skipTrack.simulate <- function(n,
+                         model = c('skipTrack', 'li', 'mixture'),
                          skipProb = NULL,
                          maxCycles = length(skipProb),
                          trueBetas = NULL,
                          trueGammas = NULL,
-                         overlap = 0,
-                         xCovF = NULL,
-                         zCovF = xCovF){
+                         overlap = 0){
 
-  #Checks for built in methods, custom methods are on their own.
-  if(is.character(method)){
-    #If method is li, make sure length(skipProb) is 1
-    if((method[1] == 'li') & !is.null(skipProb)){
-      stop('with method li, skipProb should be NULL and maxCycles should be specified.')
+  #Checks for built in models, custom models are on their own.
+  if(is.character(model)){
+    #If model is li, make sure length(skipProb) is 1
+    if((model[1] == 'li') & !is.null(skipProb)){
+      stop('with model li, skipProb should be NULL and maxCycles should be specified.')
     }
 
-    #If method is dutt, make sure maxCycles is length(skipProb)
-    if((method[1] == 'duttweiler') & maxCycles != length(skipProb)){
+    #If model is skipTrack, make sure maxCycles is length(skipProb)
+    if((model[1] == 'skipTrack') & maxCycles != length(skipProb)){
       stop(
-        'for method dutt, maxCycles should be the length of skipProb'
+        'for model skipTrack, maxCycles should be the length of skipProb'
       )
     }
   }
 
   #n gives the number of individuals, for each individual simulate tracked cycles
-  #given method, skipProb, and maxCycles
-  if(is.character(method)){
-    if(method[1] == 'duttweiler'){
-      simDat <- lapply(1:n, duttSim, skipProb = skipProb, maxCycles = maxCycles,
+  #given model
+  if(is.character(model)){
+    if(model[1] == 'skipTrack'){
+      simDat <- lapply(1:n, stSim, skipProb = skipProb, maxCycles = maxCycles,
                        trueBetas = trueBetas,
                        trueGammas = trueGammas,
-                       overlap = overlap,
-                       xCovF = xCovF,
-                       zCovF = zCovF)
+                       overlap = overlap)
       simDat <- do.call('rbind', simDat)
-    }else if(method[1] == 'li'){
+    }else if(model[1] == 'li'){
       simDat <- lapply(1:n, liSim, skipProb = skipProb, maxCycles = maxCycles,
                        trueBetas = trueBetas, trueGammas = trueGammas)
       simDat <- do.call('rbind', simDat)
-    }else if(method[1] == 'mixture'){
+    }else if(model[1] == 'mixture'){
       simDat <- lapply(1:n, mixSim,
                        skipProb = skipProb,
                        maxCycles = maxCycles,
@@ -76,20 +84,20 @@ simTrackData <- function(n,
                        overlap = overlap)
       simDat <- do.call('rbind', simDat)
     }else{
-      stop('specified method is unknown.')
+      stop('specified model is unknown.')
     }
-  }else if(is.function(method)){
-    simDat <- lapply(1:n, method, skipProb = skipProb, maxCycles = maxCycles)
+  }else if(is.function(model)){
+    simDat <- lapply(1:n, model, skipProb = skipProb, maxCycles = maxCycles)
     simDat <- do.call('rbind', simDat)
   }else{
-    stop('method must be one of the specified characters, or a function taking skipProb and maxCycles')
+    stop('model must be one of the specified characters, or a function taking skipProb and maxCycles')
   }
 
   #Get X and Z
-  X <- as.matrix(simDat[,grepl('X|Individual', names(simDat))])
-  Z <- as.matrix(simDat[,grepl('Z|Individual', names(simDat))])
-  X <- unique(X)[,-1]
-  Z <- unique(Z)[,-1]
+  X <- as.matrix(simDat[,grepl('X|Individual', names(simDat))])[,-1, drop = F]
+  Z <- as.matrix(simDat[,grepl('Z|Individual', names(simDat))])[,-1, drop = F]
+  #X <- unique(X)[,-1]
+  #Z <- unique(Z)[,-1]
 
   #Get trueBetas and trueGammas based on settings
   if(is.null(trueBetas)){
@@ -114,26 +122,35 @@ simTrackData <- function(n,
               'Underlying' = simDat[, grepl('Mean|Prec', names(simDat)), drop = F]))
 }
 
-#' Simulate user tracked menstrual cycle data for an individual using the dutt method.
+#' Simulate user tracked menstrual cycle data for an individual, based on the skipTrack model.
 #'
 #' This function generates synthetic data for user tracked menstrual cycles for a
-#' single individual using the duttweiler method.
+#' single individual. For this model Beta_0 = log(30), Gamma_0 = 5.5, and phi = .01.
 #'
 #' @param i Individual identifier. Character, numeric or integer.
 #' @param skipProb Vector of probabilities for number of true cycles per tracked cycle. For
 #' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
 #' will contain 2 true cycles and 10% will contain 3 true cycles.
-#' @param maxCycles Maximum number of true cycles per tracked cycle. Ignored.
-#' @param trueBetas Optional. True values for generated mean regression coefficients.
-#' @param trueGammas Optional. True values for the generated precision regression coefficients.
-#' @param overlap Optional. Number of shared covariates between X and Z.
+#' @param maxCycles Maximum number of true cycles per tracked cycle. Ignored for this model.
+#' @param trueBetas Optional. True values for the mean regression coefficients (not counting intercept which is automatic based on the model).
+#' @param trueGammas Optional. True values for the precision regression coefficients (not counting intercept which is automatic based on the model).
+#' @param overlap Optional. Number of (non-intercept) columns shared between X and Z. Columns are shared from left to right.
 #'
-#' @return A data.frame with columns 'Individual', 'TrackedCycles', 'NumTrue',
-#'  'LogMean', 'LogPrec', 'Beta0', 'Gamma0', 'X0',...,'Xn', 'Z0',...,'Zm'. Where n = length(trueBetas)
-#'  and m = length(trueGammas).
+#' @return
+#' \describe{
+#'   \item{'Individual'}{Individual identifiers.}
+#'   \item{'TrackedCycles'}{Tracked cycles.}
+#'   \item{'NumTrue'}{Number of true values.}
+#'   \item{'LogMean'}{Individual's mean of log(Y).}
+#'   \item{'LogPrec'}{Individual's precision of log(Y)}
+#'   \item{'Beta0'}{Beta0 true value.}
+#'   \item{'Gamma0'}{Gamma0 true value.}
+#'   \item{'X0',...,'XN'}{Covariate matrix for Mean, where N is the length of trueBetas.}
+#'   \item{'Z0',...,'ZM'}{Covariate matrix for precision, where M is the length of trueGammas.}
+#' }
 #'
-#' @seealso \code{\link{simTrackData}}
-duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
+#' @seealso \code{\link{skipTrack.simulate}}
+stSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
   #For each individual, generate the number of (tracked) cycles from poisson(7)
   #(restricted to > 0)
   numCycles <- max(rpois(1, 7), 1)
@@ -186,24 +203,33 @@ duttSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
   return(df)
 }
 
-#' Simulate user tracked menstrual cycle data for an individual using the li method.
+#' Simulate user tracked menstrual cycle data for an individual using the li model.
 #'
 #' This function generates synthetic data for user tracked menstrual cycles for a
-#' single individual using the li method.
+#' single individual using the li model. For this model Beta0 = log(30), and Gamma0 doesn't really make sense.
 #'
 #' @param i Individual identifier. Character, numeric or integer.
-#' @param skipProb Vector, ignored for this method.
+#' @param skipProb Vector, ignored for this model.
 #' @param maxCycles Integer, Maximum possible number of true cycles per tracked cycle.
 #' @param trueBetas Optional. True values for generated mean regression coefficients.
 #' @param trueGammas NULL, left for consistency. Will throw error if specified.
 #'
-#' @return A data.frame with columns 'Individual', 'TrackedCycles',
-#' 'NumTrue', 'Mean', 'SkipProb', 'Z0', 'Beta0', 'Gamma0', 'X0', ..., 'Xn' where n = length(trueBetas).
-#'
-#' @seealso \code{\link{simTrackData}}
+#' @return
+#' \describe{
+#'   \item{'Individual'}{Individual identifiers.}
+#'   \item{'TrackedCycles'}{Tracked cycles.}
+#'   \item{'NumTrue'}{Number of true values.}
+#'   \item{'SkipProb'}{Individual's probability of skipping tracking a cycle}
+#'   \item{'Mean'}{Individual's mean values.}
+#'   \item{'Beta0'}{Beta0 true value.}
+#'   \item{'Gamma0}{NA}
+#'   \item{'Z0'}{1}
+#'   \item{'X0',...,'XN'}{Covariate matrix for Mean, where N is the length of trueBetas.}
+#' }
+#' @seealso \code{\link{skipTrack.simulate}}
 liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL){
   if(!is.null(trueGammas)){
-    warning('Li data generation method does not take covs for precision, trueGamma input will be ignored')
+    warning('Li data generation model does not take covs for precision, trueGamma input will be ignored')
   }
 
   #For each individual, generate the number of (tracked) cycles from poisson(7)
@@ -236,12 +262,10 @@ liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL){
   ys <- rpois(numCycles, indMean*(1+numSkips))
 
   #Return as data.frame
-  #NOTE: Beta0 is log(30) here as our model assumes a distribution on log(Y) not just Y,
-  #Gamma0 is entered as log(60). NOT SURE WHY, but this seems to give close to consistent results. Need to
-  #figure out details here.
+  #NOTE: Beta0 is log(30) here as skipTrack model assumes a distribution on log(Y) not just Y,
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = numSkips + 1,
                    'Mean' = indMean, 'SkipProb' = indSkip,
-                   'Z0' = 1, Beta0 = log(30), Gamma0 = log(60))
+                   'Z0' = 1, Beta0 = log(30), Gamma0 = NA)
 
   xi <- as.data.frame(cbind(1, xi))
   names(xi) <- paste0('X', 0:(ncol(xi)-1))
@@ -252,10 +276,11 @@ liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL){
   return(df)
 }
 
-#' Simulate user tracked menstrual cycle data for an individual using the mixture method.
+#' Simulate user tracked menstrual cycle data for an individual using the mixture model.
 #'
 #' This function generates synthetic data for user tracked menstrual cycles for a
-#' single individual using the mixture method.
+#' single individual using the mixture model. For this model Beta_0 is set to log(30) and Gamma_0
+#' is set to 15, although for the skipTrack model this lacks interpretation.
 #'
 #' @param i Individual identifier. Character, numeric, or integer.
 #' @param skipProb Vector of probabilities for the number of true cycles per tracked cycle. For
@@ -264,13 +289,21 @@ liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL){
 #' @param maxCycles Maximum number of true cycles per tracked cycle.
 #' @param trueBetas Optional. True values for generated mean regression coefficients.
 #' @param trueGammas Optional. True values for the generated precision regression coefficients.
-#' @param overlap Optional. Number of shared covariates between X and Z.
+#' @param overlap Optional. Number of (non-intercept) columns shared between X and Z. Columns are shared from left to right.
 #'
-#' @return A data.frame with columns 'Individual', 'TrackedCycles', 'NumTrue',
-#' 'Mean', 'Beta0', 'Gamma0', 'X0',...,'Xn', 'Z0',...,'Zm', where n = length(trueBetas)
-#'  and m = length(trueGammas).
+#' @return
+#' \describe{
+#'   \item{'Individual'}{Individual identifiers.}
+#'   \item{'TrackedCycles'}{Tracked cycles.}
+#'   \item{'NumTrue'}{Number of true values.}
+#'   \item{'Mean'}{Individual's mean values.}
+#'   \item{'Beta0'}{Beta0 true value.}
+#'   \item{'Gamma0'}{Gamma0 true value.}
+#'   \item{'X0',...,'XN'}{Covariate matrix for Mean, where N is the length of trueBetas.}
+#'   \item{'Z0',...,'ZM'}{Covariate matrix for precision, where M is the length of trueGammas.}
+#' }
 #'
-#' @seealso \code{\link{simTrackData}}
+#' @seealso \code{\link{skipTrack.simulate}}
 mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
   #For each individual, generate the number of (tracked) cycles from poisson(7)
   #(restricted to > 0)
@@ -279,7 +312,7 @@ mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
   #Per cycle generate numTrue
   cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)
 
-  #If TRUE xCov or zCov = 0, set mean/precision to parameters specifically,
+  #If trueBetas or trueGammas == NULL, set mean/precision to parameters specifically,
   #otherwise, create the number of requested covariates and record effects
   if(is.null(trueBetas)){
     m <- 30
@@ -333,6 +366,7 @@ mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap){
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
                    'Mean' = indMean, Beta0 = log(30), Gamma0 = 15)
 
+  #Attach covariate info
   df <- cbind(df, xi, zi)
 
   return(df)

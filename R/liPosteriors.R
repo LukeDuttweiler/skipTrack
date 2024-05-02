@@ -11,12 +11,6 @@
 #'
 #' @return A random draw from the posterior distribution of lambda_i.
 #'
-#' @examples
-#' yij <- c(31, 62, 31)
-#' sij <- c(0, 1, 0)
-#' priorK <- 180
-#' priorG <- 6
-#' postLambdai(yij, sij, priorK, priorG)
 postLambdai <- function(yij, sij, priorK, priorG){
   #n is the number of sampled values
   n <- length(yij)

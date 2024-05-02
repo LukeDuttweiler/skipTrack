@@ -18,14 +18,14 @@
 #' @examples
 #' # Example usage with simulated data (which includes access to ground truth):
 #' #
-#' # stResults(stFitObject, trueVals = simulatedData, burnIn = 750)
+#' # skipTrack.results(stFitObject, trueVals = simulatedData, burnIn = 750)
 #' #
 #' # Example usage with real data:
 #' #
-#' # stResults(stFitObject, burnIn = 750)
+#' # skipTrack.results(stFitObject, burnIn = 750)
 #'
 #' @export
-stResults <- function(stFit, trueVals = NULL, burnIn = 750){
+skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
   #Creates a dataframe with chain/draw specific betas and gammas
   betaDF <- lapply(1:length(stFit), function(chainI){
     #Extract and arrange
@@ -117,7 +117,7 @@ stResults <- function(stFit, trueVals = NULL, burnIn = 750){
 
   return(list('Betas' = betaQuants,
               'Gammas' = gammaQuants,
-              'GammaGR' = stDiag(stFit = stFit, 'gammas', 'lanfear')@diagnostics$gelmanRubin$`Point est.`,
+              'GammaGR' = skipTrack.diagnostics(stFit = stFit, 'Gammas', 'lanfear')@diagnostics$gelmanRubin$`Point est.`,
               'Cijs' = cijCIs,
-              'CijGR' = stDiag(stFit = stFit, 'cijs', 'lanfear')@diagnostics$gelmanRubin$`Point est.`))
+              'CijGR' = skipTrack.diagnostics(stFit = stFit, 'cijs', 'lanfear')@diagnostics$gelmanRubin$`Point est.`))
 }

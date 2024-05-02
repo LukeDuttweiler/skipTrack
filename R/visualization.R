@@ -13,14 +13,14 @@
 #'
 #' @examples
 #' # Example usage:
-#' # stVisualize(stFitObject)
+#' # skipTrack.visualize(stFitObject)
 #'
 #' @seealso
 #' \code{\link{skipTrack.fit}} for generating MCMC results to be visualized.
 #'
 #' @export
 #'
-stVisualize <- function(mcmcRes){
+skipTrack.visualize <- function(mcmcRes){
   #Collect important variables into dataframes
 
   #Creates a dataframe with chain/draw specific rhos

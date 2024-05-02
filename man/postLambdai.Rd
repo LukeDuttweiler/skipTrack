@@ -23,10 +23,3 @@ This function calculates a random draw from the full conditional posterior distr
 for lambda_i in the Li algorithm, given the observed values y_ij, the indicators s_ij,
 and the prior hyperparameters priorK and priorG.
 }
-\examples{
-yij <- c(31, 62, 31)
-sij <- c(0, 1, 0)
-priorK <- 180
-priorG <- 6
-postLambdai(yij, sij, priorK, priorG)
-}

@@ -15,7 +15,6 @@
 #'
 #' @details This function assumes that \code{Xi} is a (num Individuals) x (dimension of beta) matrix of covariates.
 #'
-#' @export
 postBeta <- function(rhoBeta = .01, rho, Xi, muI){
   #Assuming Xi is (num Individuals)x(dimension of beta) matrix of covariates
   XTX <- t(Xi) %*% Xi

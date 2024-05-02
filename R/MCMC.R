@@ -1,12 +1,12 @@
-#' Perform MCMC sampling to identify skips in cycle tracking.
+#' Perform one chain of MCMC sampling for the skipTrack model.
 #'
 #' This function runs a single Markov Chain Monte Carlo (MCMC) chain to update parameters in
 #' the skipTrack hierarchical model, accounting for possible skips in tracking.
 #'
 #' @param Y A vector of observed cycle lengths.
-#' @param cluster A vector indicating the individual cluster/group membership for each observation.
-#' @param X A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.
-#' @param Z A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.
+#' @param cluster A vector indicating the individual cluster/group membership for each observation Y.
+#' @param X A matrix (length(Y) x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.
+#' @param Z A matrix (length(Y) x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.
 #' @param numSkips The maximum number of skips to allow. Default is 10.
 #' @param reps The number of MCMC iterations (steps) to perform. Default is 1000.
 #' @param fixedSkips If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.
@@ -46,11 +46,10 @@
 #' @seealso \code{\link{sampleStep}}
 #'
 #'
-#' @export
 #'
-skipTrackMCMC <- function(Y,cluster,
-                          X = matrix(1, nrow = length(unique(cluster))),
-                          Z = matrix(1, nrow = length(unique(cluster))),
+skipTrack.MCMC <- function(Y,cluster,
+                          X = matrix(1, nrow = length(cluster)),
+                          Z = matrix(1, nrow = length(cluster)),
                           numSkips = 10,
                           reps = 1000,
                           fixedSkips = FALSE,
@@ -95,6 +94,11 @@ skipTrackMCMC <- function(Y,cluster,
   #Checks for X and Z
   X <- as.matrix(X)
   Z <- as.matrix(Z)
+
+  #Make X and Z unique by individual (as currently expected by sampleStep)
+  #IF ADDING TIME-VARYING COVARIATES THIS NEEDS TO CHANGE
+  X <- as.matrix(unique(cbind(cluster, as.data.frame(X))))[,-1, drop = F]
+  Z <- as.matrix(unique(cbind(cluster, as.data.frame(Z))))[,-1, drop = F]
 
   if(nrow(X) != length(unique(cluster))){
     stop('X must be a num_individuals x num_covariates matrix')

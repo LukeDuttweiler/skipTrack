@@ -1,6 +1,6 @@
-#' Takes mcmcResults from skipTrack Multi and uses genMCMCDiag to get mcmc diagnostics.
+#' Takes model results from skipTrack.fit and uses genMCMCDiag to get mcmc diagnostics.
 #'
-#' @param mcmcRes A list of MCMC results from the skipTrack Multi function.
+#' @param stFit A list of MCMC results from the skipTrack.fit function.
 #' @param param A character string specifying the parameter for which diagnostics are to be calculated.
 #'   Must be one of: 'mu', 'rho', 'muis', 'tauis', or 'cijs'.
 #' @param method An optional parameter specifying the method for calculating diagnostics. Default is NULL.
@@ -13,21 +13,20 @@
 #'   diagnostics using the genDiagnostic function with the
 #'   standard method. If the parameter is 'cijs', 'muis', or 'tauis', the
 #'   function extracts the corresponding values and calculates diagnostics using the genDiagnostic
-#'   function with the specified or default method ('ts') and hammingDist as the distance function.
+#'   function with the specified or default method ('lanfear') and hammingDist as the distance function.
 #'
 #' @examples
 #' #Example usage:
-#' #mcmcResults <- skipTrackMulti(...) #Need to fill this out
-#' #stDiag(mcmcResults, 'mu')
+#' #skipTrack.diagnostics(stFitObject, 'mu')
 #'
-#' @seealso \code{\link{genDiagnostic}}, \code{\link{skipTrackMulti}}
+#' @seealso \code{\link{genDiagnostic}}, \code{\link{skipTrack.fit}}
 #'
 #' @export
-stDiag <- function(mcmcRes, param, method = NULL, ...){
-  if(param %in% c('mu', 'rho')){#If param is one of the univariate parameters, get diagnostics
+skipTrack.diagnostics <- function(stFit, param, method = NULL, ...){
+  if(param %in% c('rho', 'phi')){#If param is one of the univariate parameters, get diagnostics
 
     #Extract specified parameter
-    mcmcExt <- lapply(mcmcRes, function(chain){
+    mcmcExt <- lapply(stFit, function(chain){
       #Get draws of specified parameter
       draws <- sapply(chain, getElement, name = param)
 
@@ -41,7 +40,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
   }else if(param == 'cijs'){ #Continued alternative methods specific to skipTrack
 
     #Extract cijs
-    mcmcExt <- lapply(mcmcRes, function(chain){
+    mcmcExt <- lapply(stFit, function(chain){
       #Get list of cij draws
       draws <- lapply(chain, function(d){
         return(d$ijDat$cs)
@@ -53,17 +52,17 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
     #set method if not specified
     if(is.null(method)){
-      method <- 'ts'
+      method <- 'lanfear'
     }
 
     #Calculate diagnostics and return
     return(genMCMCDiag::genDiagnostic(mcmcExt, method = method,
                                       distance = genMCMCDiag::hammingDist, ...))
 
-  }else if(param == 'betas'){ #Continued alternative methods specific to skipTrack
+  }else if(param == 'Betas'){ #Continued alternative methods specific to skipTrack
 
     #Extract cijs
-    mcmcExt <- lapply(mcmcRes, function(chain){
+    mcmcExt <- lapply(stFit, function(chain){
       #Get list of Beta draws
       draws <- lapply(chain, function(d){
         return(d$Beta)
@@ -75,17 +74,17 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
     #set method if not specified
     if(is.null(method)){
-      method <- 'ts'
+      method <- 'lanfear'
     }
 
     #Calculate diagnostics and return
     return(genMCMCDiag::genDiagnostic(mcmcExt, method = method,
                                       distance = genMCMCDiag::hammingDist, ...))
 
-  }else if(param == 'gammas'){ #Continued alternative methods specific to skipTrack
+  }else if(param == 'Gammas'){ #Continued alternative methods specific to skipTrack
 
     #Extract cijs
-    mcmcExt <- lapply(mcmcRes, function(chain){
+    mcmcExt <- lapply(stFit, function(chain){
       #Get list of Beta draws
       draws <- lapply(chain, function(d){
         return(d$Gamma)
@@ -97,7 +96,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
     #set method if not specified
     if(is.null(method)){
-      method <- 'ts'
+      method <- 'lanfear'
     }
 
     #Calculate diagnostics and return
@@ -106,7 +105,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
   }else if(param == 'muis'){
     #Extract muis
-    mcmcExt <- lapply(mcmcRes, function(chain){
+    mcmcExt <- lapply(stFit, function(chain){
       #Get list of mui draws
       draws <- lapply(chain, function(d){
         return(d$iDat$mus)
@@ -118,7 +117,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
     #set method if not specified
     if(is.null(method)){
-      method <- 'ts'
+      method <- 'lanfear'
     }
 
     #Calculate diagnostics and return
@@ -127,7 +126,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
   }else if(param == 'tauis'){
     #Extract tauis
-    mcmcExt <- lapply(mcmcRes, function(chain){
+    mcmcExt <- lapply(stFit, function(chain){
       #Get list of taui draws
       draws <- lapply(chain, function(d){
         return(d$iDat$taus)
@@ -139,7 +138,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
     #set method if not specified
     if(is.null(method)){
-      method <- 'ts'
+      method <- 'lanfear'
     }
 
     #Calculate diagnostics and return
@@ -149,7 +148,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
   }else if(param == 'sijs'){ #Method for LI inference
 
     #Extract sijs
-    mcmcExt <- lapply(mcmcRes, function(chain){
+    mcmcExt <- lapply(stFit, function(chain){
       #Get list of sij draws
       draws <- lapply(chain, function(d){
         return(d$ijDat$ss)
@@ -161,7 +160,7 @@ stDiag <- function(mcmcRes, param, method = NULL, ...){
 
     #set method if not specified
     if(is.null(method)){
-      method <- 'ts'
+      method <- 'lanfear'
     }
 
     #Calculate diagnostics and return
