@@ -14,7 +14,7 @@ A list of three ggplot2 objects:
 \itemize{
 \item{cijOverLength}{Scatter plot of estimated Cij values against reported cycle length.}
 \item{cijOverTaus}{Scatter plot of estimated Cij values against estimated individual precisions, colored by cycle length.}
-\item{muByChain}{Density plot of the sampled density of overall mean by chain.}
+\item{cijDens}{Density plot of Y values overlayed with a density plot of Y values separated by estimated cij value.}
 }
 }
 \description{
@@ -26,5 +26,5 @@ This function takes results from skipTrack.fit and produces several helpful visu
 
 }
 \seealso{
-\code{\link{skipTrack.fit}} for generating MCMC results to be visualized.
+\code{\link{skipTrack.fit}} for generating MCMC results.
 }

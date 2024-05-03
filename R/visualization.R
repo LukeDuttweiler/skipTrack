@@ -8,7 +8,7 @@
 #'   \itemize{
 #'     \item{cijOverLength}{Scatter plot of estimated Cij values against reported cycle length.}
 #'     \item{cijOverTaus}{Scatter plot of estimated Cij values against estimated individual precisions, colored by cycle length.}
-#'     \item{muByChain}{Density plot of the sampled density of overall mean by chain.}
+#'     \item{cijDens}{Density plot of Y values overlayed with a density plot of Y values separated by estimated cij value.}
 #'   }
 #'
 #' @examples
@@ -16,7 +16,7 @@
 #' # skipTrack.visualize(stFitObject)
 #'
 #' @seealso
-#' \code{\link{skipTrack.fit}} for generating MCMC results to be visualized.
+#' \code{\link{skipTrack.fit}} for generating MCMC results.
 #'
 #' @export
 #'
@@ -156,10 +156,10 @@ skipTrack.visualize <- function(stFit){
 
   #Density of cycle lengths categorized by skip vs density of overall
   cijDens <- ggplot2::ggplot(data = cijOverDF,
-                             ggplot2::aes(x = ys)) + ggplot2::geom_density()
-  cijDens <- cijDens + ggplot2::geom_density(ggplot2::aes(fill = as.factor(round(cijs)),
-                                                          col = as.factor(round(cijs))),
-                                             alpha = .3)
+                             ggplot2::aes(x = ys)) + ggplot2::geom_density(ggplot2::aes(y = ggplot2::after_stat(count)))
+  cijDens <- cijDens + ggplot2::geom_density(ggplot2::aes(y = ggplot2::after_stat(count),
+                                                          fill = as.factor(round(cijs))),
+                                             alpha = .4, color = NA)
   cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none')
   cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
 
