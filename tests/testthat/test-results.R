@@ -5,7 +5,7 @@ test_that("results function runs", {
                        chains = 2, reps = 100, useParallel = FALSE)
   res <- skipTrack.results(foo, burnIn = 10)
 
-  expect_equal(length(res), 5)
+  expect_equal(length(res), 4)
 })
 
 test_that('on easiest example we get at least decent coverage', {

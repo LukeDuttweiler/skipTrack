@@ -11,9 +11,8 @@
 #' @return A list containing the following elements:
 #'   \item{Betas}{data.frame with 95% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
 #'   \item{Gammas}{data.frame with 95% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
-#'   \item{GammaGR}{genMCMCDiag type Gelman-Rubin diagnostic for Gammas.}
 #'   \item{cijs}{data.frame with Wald-type 95% confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
-#'   \item{cijGR}{genMCMCDiag type Gelman-Rubin diagnostic for cijs.}
+#'   \item{Diagnostics}{data.frame with ess and gelman-rubin diagnostics from genMCMCDiag package, for parameter sets 'Betas', 'Gammas' and 'cijs'.}
 #'
 #' @examples
 #' # Example usage with simulated data (which includes access to ground truth):
@@ -118,9 +117,19 @@ skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
     cijCIs$Coverage <- cijCIs$Lower <= cijCIs$TrueVals & cijCIs$TrueVals <= cijCIs$Upper
   }
 
+  #Get diagnostics
+  diags <- lapply(c('Betas', 'Gammas', 'cijs'), function(param){
+    dRes <- skipTrack.diagnostics(stFit = stFit, param)
+
+    return(data.frame('Parameter' = param,
+                      'Effective Sample Size' = dRes@diagnostics$ess$Sum,
+                      'Gelman-Rubin' = dRes@diagnostics$gelmanRubin$`Point est.`,
+                      check.names = FALSE))
+  })
+  diags <- do.call('rbind', diags)
+
   return(list('Betas' = betaQuants,
               'Gammas' = gammaQuants,
-              'GammaGR' = skipTrack.diagnostics(stFit = stFit, 'Gammas', 'lanfear')@diagnostics$gelmanRubin$`Point est.`,
               'cijs' = cijCIs,
-              'cijGR' = skipTrack.diagnostics(stFit = stFit, 'cijs', 'lanfear')@diagnostics$gelmanRubin$`Point est.`))
+              'Diagnostics' = diags))
 }

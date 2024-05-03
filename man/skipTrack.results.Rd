@@ -17,9 +17,8 @@ skipTrack.results(stFit, trueVals = NULL, burnIn = 750)
 A list containing the following elements:
 \item{Betas}{data.frame with 95\% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
 \item{Gammas}{data.frame with 95\% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
-\item{GammaGR}{genMCMCDiag type Gelman-Rubin diagnostic for Gammas.}
 \item{cijs}{data.frame with Wald-type 95\% confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
-\item{cijGR}{genMCMCDiag type Gelman-Rubin diagnostic for cijs.}
+\item{Diagnostics}{data.frame with ess and gelman-rubin diagnostics from genMCMCDiag package, for parameter sets 'Betas', 'Gammas' and 'cijs'.}
 }
 \description{
 This function calculates inference results on Betas, Gammas, and cijs based on the provided MCMC results.

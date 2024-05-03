@@ -45,8 +45,8 @@ skipTrack.fit <- function(Y,cluster,
 
   #Sort all inputs to make sure that individual's observations are all next to each other
   Y <- Y[order(cluster)]
-  X <- X[order(cluster),]
-  Z <- Z[order(cluster),]
+  X <- X[order(cluster),, drop = F]
+  Z <- Z[order(cluster),, drop = F]
   cluster <- cluster[order(cluster)]
 
   #if li, do hyperparameter inference first

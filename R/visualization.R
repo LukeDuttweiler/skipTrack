@@ -141,15 +141,17 @@ skipTrack.visualize <- function(stFit){
   #Cijs vs cycle length overall
   cijOverLength <- ggplot2::ggplot(data = cijOverDF,
                                 ggplot2::aes(x = ys, y = cijs)) + ggplot2::geom_point()
-  cijOverLength <- cijOverLength + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cij Values against Reported Cycle Length')
+  cijOverLength <- cijOverLength + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cijs vs. Ys')
   cijOverLength <- cijOverLength + ggplot2::xlab('Reported Cycle Length') + ggplot2::ylab('Estimated Cij Values')
+  cijOverLength <- cijOverLength + ggplot2::theme(plot.title = ggtext::element_textbox_simple())
 
   #Cijs vs tauis overall
   cijOverTaus <- ggplot2::ggplot(data = cijOverDF,
                                 ggplot2::aes(x = taus, y = cijs, col = ys)) + ggplot2::geom_point()
-  cijOverTaus <- cijOverTaus + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cij Values against Estimated Individual Precisions')
+  cijOverTaus <- cijOverTaus + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cijs vs. Estimated Tauis')
   cijOverTaus <- cijOverTaus + ggplot2::xlab('Estimated Individual Precisions') + ggplot2::ylab('Estimated Cij Values')
   cijOverTaus <- cijOverTaus + ggplot2::labs(col = 'Cycle Length')
+  cijOverTaus <- cijOverTaus + ggplot2::theme(plot.title = ggtext::element_textbox_simple())
 
   #Density of Overall Mean by Chain
   #muByChain <- ggplot2::ggplot(data = muDF,
@@ -165,7 +167,8 @@ skipTrack.visualize <- function(stFit){
   cijDens <- cijDens + ggplot2::geom_density(ggplot2::aes(y = ggplot2::after_stat(count),
                                                           fill = as.factor(round(cijs))),
                                              alpha = .4, color = NA)
-  cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none')
+  cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none',
+                                                                 plot.title = ggtext::element_textbox_simple())
   cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
 
   #Overall 95% Posterior Intervals for betas
