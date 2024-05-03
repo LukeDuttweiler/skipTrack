@@ -4,15 +4,15 @@
 \alias{skipTrack.visualize}
 \title{Visualize Results from skipTrack.fit}
 \usage{
-skipTrack.visualize(mcmcRes)
+skipTrack.visualize(stFit)
 }
 \arguments{
-\item{mcmcRes}{A list containing MCMC results obtained from skipTrack.fit.}
+\item{stFit}{A list containing MCMC results obtained from skipTrack.fit.}
 }
 \value{
 A list of three ggplot2 objects:
 \itemize{
-\item{cijOverPlt}{Scatter plot of estimated Cij values against reported cycle length.}
+\item{cijOverLength}{Scatter plot of estimated Cij values against reported cycle length.}
 \item{cijOverTaus}{Scatter plot of estimated Cij values against estimated individual precisions, colored by cycle length.}
 \item{muByChain}{Density plot of the sampled density of overall mean by chain.}
 }
