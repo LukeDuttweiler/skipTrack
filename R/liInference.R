@@ -14,6 +14,8 @@
 #' @param S Integer, maximum number of allowed skips in the model.
 #' @param M Integer specifying the number of Monte Carlo iterations.
 #' @param cycleDat Data frame containing information about individuals and their tracked cycles.
+#' @param verbose Logical with default FALSE. If true, prints extra info while running.
+#' @param ... Does nothing.
 #'
 #' @return Numeric value representing the Monte Carlo estimate of the negative marginal log-likelihood.
 #'
@@ -84,7 +86,8 @@ likVec <- function(pars = c(kappa = 180,
 #' Default starting values for hyperparameters and optimization tuning parameters
 #' are those given in Li et al.
 #'
-#' @param cycleDat Data.frame with (at least) columns Individual and TrackedCycles. Individual gives unique individual markers, TrackedCycles gives reported cycle lengths.
+#' @param Y A vector of observed cycle lengths.
+#' @param cluster A vector indicating the individual cluster/group membership for each observation Y.
 #' @param S Maximum number of possible skipped cycles (see Li et al. for details).
 #' @param startingParams A vector of starting values for hyperparameters
 #'                      (default values from Li et al.).

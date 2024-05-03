@@ -33,6 +33,8 @@ sampleStep(
 
 \item{Xi}{A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF X}
 
+\item{Zi}{A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF Z}
+
 \item{Beta}{Matrix (1 x length(Beta)) of coefficients for cycle length mean.}
 
 \item{Gamma}{Matrix of (1 x length(Gamma)) coefficients for cycle length precision.}
@@ -50,8 +52,6 @@ sampleStep(
 \item{rhoPhi}{Value of the proposal parameter rhoPhi.}
 
 \item{fixedSkips}{Logical. If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
-
-\item{Z}{A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF Z}
 }
 \value{
 A list containing updated parameters after performing a single MCMC step.

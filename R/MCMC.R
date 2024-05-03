@@ -33,16 +33,6 @@
 #'   \item{fixedSkips}{Logical. Indicates if skips were fixed.}
 #' }
 #'
-#' @examples
-#' # Example usage of skipTrackMCMC function
-#' cycleDat <- simTrackData(10, skipProb = c(.7, .2, .1)) #Simulated Data
-#' result <- skipTrackMCMC(cycleDat)
-#'
-#' #MORE REALISTIC VERSION
-#' #COMMENTED TO SKIP DURING PACKAGE BUILD
-#' #cycleDat <- simTrackData(1000, skipProb = c(.7, .2, .1)) #Simulated Data
-#' #result <- skipTrackMCMC(cycleDat)
-#'
 #' @seealso \code{\link{sampleStep}}
 #'
 skipTrack.MCMC <- function(Y,cluster,
@@ -153,7 +143,7 @@ skipTrack.MCMC <- function(Y,cluster,
 #' @param rho Updated value of the global parameter rho.
 #' @param pi Updated value of the global parameter pi.
 #' @param Xi A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF X
-#' @param Z A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF Z
+#' @param Zi A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF Z
 #' @param Beta Matrix (1 x length(Beta)) of coefficients for cycle length mean.
 #' @param Gamma Matrix of (1 x length(Gamma)) coefficients for cycle length precision.
 #' @param priorAlphas Vector of prior alpha values for updating pi.

@@ -1,10 +1,10 @@
 Package: skipTrack
-Title: Bayesian Hierarchical Models for Identifying Non-Adherence in Mobile Menstrual Cycle Tracking
-Version: 0.0.7.13
+Title: Bayesian Hierarchical Models Adjusting for Non-Adherence in Mobile Menstrual Cycle Tracking
+Version: 0.1.0.0
 Authors@R: 
     person("Luke", "Duttweiler", , "lduttweiler@hsph.harvard.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0467-995X"))
-Description: skipTrack implements an in-development Bayesian hierarchical model designed to estimate the posterior probability that a given logged menstrual cycle in a mobile app contains 1 or more true cycles. Currently only uses menstrual cycle length data, will be expanded later.  
+Description: skipTrack implements a Bayesian hierarchical model of the same name designed to perform inference on cycle length mean and regularity given the possibility of non-adherence in cycle length self-tracking. Currently accepts baseline continuous covariates for cycle mean length and regularity. Future updates will include include categorical covariates, time-varying covariates, and the inclusion of external information regarding tracking skips.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -12,17 +12,17 @@ RoxygenNote: 7.3.1
 URL: https://github.com/LukeDuttweiler/skipTrack
 BugReports: https://github.com/LukeDuttweiler/skipTrack/issues
 Imports: 
-    doParallel,
-    foreach,
+    doParallel (>= 1.0.0),
+    foreach (>= 1.5.0),
     genMCMCDiag (>= 0.2.0),
-    ggplot2,
-    glmnet,
-    LaplacesDemon,
-    mvtnorm,
-    optimg,
-    parallel,
-    stats,
-    utils
+    ggplot2 (>= 3.4.0),
+    glmnet (>= 4.1.0),
+    LaplacesDemon (>= 16.0.0),
+    mvtnorm (>= 1.2.0),
+    optimg (>= 0.1.2),
+    parallel (>= 4.0.0),
+    stats (>= 4.0.0),
+    utils (>= 4.0.0)
 Remotes: 
     LukeDuttweiler/genMCMCDiag
 Suggests: 

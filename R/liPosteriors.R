@@ -64,12 +64,6 @@ postPii <- function(sij, currentPii, priorA, priorB, S){
 #'
 #' @return A random draw from the posterior distribution of s_ij.
 #'
-#' @examples
-#' yijs <- c(31, 62, 31)
-#' pii <- 0.2
-#' lambdai <- 30
-#' S <- 5
-#' postSij(yijs, pii, lambdai, S)
 postSij <- function(yijs, pii, lambdai, S){
   probs <- sapply(0:S, function(s){
     #Get truncated geometric probability

@@ -1,3 +1,8 @@
+#Line to get CRAN to accept package, (ggplot causes problems)
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("ys", "cijs", 'taus',
+                                                        'count', 'Beta', 'Lower',
+                                                        'Upper', 'chain'))
+
 #' Visualize Results from skipTrack.fit
 #'
 #' This function takes results from skipTrack.fit and produces several helpful visualizations.

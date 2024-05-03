@@ -28,6 +28,10 @@ elements: kappa, gamma, alpha, beta. NOTE: MUST BE IN CORRECT ORDER.
 \item{M}{Integer specifying the number of Monte Carlo iterations.}
 
 \item{cycleDat}{Data frame containing information about individuals and their tracked cycles.}
+
+\item{verbose}{Logical with default FALSE. If true, prints extra info while running.}
+
+\item{...}{Does nothing.}
 }
 \value{
 Numeric value representing the Monte Carlo estimate of the negative marginal log-likelihood.

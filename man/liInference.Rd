@@ -12,12 +12,14 @@ liInference(
 )
 }
 \arguments{
+\item{Y}{A vector of observed cycle lengths.}
+
+\item{cluster}{A vector indicating the individual cluster/group membership for each observation Y.}
+
 \item{S}{Maximum number of possible skipped cycles (see Li et al. for details).}
 
 \item{startingParams}{A vector of starting values for hyperparameters
 (default values from Li et al.).}
-
-\item{cycleDat}{Data.frame with (at least) columns Individual and TrackedCycles. Individual gives unique individual markers, TrackedCycles gives reported cycle lengths.}
 }
 \value{
 A list containing the results of hyperparameter inference.

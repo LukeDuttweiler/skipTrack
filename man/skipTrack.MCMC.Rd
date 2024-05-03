@@ -62,17 +62,6 @@ in the list is itself a list containing:
 This function runs a single Markov Chain Monte Carlo (MCMC) chain to update parameters in
 the skipTrack hierarchical model.
 }
-\examples{
-# Example usage of skipTrackMCMC function
-cycleDat <- simTrackData(10, skipProb = c(.7, .2, .1)) #Simulated Data
-result <- skipTrackMCMC(cycleDat)
-
-#MORE REALISTIC VERSION
-#COMMENTED TO SKIP DURING PACKAGE BUILD
-#cycleDat <- simTrackData(1000, skipProb = c(.7, .2, .1)) #Simulated Data
-#result <- skipTrackMCMC(cycleDat)
-
-}
 \seealso{
 \code{\link{sampleStep}}
 }

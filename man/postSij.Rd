@@ -23,10 +23,3 @@ This function calculates a random draw from the full conditional posterior distr
 for s_ij in the Li algorithm, given the observed values yijs, the parameter pi,
 the lambda_i value, and the truncation level S.
 }
-\examples{
-yijs <- c(31, 62, 31)
-pii <- 0.2
-lambdai <- 30
-S <- 5
-postSij(yijs, pii, lambdai, S)
-}

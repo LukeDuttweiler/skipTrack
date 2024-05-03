@@ -13,8 +13,6 @@ skipTrack.fit(
   reps = 1000,
   chains,
   useParallel = TRUE,
-  li = FALSE,
-  liHyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20),
   ...
 )
 }
@@ -35,12 +33,6 @@ skipTrack.fit(
 
 \item{useParallel}{Logical, indicating whether to use parallel processing. Default is TRUE.}
 
-\item{li}{Logical, if TRUE runs the estimation given the model provided in Li et al. (2022).
-This model does not estimate covariates, so inputs for X and Z will be ignored.}
-
-\item{liHyperparams}{Named numeric vector, the initial hyperparameters named as in the Li algorithm. Defaults
-are provided, will only be used if li == TRUE}
-
 \item{...}{
   Arguments passed on to \code{\link[=skipTrack.MCMC]{skipTrack.MCMC}}
   \describe{
@@ -54,7 +46,6 @@ A list containing the results of skipTrack.MCMC for each chain.
 }
 \description{
 This function fits the model using multiple instances of skipTrack.MCMC, either in parallel or sequentially.
-If li == TRUE can perform estimation using the model given in Li et al. (2022).
 }
 \seealso{
 \code{\link{skipTrack.MCMC}}

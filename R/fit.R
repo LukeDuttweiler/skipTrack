@@ -1,17 +1,12 @@
 #' Fits the skipTrack Model using 1 or more MCMC chains
 #'
 #' This function fits the model using multiple instances of skipTrack.MCMC, either in parallel or sequentially.
-#' If li == TRUE can perform estimation using the model given in Li et al. (2022).
 #'
 #' @inheritParams skipTrack.MCMC
 #' @inheritDotParams skipTrack.MCMC
 #'
 #' @param chains Number of chains to run.
 #' @param useParallel Logical, indicating whether to use parallel processing. Default is TRUE.
-#' @param li Logical, if TRUE runs the estimation given the model provided in Li et al. (2022).
-#' This model does not estimate covariates, so inputs for X and Z will be ignored.
-#' @param liHyperparams Named numeric vector, the initial hyperparameters named as in the Li algorithm. Defaults
-#' are provided, will only be used if li == TRUE
 #'
 #' @return A list containing the results of skipTrack.MCMC for each chain.
 #' @export
@@ -23,10 +18,23 @@ skipTrack.fit <- function(Y,cluster,
                            Z = matrix(1, nrow = length(cluster)),
                            numSkips = 10,
                            reps = 1000, chains, useParallel = TRUE,
-                           li = FALSE,
-                           liHyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20), ...){
+                           ...){
+  #Checks for hidden arguments for using method from Li et al. (2022)
+  dotCalls <- match.call(expand.dots = FALSE)$...
+
+  li <- ifelse('li' %in% names(dotCalls), dotCalls$li, FALSE)
+
+  if(li){
+    liHyperparams <- ifelse('liHyperparams' %in% names(dotCalls),
+                            dotCalls$liHyperparams,
+                            c(kappa = 180, gamma = 6, alpha = 2, beta = 20))
+  }
+
+  if(!li & 'li' %in% names(dotCalls)){
+    stop("don't specify li = FALSE in the function call. doing this currently breaks stuff.")
+  }
+
   #Checks to make sure dimensions are all good
-  #FILL IN
   if(length(cluster) != length(Y)){
     stop('Length of cluster and Y should match.')
   }
