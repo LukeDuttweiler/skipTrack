@@ -1,12 +1,12 @@
 #' Visualize Results from skipTrack.fit
 #'
-#' This function takes results from skipTrack.fit and produces helpful visualizations of the results.
+#' This function takes results from skipTrack.fit and produces several helpful visualizations.
 #'
-#' @param mcmcRes A list containing MCMC results obtained from skipTrack.fit.
+#' @param stFit A list containing MCMC results obtained from skipTrack.fit.
 #'
 #' @return A list of three ggplot2 objects:
 #'   \itemize{
-#'     \item{cijOverPlt}{Scatter plot of estimated Cij values against reported cycle length.}
+#'     \item{cijOverLength}{Scatter plot of estimated Cij values against reported cycle length.}
 #'     \item{cijOverTaus}{Scatter plot of estimated Cij values against estimated individual precisions, colored by cycle length.}
 #'     \item{muByChain}{Density plot of the sampled density of overall mean by chain.}
 #'   }
@@ -20,20 +20,23 @@
 #'
 #' @export
 #'
-skipTrack.visualize <- function(mcmcRes){
+skipTrack.visualize <- function(stFit){
+  #Get fit results
+  stFit <- stFit$fit
+
   #Collect important variables into dataframes
 
   #Creates a dataframe with chain/draw specific rhos
-  rhoDF <- lapply(1:length(mcmcRes), function(chainI){
-    chainIrhos <- sapply(mcmcRes[[chainI]], getElement, 'rho')
+  rhoDF <- lapply(1:length(stFit), function(chainI){
+    chainIrhos <- sapply(stFit[[chainI]], getElement, 'rho')
     return(data.frame('t' = 1:length(chainIrhos), 'rho' = chainIrhos, 'chain' = chainI))
   })
   rhoDF <- do.call('rbind', rhoDF)
 
   #Creates a dataframe with chain/draw specific betas and gammas
-  betaDF <- lapply(1:length(mcmcRes), function(chainI){
+  betaDF <- lapply(1:length(stFit), function(chainI){
     #Extract and arrange
-    chainIbetas <- sapply(mcmcRes[[chainI]], getElement, 'Beta')
+    chainIbetas <- sapply(stFit[[chainI]], getElement, 'Beta')
     if(is.matrix(chainIbetas)){
       chainIbetas <- t(chainIbetas)
     }else{
@@ -51,8 +54,8 @@ skipTrack.visualize <- function(mcmcRes){
   })
   betaDF <- do.call('rbind', betaDF)
 
-  gammaDF <- lapply(1:length(mcmcRes), function(chainI){
-    chainIgammas <- t(sapply(mcmcRes[[chainI]], getElement, 'Gamma'))
+  gammaDF <- lapply(1:length(stFit), function(chainI){
+    chainIgammas <- t(sapply(stFit[[chainI]], getElement, 'Gamma'))
     m <- cbind(matrix(1:nrow(chainIgammas), ncol = 1),
                chainIgammas, matrix(chainI, nrow = nrow(chainIgammas)))
     df <- as.data.frame(m)
@@ -63,18 +66,18 @@ skipTrack.visualize <- function(mcmcRes){
 
 
   #Creates a dataframe with chain/draw specific muis and tauis
-  iList <- lapply(1:length(mcmcRes), function(chainI){
-    chainImus <- lapply(1:length(mcmcRes[[chainI]]), function(t){
-      mus <- mcmcRes[[chainI]][[t]]$iDat$mus
+  iList <- lapply(1:length(stFit), function(chainI){
+    chainImus <- lapply(1:length(stFit[[chainI]]), function(t){
+      mus <- stFit[[chainI]][[t]]$iDat$mus
       return(mus)
     })
-    chainItaus <- lapply(1:length(mcmcRes[[chainI]]), function(t){
-      taus <- mcmcRes[[chainI]][[t]]$iDat$taus
+    chainItaus <- lapply(1:length(stFit[[chainI]]), function(t){
+      taus <- stFit[[chainI]][[t]]$iDat$taus
       return(taus)
     })
     chainImus <- rowMeans(do.call('cbind', chainImus))
     chainItaus <- rowMeans(do.call('cbind', chainItaus))
-    chainIiDF <- mcmcRes[[chainI]][[1]]$iDat
+    chainIiDF <- stFit[[chainI]][[1]]$iDat
     chainIiDF$mus <- chainImus
     chainIiDF$taus <- chainItaus
     chainIiDF$chain <- chainI
@@ -97,24 +100,24 @@ skipTrack.visualize <- function(mcmcRes){
 
   #Creates a dataframe with chain specific average cijs,
   #and a dataframe with overall cijs
-  ijList <- lapply(1:length(mcmcRes), function(chainI){
-    chainIcijs <- lapply(1:length(mcmcRes[[chainI]]), function(t){
-      cs <- mcmcRes[[chainI]][[t]]$ijDat$cs
-      return(cs)
+  ijList <- lapply(1:length(stFit), function(chainI){
+    chainIcijs <- lapply(1:length(stFit[[chainI]]), function(t){
+      cijs <- stFit[[chainI]][[t]]$ijDat$cijs
+      return(cijs)
     })
     chainIcijs <- do.call('cbind', chainIcijs)
-    chainIijDF <- mcmcRes[[chainI]][[1]]$ijDat
-    chainIijDF$cs <- rowMeans(chainIcijs)
+    chainIijDF <- stFit[[chainI]][[1]]$ijDat
+    chainIijDF$cijs <- rowMeans(chainIcijs)
     chainIijDF$chain <- chainI
     return(chainIijDF)
   })
 
   overallcijs <- lapply(ijList, function(chain){
-    return(chain$cs)
+    return(chain$cijs)
   })
   overallcijs <- rowMeans(do.call('cbind', overallcijs))
   cijOverDF <- ijList[[1]]
-  cijOverDF$cs <- overallcijs
+  cijOverDF$cijs <- overallcijs
 
   #Add muis and tauis to cijOverDF
   cijOverDF$mus <- sapply(cijOverDF$Individual, function(ind){
@@ -131,14 +134,14 @@ skipTrack.visualize <- function(mcmcRes){
   ################
 
   #Cijs vs cycle length overall
-  cijOverPlt <- ggplot2::ggplot(data = cijOverDF,
-                                ggplot2::aes(x = ys, y = cs)) + ggplot2::geom_point()
-  cijOverPlt <- cijOverPlt + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cij Values against Reported Cycle Length')
-  cijOverPlt <- cijOverPlt + ggplot2::xlab('Reported Cycle Length') + ggplot2::ylab('Estimated Cij Values')
+  cijOverLength <- ggplot2::ggplot(data = cijOverDF,
+                                ggplot2::aes(x = ys, y = cijs)) + ggplot2::geom_point()
+  cijOverLength <- cijOverLength + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cij Values against Reported Cycle Length')
+  cijOverLength <- cijOverLength + ggplot2::xlab('Reported Cycle Length') + ggplot2::ylab('Estimated Cij Values')
 
   #Cijs vs tauis overall
   cijOverTaus <- ggplot2::ggplot(data = cijOverDF,
-                                ggplot2::aes(x = taus, y = cs, col = ys)) + ggplot2::geom_point()
+                                ggplot2::aes(x = taus, y = cijs, col = ys)) + ggplot2::geom_point()
   cijOverTaus <- cijOverTaus + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cij Values against Estimated Individual Precisions')
   cijOverTaus <- cijOverTaus + ggplot2::xlab('Estimated Individual Precisions') + ggplot2::ylab('Estimated Cij Values')
   cijOverTaus <- cijOverTaus + ggplot2::labs(col = 'Cycle Length')
@@ -154,8 +157,8 @@ skipTrack.visualize <- function(mcmcRes){
   #Density of cycle lengths categorized by skip vs density of overall
   cijDens <- ggplot2::ggplot(data = cijOverDF,
                              ggplot2::aes(x = ys)) + ggplot2::geom_density()
-  cijDens <- cijDens + ggplot2::geom_density(ggplot2::aes(fill = as.factor(round(cs)),
-                                                          col = as.factor(round(cs))),
+  cijDens <- cijDens + ggplot2::geom_density(ggplot2::aes(fill = as.factor(round(cijs)),
+                                                          col = as.factor(round(cijs))),
                                              alpha = .3)
   cijDens <- cijDens + ggplot2::theme_minimal() + ggplot2::theme(legend.position = 'none')
   cijDens <- cijDens + ggplot2::ggtitle('Cycle Density By Skip Categories')
@@ -192,5 +195,5 @@ skipTrack.visualize <- function(mcmcRes){
   betaPIch <- betaPIch + ggplot2::theme(legend.position = 'none')
 
 
-  return(list(cijOverPlt, cijOverTaus, cijDens))
+  return(list(cijOverLength, cijOverTaus, cijDens))
 }

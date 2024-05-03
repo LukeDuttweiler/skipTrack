@@ -2,17 +2,22 @@
 % Please edit documentation in R/diagnostics.R
 \name{skipTrack.diagnostics}
 \alias{skipTrack.diagnostics}
-\title{Takes model results from skipTrack.fit and uses genMCMCDiag to get mcmc diagnostics.}
+\title{skipTrack MCMC Diagnostics}
 \usage{
-skipTrack.diagnostics(stFit, param, method = NULL, ...)
+skipTrack.diagnostics(
+  stFit,
+  param = c("rho", "phi", "Betas", "Gammas", "muis", "tauis", "cijs"),
+  method = NULL,
+  ...
+)
 }
 \arguments{
 \item{stFit}{A list of MCMC results from the skipTrack.fit function.}
 
 \item{param}{A character string specifying the parameter for which diagnostics are to be calculated.
-Must be one of: 'mu', 'rho', 'muis', 'tauis', or 'cijs'.}
+Must be one of: 'rho', 'phi', 'Betas', 'Gammas', 'muis', 'tauis', or 'cijs'.}
 
-\item{method}{An optional parameter specifying the method for calculating diagnostics. Default is NULL.}
+\item{method}{An optional parameter specifying the method for calculating diagnostics. See package genMCMCDiag for details. Default is NULL.}
 
 \item{...}{
   Arguments passed on to \code{\link[genMCMCDiag:genDiagnostic]{genMCMCDiag::genDiagnostic}}
@@ -26,19 +31,21 @@ Must be one of: 'mu', 'rho', 'muis', 'tauis', or 'cijs'.}
 A mcmcDiag object of MCMC diagnostics for the specified parameter
 }
 \description{
-Takes model results from skipTrack.fit and uses genMCMCDiag to get mcmc diagnostics.
+Takes model results from skipTrack.fit and uses genMCMCDiag to get generalized mcmc diagnostics
 }
 \details{
-If the parameter is 'rho' (the univariate parameters),
+If the parameter is 'rho' or 'phi' (the univariate parameters),
 the function extracts the specified parameter from the MCMC results and calculates
 diagnostics using the genDiagnostic function with the
-standard method. If the parameter is 'cijs', 'muis', or 'tauis', the
+standard method. If the parameter is any of the other available options, the
 function extracts the corresponding values and calculates diagnostics using the genDiagnostic
 function with the specified or default method ('lanfear') and hammingDist as the distance function.
+
+Details on the genDiagnostic function can be found in the genMCMCDiag package.
 }
 \examples{
 #Example usage:
-#skipTrack.diagnostics(stFitObject, 'mu')
+#skipTrack.diagnostics(stFitObject, 'phi')
 
 }
 \seealso{

@@ -1,19 +1,19 @@
-#' Get a table of Inference results from skipTrack.fit
+#' Get tables of Inference results from skipTrack.fit
 #'
 #' This function calculates inference results on Betas, Gammas, and cijs based on the provided MCMC results.
-#' It returns summaries such as quantiles and confidence intervals for Betas, Gammas, and cijs, as well as Gelman-Rubin diagnostics.
+#' It returns summaries such as credible intervals for Betas, Gammas, wald-type confidence intervals for cijs, and Gelman-Rubin diagnostics for all 3.
 #' Note that true values and converage are included in the output if trueVals is supplied, but otherwise not.
 #'
 #' @param stFit Object result of skipTrack.fit function.
-#' @param trueVals Optional list containing true values for Betas, Gammas, and cijs.
-#' @param burnIn Number of skipTrack iterations to discard as burn-in.
+#' @param trueVals Optional named list containing true values for Betas, Gammas, and cijs. (Also can use output of skipTrack.simulate)
+#' @param burnIn Number of MCMC iterations to discard as burn-in per chain.
 #'
 #' @return A list containing the following elements:
-#'   \item{Betas}{95% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
-#'   \item{Gammas}{95% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
-#'   \item{GammaGR}{Gelman-Rubin diagnostics for Gammas.}
-#'   \item{Cijs}{Wald confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
-#'   \item{CijGR}{Gelman-Rubin diagnostics for cijs.}
+#'   \item{Betas}{data.frame with 95% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
+#'   \item{Gammas}{data.frame with 95% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
+#'   \item{GammaGR}{genMCMCDiag type Gelman-Rubin diagnostic for Gammas.}
+#'   \item{cijs}{data.frame with Wald-type 95% confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
+#'   \item{cijGR}{genMCMCDiag type Gelman-Rubin diagnostic for cijs.}
 #'
 #' @examples
 #' # Example usage with simulated data (which includes access to ground truth):
@@ -26,6 +26,9 @@
 #'
 #' @export
 skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
+  #Get fit results
+  stFit <- stFit$fit
+
   #Creates a dataframe with chain/draw specific betas and gammas
   betaDF <- lapply(1:length(stFit), function(chainI){
     #Extract and arrange
@@ -83,7 +86,7 @@ skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
   #Get cijs and confidence intervals
   cijs <- lapply(stFit, function(ch){
     chainCs <- sapply(ch, function(dr){
-      return(dr$ijDat$cs)
+      return(dr$ijDat$cijs)
     })
     return(chainCs[,burnIn:ncol(chainCs)])
   })
@@ -118,6 +121,6 @@ skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
   return(list('Betas' = betaQuants,
               'Gammas' = gammaQuants,
               'GammaGR' = skipTrack.diagnostics(stFit = stFit, 'Gammas', 'lanfear')@diagnostics$gelmanRubin$`Point est.`,
-              'Cijs' = cijCIs,
-              'CijGR' = skipTrack.diagnostics(stFit = stFit, 'cijs', 'lanfear')@diagnostics$gelmanRubin$`Point est.`))
+              'cijs' = cijCIs,
+              'cijGR' = skipTrack.diagnostics(stFit = stFit, 'cijs', 'lanfear')@diagnostics$gelmanRubin$`Point est.`))
 }

@@ -1,16 +1,15 @@
-#' Runs the skipTrack Model, using multiple MCMC chains
+#' Fits the skipTrack Model using 1 or more MCMC chains
 #'
-#' This function runs skipTrack.MCMC on multiple chains,
-#' either in parallel or sequentially.
+#' This function fits the model using multiple instances of skipTrack.MCMC, either in parallel or sequentially.
 #' If li == TRUE can perform estimation using the model given in Li et al. (2022).
 #'
 #' @inheritParams skipTrack.MCMC
 #' @inheritDotParams skipTrack.MCMC
 #'
-#' @param chains Number of chains to run in parallel or sequentially.
+#' @param chains Number of chains to run.
 #' @param useParallel Logical, indicating whether to use parallel processing. Default is TRUE.
 #' @param li Logical, if TRUE runs the estimation given the model provided in Li et al. (2022).
-#' This model does not estimate covariates, so these will be ignored.
+#' This model does not estimate covariates, so inputs for X and Z will be ignored.
 #' @param liHyperparams Named numeric vector, the initial hyperparameters named as in the Li algorithm. Defaults
 #' are provided, will only be used if li == TRUE
 #'
@@ -28,6 +27,13 @@ skipTrack.fit <- function(Y,cluster,
                            liHyperparams = c(kappa = 180, gamma = 6, alpha = 2, beta = 20), ...){
   #Checks to make sure dimensions are all good
   #FILL IN
+  if(length(cluster) != length(Y)){
+    stop('Length of cluster and Y should match.')
+  }
+
+  if(length(Y) != nrow(X) | length(Y) != nrow(Z)){
+    stop('X and Z should be matrices with nrow == length(Y)')
+  }
 
   #Sort all inputs to make sure that individual's observations are all next to each other
   Y <- Y[order(cluster)]
@@ -71,9 +77,6 @@ skipTrack.fit <- function(Y,cluster,
 
     #Stop cluster
     parallel::stopCluster(cl)
-
-    #Return
-    return(res)
   }else{
 
     res <- foreach::foreach(1:chains) %do% {
@@ -84,8 +87,20 @@ skipTrack.fit <- function(Y,cluster,
                       ...)
       }
     }
-
-    #Return
-    return(res)
   }
+
+  #Build return object
+  retObj <- list('fit' = res,
+                 'data' = list('Y' = Y,
+                               'cluster' = cluster,
+                               'X' = X,
+                               'Z' = Z),
+                 'useParallel' = useParallel,
+                 'model' = ifelse(li, 'li', 'skipTrack'))
+  if(li){
+    retObj$liHyperparams <- liHyperparams
+  }
+
+  class(retObj) <- c('skipTrack.model', class(retObj))
+  return(retObj)
 }

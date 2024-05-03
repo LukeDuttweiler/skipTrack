@@ -2,13 +2,13 @@
 % Please edit documentation in R/fit.R
 \name{skipTrack.fit}
 \alias{skipTrack.fit}
-\title{Runs the skipTrack Model, using multiple MCMC chains}
+\title{Fits the skipTrack Model using 1 or more MCMC chains}
 \usage{
 skipTrack.fit(
   Y,
   cluster,
-  X = matrix(1, nrow = length(unique(cluster))),
-  Z = matrix(1, nrow = length(unique(cluster))),
+  X = matrix(1, nrow = length(cluster)),
+  Z = matrix(1, nrow = length(cluster)),
   numSkips = 10,
   reps = 1000,
   chains,
@@ -23,20 +23,20 @@ skipTrack.fit(
 
 \item{cluster}{A vector indicating the individual cluster/group membership for each observation Y.}
 
-\item{X}{A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.}
+\item{X}{A matrix (length(Y) x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.}
 
-\item{Z}{A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.}
+\item{Z}{A matrix (length(Y) x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.}
 
 \item{numSkips}{The maximum number of skips to allow. Default is 10.}
 
 \item{reps}{The number of MCMC iterations (steps) to perform. Default is 1000.}
 
-\item{chains}{Number of chains to run in parallel or sequentially.}
+\item{chains}{Number of chains to run.}
 
 \item{useParallel}{Logical, indicating whether to use parallel processing. Default is TRUE.}
 
 \item{li}{Logical, if TRUE runs the estimation given the model provided in Li et al. (2022).
-This model does not estimate covariates, so these will be ignored.}
+This model does not estimate covariates, so inputs for X and Z will be ignored.}
 
 \item{liHyperparams}{Named numeric vector, the initial hyperparameters named as in the Li algorithm. Defaults
 are provided, will only be used if li == TRUE}
@@ -46,15 +46,14 @@ are provided, will only be used if li == TRUE}
   \describe{
     \item{\code{fixedSkips}}{If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
     \item{\code{initialParams}}{A list of initial parameter values for the MCMC algorithm.
-Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.}
+Default values are provided for pi, muis, tauis, rho, cijs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.}
   }}
 }
 \value{
 A list containing the results of skipTrack.MCMC for each chain.
 }
 \description{
-This function runs skipTrack.MCMC on multiple chains,
-either in parallel or sequentially.
+This function fits the model using multiple instances of skipTrack.MCMC, either in parallel or sequentially.
 If li == TRUE can perform estimation using the model given in Li et al. (2022).
 }
 \seealso{

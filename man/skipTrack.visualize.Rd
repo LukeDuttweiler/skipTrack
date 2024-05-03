@@ -18,7 +18,7 @@ A list of three ggplot2 objects:
 }
 }
 \description{
-This function takes results from skipTrack.fit and produces helpful visualizations of the results.
+This function takes results from skipTrack.fit and produces several helpful visualizations.
 }
 \examples{
 # Example usage:

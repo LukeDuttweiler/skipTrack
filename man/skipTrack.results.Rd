@@ -2,28 +2,28 @@
 % Please edit documentation in R/results.R
 \name{skipTrack.results}
 \alias{skipTrack.results}
-\title{Get a table of Inference results from skipTrack.fit}
+\title{Get tables of Inference results from skipTrack.fit}
 \usage{
 skipTrack.results(stFit, trueVals = NULL, burnIn = 750)
 }
 \arguments{
 \item{stFit}{Object result of skipTrack.fit function.}
 
-\item{trueVals}{Optional list containing true values for Betas, Gammas, and cijs.}
+\item{trueVals}{Optional named list containing true values for Betas, Gammas, and cijs. (Also can use output of skipTrack.simulate)}
 
-\item{burnIn}{Number of skipTrack iterations to discard as burn-in.}
+\item{burnIn}{Number of MCMC iterations to discard as burn-in per chain.}
 }
 \value{
 A list containing the following elements:
-\item{Betas}{95\% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
-\item{Gammas}{95\% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
-\item{GammaGR}{Gelman-Rubin diagnostics for Gammas.}
-\item{Cijs}{Wald confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
-\item{CijGR}{Gelman-Rubin diagnostics for cijs.}
+\item{Betas}{data.frame with 95\% credible intervals and (if trueVals is supplied) true values for Betas and Coverage tag.}
+\item{Gammas}{data.frame with 95\% credible intervals and (if trueVals is supplied) true values for Gammas and Coverage tag.}
+\item{GammaGR}{genMCMCDiag type Gelman-Rubin diagnostic for Gammas.}
+\item{cijs}{data.frame with Wald-type 95\% confidence intervals and (if trueVals is supplied) true values for cijs and Coverage tags.}
+\item{cijGR}{genMCMCDiag type Gelman-Rubin diagnostic for cijs.}
 }
 \description{
 This function calculates inference results on Betas, Gammas, and cijs based on the provided MCMC results.
-It returns summaries such as quantiles and confidence intervals for Betas, Gammas, and cijs, as well as Gelman-Rubin diagnostics.
+It returns summaries such as credible intervals for Betas, Gammas, wald-type confidence intervals for cijs, and Gelman-Rubin diagnostics for all 3.
 Note that true values and converage are included in the output if trueVals is supplied, but otherwise not.
 }
 \examples{

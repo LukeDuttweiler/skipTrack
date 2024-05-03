@@ -7,13 +7,13 @@
 skipTrack.MCMC(
   Y,
   cluster,
-  X = matrix(1, nrow = length(unique(cluster))),
-  Z = matrix(1, nrow = length(unique(cluster))),
+  X = matrix(1, nrow = length(cluster)),
+  Z = matrix(1, nrow = length(cluster)),
   numSkips = 10,
   reps = 1000,
   fixedSkips = FALSE,
   initialParams = list(pi = rep(1/(numSkips + 1), numSkips + 1), muis = rep(log(30),
-    length(unique(cluster))), tauis = rep(5, length(unique(cluster))), rho = 1, cs =
+    length(unique(cluster))), tauis = rep(5, length(unique(cluster))), rho = 1, cijs =
     sample(1:3, length(Y), replace = TRUE), alphas = rep(1, numSkips + 1), Beta =
     matrix(rep(0, ncol(as.matrix(X))), 1), Gamma = matrix(rep(0, ncol(as.matrix(Z))), 1),
     rhoBeta = 0.01, rhoGamma = 0.01, phi = 0.01, rhoPhi = 1000)
@@ -24,9 +24,9 @@ skipTrack.MCMC(
 
 \item{cluster}{A vector indicating the individual cluster/group membership for each observation Y.}
 
-\item{X}{A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.}
+\item{X}{A matrix (length(Y) x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.}
 
-\item{Z}{A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.}
+\item{Z}{A matrix (length(Y) x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.}
 
 \item{numSkips}{The maximum number of skips to allow. Default is 10.}
 
@@ -35,32 +35,32 @@ skipTrack.MCMC(
 \item{fixedSkips}{If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
 
 \item{initialParams}{A list of initial parameter values for the MCMC algorithm.
-Default values are provided for pi, muis, tauis, mu, rho, cs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.}
+Default values are provided for pi, muis, tauis, rho, cijs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.}
 }
 \value{
 A list containing the MCMC draws for each parameter at each iteration. Each element
 in the list is itself a list containing:
 \describe{
-\item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs, muis, tauis.}
+\item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cijs, muis, tauis.}
 \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus, thetas.}
 \item{rho}{Updated value of the global parameter rho.}
 \item{pi}{Updated value of the global parameter pi.}
 \item{Xi}{Matrix of covariates for cycle length mean.}
 \item{Zi}{Matrix of covariates for cycle length precision.}
-\item{Beta}{Matrix of coefficients for cycle length mean.}
-\item{Gamma}{Matrix of coefficients for cycle length precision.}
+\item{Beta}{Updated matrix of coefficients for cycle length mean.}
+\item{Gamma}{Updated matrix of coefficients for cycle length precision.}
 \item{priorAlphas}{Vector of prior alpha values for updating pi.}
 \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
-\item{rhoBeta}{Updated value of the global parameter rhoBeta.}
+\item{rhoBeta}{Hyperprior parameter rhoBeta, used to update Beta.}
 \item{rhoGamma}{Value of the proposal parameter rhoGamma.}
-\item{phi}{Value of the parameter phi.}
+\item{phi}{Updated value of the parameter phi.}
 \item{rhoPhi}{Value of the proposal parameter rhoPhi.}
 \item{fixedSkips}{Logical. Indicates if skips were fixed.}
 }
 }
 \description{
 This function runs a single Markov Chain Monte Carlo (MCMC) chain to update parameters in
-the skipTrack hierarchical model, accounting for possible skips in tracking.
+the skipTrack hierarchical model.
 }
 \examples{
 # Example usage of skipTrackMCMC function

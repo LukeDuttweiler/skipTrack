@@ -18,8 +18,17 @@ liSim(i, skipProb, maxCycles, trueBetas, trueGammas = NULL)
 \item{trueGammas}{NULL, left for consistency. Will throw error if specified.}
 }
 \value{
-A data.frame with columns 'Individual', 'TrackedCycles',
-'NumTrue', 'Mean', 'SkipProb', 'Z0', 'Beta0', 'Gamma0', 'X0', ..., 'Xn' where n = length(trueBetas).
+\describe{
+\item{'Individual'}{Individual identifiers.}
+\item{'TrackedCycles'}{Tracked cycles.}
+\item{'NumTrue'}{Number of true values.}
+\item{'SkipProb'}{Individual's probability of skipping tracking a cycle}
+\item{'Mean'}{Individual's mean values.}
+\item{'Beta0'}{Beta0 true value.}
+\item{'Gamma0}{NA}
+\item{'Z0'}{1}
+\item{'X0',...,'XN'}{Covariate matrix for Mean, where N is the length of trueBetas.}
+}
 }
 \description{
 This function generates synthetic data for user tracked menstrual cycles for a

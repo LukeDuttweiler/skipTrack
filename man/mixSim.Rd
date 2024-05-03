@@ -22,9 +22,16 @@ will contain 2 true cycles, and 10\% will contain 3 true cycles.}
 \item{overlap}{Optional. Number of (non-intercept) columns shared between X and Z. Columns are shared from left to right.}
 }
 \value{
-A data.frame with columns 'Individual', 'TrackedCycles', 'NumTrue',
-'Mean', 'Beta0', 'Gamma0', 'X0',...,'Xn', 'Z0',...,'Zm', where n = length(trueBetas)
-and m = length(trueGammas).
+\describe{
+\item{'Individual'}{Individual identifiers.}
+\item{'TrackedCycles'}{Tracked cycles.}
+\item{'NumTrue'}{Number of true values.}
+\item{'Mean'}{Individual's mean values.}
+\item{'Beta0'}{Beta0 true value.}
+\item{'Gamma0'}{Gamma0 true value.}
+\item{'X0',...,'XN'}{Covariate matrix for Mean, where N is the length of trueBetas.}
+\item{'Z0',...,'ZM'}{Covariate matrix for precision, where M is the length of trueGammas.}
+}
 }
 \description{
 This function generates synthetic data for user tracked menstrual cycles for a

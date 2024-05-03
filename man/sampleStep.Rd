@@ -23,7 +23,7 @@ sampleStep(
 )
 }
 \arguments{
-\item{ijDat}{A data.frame with individual-observation level parameters: Individual, ys, cs, muis, tauis.}
+\item{ijDat}{A data.frame with individual-observation level parameters: Individual, ys, cijs, muis, tauis.}
 
 \item{iDat}{A data.frame with individual level parameters: Individual, mus, taus, thetas.}
 
@@ -31,7 +31,7 @@ sampleStep(
 
 \item{pi}{Updated value of the global parameter pi.}
 
-\item{Xi}{A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's.}
+\item{Xi}{A matrix (numIndividuals x length(Beta)) of covariates for cycle length mean. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF X}
 
 \item{Beta}{Matrix (1 x length(Beta)) of coefficients for cycle length mean.}
 
@@ -51,27 +51,27 @@ sampleStep(
 
 \item{fixedSkips}{Logical. If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
 
-\item{Z}{A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's.}
+\item{Z}{A matrix (numIndividuals x length(Gamma)) of covariates for cycle length precision. Default is a vector of 1's. NOTE THE DIFFERENCE (from skipTrack.MCMC) IN EXPECTED DIMENSION OF Z}
 }
 \value{
 A list containing updated parameters after performing a single MCMC step.
 The list includes:
 \describe{
-\item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cs.}
+\item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, cijs, muis, tauis.}
 \item{iDat}{A data.frame with updated parameters at the individual level: Individual, mus, taus, thetas.}
 \item{rho}{Updated value of the global parameter rho.}
 \item{pi}{Updated value of the global parameter pi.}
 \item{Xi}{Matrix of covariates for cycle length mean.}
 \item{Zi}{Matrix of covariates for cycle length precision.}
-\item{Beta}{Matrix of coefficients for cycle length mean.}
-\item{Gamma}{Matrix of coefficients for cycle length precision.}
+\item{Beta}{Updated matrix of coefficients for cycle length mean.}
+\item{Gamma}{Updated matrix of coefficients for cycle length precision.}
 \item{priorAlphas}{Vector of prior alpha values for updating pi.}
 \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
-\item{rhoBeta}{Updated value of the global parameter rhoBeta.}
+\item{rhoBeta}{Hyperprior parameter rhoBeta, used to update Beta.}
 \item{rhoGamma}{Value of the proposal parameter rhoGamma.}
-\item{phi}{Value of the parameter phi.}
+\item{phi}{Updated value of the parameter phi.}
 \item{rhoPhi}{Value of the proposal parameter rhoPhi.}
-\item{fixedSkips}{Logical. Fixed skips input.}
+\item{fixedSkips}{Logical. Indicates if skips were fixed.}
 }
 }
 \description{
