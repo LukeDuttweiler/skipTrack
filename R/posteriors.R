@@ -49,7 +49,7 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = .01){
   currentGamma <- matrix(currentGamma, nrow = 1)
 
   #Set proposal covariance matrix
-  sig <- diag(1/rhoGamma, ncol(currentGamma))
+  sig <- diag(rhoGamma, ncol(currentGamma))
 
   #Assuming Zi is (num Individuals)x(dimension of gamma) matrix of covariates
 

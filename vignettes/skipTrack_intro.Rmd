@@ -59,8 +59,12 @@ library(skipTrack)
 First, we simulate data on 500 individuals from the SkipTrack model where each observed $y_{ij}$ value has a 75% probability of being a true cycle, a 20% probability of being two true cycles recorded as one, and a 5% probability of being three true cycles recorded as one. 
 
 ```{r}
-#Simulate data with no true covariates
+#Simulate data with no covariates
 dat <- skipTrack.simulate(n = 500, model = 'skipTrack', skipProb = c(.75, .2, .05))
+
+#Simulate data with covariates for the mean (Beta) and precision (Gamma)
+dat2 <- skipTrack.simulate(n = 500, model = 'skipTrack', skipProb = c(.75, .2, .05),
+                           trueBetas = c(.06, 0), trueGammas = c(.3, 0))
 
 names(dat)
 ```
@@ -79,9 +83,9 @@ The result of the simulation function is simply a named list with various compon
 
 Looking at the histogram of `dat$Y`, we can see a clear mixture of at least two distributions, one centered around 30 days, and another centered near 60 days (corresponding to the true cycles and observed cycles containing two true cycles respectively), which is what we expect based on our generation. 
 
-```{r, fig.align='center'}
+```{r, fig.align='center', fig.width = 7}
 #Histogram of observed outcomes
-hist(dat$Y, breaks = 10:140)
+hist(dat$Y, breaks = 10:150)
 ```
 
 Fitting the SkipTrack model using this simulated data requires a call to the function `skipTrack.fit`. Note that because this is a Bayesian model and is fit with an MCMC algorithm, it can take some time with large datasets and a high number of MCMC reps and chains. 
@@ -90,7 +94,7 @@ In this code we ask for 4 chains, each with 2000 iterations, run in parallel.
 
 ```{r}
 ft <- skipTrack.fit(Y = dat$Y, cluster = dat$cluster, X = dat$X, Z = dat$Z,
-                    reps = 2000, chains = 4, useParallel = TRUE)
+                    reps = 4000, chains = 4, useParallel = TRUE)
 ```
 
 Once we have the model results we are able to examine model diagnostics, visualize results from the model, and view a model summary. 
@@ -101,7 +105,7 @@ Multivariate, multichain MCMC diagnostics, including traceplots, Gelman-Rubin di
 
 Here we show the output of the diagnostics on the $c_{ij}$ parameters, which show that (at least for the $c_{ij}$ values) the algorithm is mixing effectively.
 
-```{r}
+```{r, fig.align='center', fig.width = 7, fig.height=7}
 skipTrack.diagnostics(ft, param = 'cijs')
 ```
 
@@ -109,17 +113,22 @@ skipTrack.diagnostics(ft, param = 'cijs')
 
 In order to see some important plots for the SkipTrack model fit, you can simply use `plot(ft)`, and the plots are directly accessible using `skipTrack.visualize(ft)`.
 
-```{r, fig.align='center'}
+```{r, fig.align='center', fig.width = 7, fig.height=7}
 plot(ft)
 ```
 
 ### Summary
 
-A summary is available for the SkipTrack model fit with `summary(ft)`, with more detailed results accessible through `skipTrack.results(ft)`.
+A summary is available for the SkipTrack model fit with `summary(ft)`, with more detailed results accessible through `skipTrack.results(ft)`. Importantly, these results are based on a default chain burn-in value of 750 draws. This can be changed using the parameter `burnIn` for either function.
 
 ```{r}
 summary(ft)
+
+summary(ft, burnIn = 1000)
 ```
 
+This introduction provides enough information to start fitting the SkipTrack model. For further information regarding different methods of simulating data and tuning parameters for fitting the model, please see the help pages and additional vignettes. 
 
+\newpage
 
+## Bibliography
