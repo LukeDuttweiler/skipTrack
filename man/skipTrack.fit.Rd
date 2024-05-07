@@ -39,6 +39,7 @@ skipTrack.fit(
     \item{\code{fixedSkips}}{If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.}
     \item{\code{initialParams}}{A list of initial parameter values for the MCMC algorithm.
 Default values are provided for pi, muis, tauis, rho, cijs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.}
+    \item{\code{verbose}}{logical. If true progress bars and additional info are printed to the console.}
   }}
 }
 \value{

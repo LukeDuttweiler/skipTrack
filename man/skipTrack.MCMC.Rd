@@ -16,7 +16,8 @@ skipTrack.MCMC(
     length(unique(cluster))), tauis = rep(5, length(unique(cluster))), rho = 1, cijs =
     sample(1:3, length(Y), replace = TRUE), alphas = rep(1, numSkips + 1), Beta =
     matrix(rep(0, ncol(as.matrix(X))), 1), Gamma = matrix(rep(0, ncol(as.matrix(Z))), 1),
-    rhoBeta = 0.01, rhoGamma = 0.001, phi = 0.01, rhoPhi = 1000)
+    rhoBeta = 0.01, rhoGamma = 0.001, phi = 0.01, rhoPhi = 1000),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ skipTrack.MCMC(
 
 \item{initialParams}{A list of initial parameter values for the MCMC algorithm.
 Default values are provided for pi, muis, tauis, rho, cijs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.}
+
+\item{verbose}{logical. If true progress bars and additional info are printed to the console.}
 }
 \value{
 A list containing the MCMC draws for each parameter at each iteration. Each element

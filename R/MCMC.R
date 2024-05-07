@@ -12,6 +12,7 @@
 #' @param fixedSkips If TRUE cycle skip information (cijs) is not updated in sample steps and the inputs are instead assumed to be true.
 #' @param initialParams A list of initial parameter values for the MCMC algorithm.
 #' Default values are provided for pi, muis, tauis, rho, cijs, alphas, Beta, Gamma, phi, rhoBeta, rhoGamma, and rhoPhi.
+#' @param verbose logical. If true progress bars and additional info are printed to the console.
 #'
 #' @return A list containing the MCMC draws for each parameter at each iteration. Each element
 #' in the list is itself a list containing:
@@ -54,7 +55,8 @@ skipTrack.MCMC <- function(Y,cluster,
                                                rhoBeta = .01,
                                                rhoGamma = .001,
                                                phi = .01,
-                                               rhoPhi = 1000)){
+                                               rhoPhi = 1000),
+                          verbose = FALSE){
   #Set initial params default list
   ip <- list(pi = rep(1/(numSkips+1), numSkips+1),
              muis = rep(log(30),
@@ -123,12 +125,12 @@ skipTrack.MCMC <- function(Y,cluster,
                          rhoPhi = initialParams$rhoPhi,
                          fixedSkips = fixedSkips)
   #Progress bar
-  pb <- utils::txtProgressBar(min = 0, max = reps, style = 3)
+  if(verbose){pb <- utils::txtProgressBar(min = 0, max = reps, style = 3)}
 
   #Do gibbs steps
   for(t in 1:reps){
     fullDraws[[t+1]] <- do.call('sampleStep', fullDraws[[t]])
-    utils::setTxtProgressBar(pb, t)
+    if(verbose){utils::setTxtProgressBar(pb, t)}
   }
   return(fullDraws)
 }
