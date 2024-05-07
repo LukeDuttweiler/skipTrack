@@ -11,7 +11,7 @@
 plot.skipTrack.model <- function(x, ...){
   plts <- skipTrack.visualize(x)
   plts$nrow <- 2
-  do.call(gridExtra::grid.arrange, plts)
+  suppressWarnings(do.call(gridExtra::grid.arrange, plts))
   return(invisible(NULL))
 }
 

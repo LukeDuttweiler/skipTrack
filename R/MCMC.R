@@ -52,7 +52,7 @@ skipTrack.MCMC <- function(Y,cluster,
                                                Beta = matrix(rep(0, ncol(as.matrix(X))),1),
                                                Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
                                                rhoBeta = .01,
-                                               rhoGamma = .01,
+                                               rhoGamma = .001,
                                                phi = .01,
                                                rhoPhi = 1000)){
   #Set initial params default list
@@ -67,7 +67,7 @@ skipTrack.MCMC <- function(Y,cluster,
              Beta = matrix(rep(0, ncol(as.matrix(X))),1),
              Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
              rhoBeta = .01,
-             rhoGamma = .01,
+             rhoGamma = .001,
              phi = .01, rhoPhi = 1000)
 
   #Replace anything that needs replacing
