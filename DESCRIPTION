@@ -4,7 +4,7 @@ Version: 0.1.0
 Authors@R: 
     person("Luke", "Duttweiler", , "lduttweiler@hsph.harvard.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0467-995X"))
-Description: skipTrack implements a Bayesian hierarchical model of the same name designed to perform inference on cycle length mean and regularity given the possibility of non-adherence in cycle length self-tracking. Currently accepts baseline continuous covariates for cycle mean length and regularity. Future updates will include include categorical covariates, time-varying covariates, and the inclusion of external information regarding tracking skips.
+Description: Implements a Bayesian hierarchical model of the same name designed to perform inference on cycle length mean and regularity given the possibility of non-adherence in cycle length self-tracking. Currently accepts baseline continuous covariates for cycle mean length and regularity. Future updates will include include categorical covariates, time-varying covariates, and the inclusion of external information regarding tracking skips.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
