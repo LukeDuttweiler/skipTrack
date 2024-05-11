@@ -1,8 +1,8 @@
 ---
-title: "Introduction to the SkipTrack Package"
+title: "Getting Started with the SkipTrack Package"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to the SkipTrack Package}
+  %\VignetteIndexEntry{Getting Started with the SkipTrack Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: 'bibliography.bib'
@@ -30,7 +30,9 @@ SkipTrack is a Bayesian hierarchical model for self-reported menstrual cycle len
 
 $$\overbrace{\underbrace{\color{red}{1, 2, 3, 4}, 5,  \dots, 29}_\text{True Cycle, 29 Days}}^\text{Recorded Cycle, 29 Days}, \overbrace{\underbrace{\color{red}{30, 31, 32, 33}, 34,  \dots, 61}_\text{True Cycle, 32 Days}, \underbrace{\color{blue}{62, 63, 64, 65}, 66,  \dots, 90}_\text{True Cycle, 29 Days}}^\text{Recorded Cycle, 61 Days}$$
 
-The SkipTrack model extends the model given by @li2022predictive by specifying individual level parameters for cycle length regularity, and by allowing for other sources of data to help identify associations between covariates and cycle length mean or regularity, while still accounting for skips in self-tracking adherence. 
+The SkipTrack model extends the model given by @li2022predictive by specifying parameters for each individuals for cycle length regularity, as well as their cycle length mean, and weakening assumptions made by Li et al. on the probability of failing to track a cycle.
+
+<!--and by allowing for other sources of data to help identify associations between covariates and cycle length mean or regularity, while still accounting for skips in self-tracking adherence. -->
 
 In short, the modeling framework assumed by SkipTrack is as follows. The observed cycle lengths are represented with $y_{ij}$ where $1 \leq i \leq n$ represents an individual who has contributed $n_i$ observations, with $1 \leq j \leq n_i$. We assume that 
 
@@ -39,14 +41,24 @@ y_{ij} \sim \text{LogNormal}\big(\mu_i + \log(c_{ij}), \tau_i\big),
 $$
 where $\mu_i$ is an individual level mean parameter, $\tau_i$ is an individual level precision parameter, and $c_{ij}$ is an integer-valued parameter representing the number of true cycles present in the observed cycle $y_{ij}$. That is, if $c_{ij} = 1$ then $y_{ij}$ is a true cycle, if $c_{ij} = 2$ then $y_{ij}$ gives the length of two true cycles added together, and so on. 
 
-We then include covariates from two matrices $X$ and $Z$ (which may be, but are not necessarily, equal) by 
+We then assume 
+
+$$
+\mu_i \sim \text{Normal}(\mu, \rho) \mspace{100mu}\tau_i \sim \text{Gamma}(\theta, \phi)
+$$
+
+where $\rho$ is a precision parameter, and the Gamma distribution above is parameterized by mean ($\theta$) and rate $\phi$.
+
+<!--We then include covariates from two matrices $X$ and $Z$ (which may be, but are not necessarily, equal) by 
 
 $$
 \mu_i \sim \text{Normal}\big(X_i^T\beta, \rho\big) \mspace{100mu}\tau_i \sim \text{Gamma}\big(\exp(Z_i^T\Gamma), \phi\big) 
 $$
-where $\rho$ is a precision parameter, the Gamma distribution above is parameterized by mean and rate, and $X_i$ and $Z_i$ are the $i$th rows of $X$ and $Z$ respectively.
+where $\rho$ is a precision parameter, the Gamma distribution above is parameterized by mean and rate, and $X_i$ and $Z_i$ are the $i$th rows of $X$ and $Z$ respectively. -->
 
-This is a fully interpretable model that allows for the simultaneous examination of associations between the covariates given in $X$ and $Z$ and the means and regularities (precisions) of each indivdiual's cycle lengths. A reader interested in the full model details should see CITATION.
+This is a fully interpretable model that allows for the identification of skipping in cycle tracking, while allowing for different individual's regularities, and accounting for uncertainty in the model. A paper discussing the full model details will be published soon. 
+
+<!--This is a fully interpretable model that allows for the simultaneous examination of associations between the covariates given in $X$ and $Z$ and the means and regularities (precisions) of each indivdiual's cycle lengths. A paper discussing the full model details will be published soon.-->
 
 # Package Usage
 
@@ -59,27 +71,26 @@ library(skipTrack)
 First, we simulate data on 100 individuals from the SkipTrack model where each observed $y_{ij}$ value has a 75% probability of being a true cycle, a 20% probability of being two true cycles recorded as one, and a 5% probability of being three true cycles recorded as one. 
 
 ```{r}
-#Simulate data with no covariates
+#Simulate data
 dat <- skipTrack.simulate(n = 100, model = 'skipTrack', skipProb = c(.75, .2, .05))
-
-#Simulate data with covariates for the mean (Beta) and precision (Gamma)
-dat2 <- skipTrack.simulate(n = 100, model = 'skipTrack', skipProb = c(.75, .2, .05),
-                           trueBetas = c(.06, 0), trueGammas = c(.3, 0))
 
 names(dat)
 ```
 
-The result of the simulation function is simply a named list with various components. These are 
+The result of the simulation function is simply a named list with various components. The (currently) important components are
 
 
   * `Y`: the $y_{ij}$ values, observed outcomes
   * `cluster`: the $i$ values, individual markers 
-  * `X`: the matrix $X$, covariates for cycle length mean
+  * `NumTrue`: the $c_{ij}$ values, number of true cycles in an observed cycle
+  * `Underlying`: underlying parameters pertaining to the specific model used for data simulation
+  
+<!--
+* `X`: the matrix $X$, covariates for cycle length mean
   * `Z`: the matrix $Z$, covariates for cycle length regularity
   * `Beta`: the true values of $\beta$, parameters for cycle length mean
   * `Gamma`: the true values of $\Gamma$, parameters for cycle length regularity
-  * `NumTrue`: the $c_{ij}$ values, number of true cycles in an observed cycle
-  * `Underlying`: underlying parameters pertaining to the specific model used for data simulation
+-->
 
 Looking at the histogram of `dat$Y`, we can see a clear mixture of at least two distributions, one centered around 30 days, and another centered near 60 days (corresponding to the true cycles and observed cycles containing two true cycles respectively), which is what we expect based on our generation. 
 
@@ -90,12 +101,12 @@ hist(dat$Y, breaks = 10:150)
 
 Fitting the SkipTrack model using this simulated data requires a call to the function `skipTrack.fit`. Note that because this is a Bayesian model and is fit with an MCMC algorithm, it can take some time with large datasets and a high number of MCMC reps and chains. 
 
-In this code we ask for 4 chains, each with 1000 iterations, run in parallel. Note that we recommend allowing the sampler to run longer than this (usually at least 5000 iterations per chain), but we use a short run here to save time.
+In this code we ask for 4 chains, each with 1000 iterations, run sequentially. Note that we recommend allowing the sampler to run longer than this (usually at least 5000 iterations per chain), but we use a short run here to save time.
 
-If `useParallel = TRUE`, the MCMC chains will be evaluated in parallel.
+If `useParallel = TRUE`, the MCMC chains will be evaluated in parallel, which helps with longer runs.
 
 ```{r}
-ft <- skipTrack.fit(Y = dat$Y, cluster = dat$cluster, X = dat$X, Z = dat$Z,
+ft <- skipTrack.fit(Y = dat$Y, cluster = dat$cluster,
                     reps = 1000, chains = 4, useParallel = FALSE)
 ```
 
@@ -129,7 +140,7 @@ summary(ft)
 summary(ft, burnIn = 500)
 ```
 
-This introduction provides enough information to start fitting the SkipTrack model. For further information regarding different methods of simulating data and tuning parameters for fitting the model, please see the help pages and additional vignettes. 
+This introduction provides enough information to start fitting the SkipTrack model. For further information regarding different methods of simulating data, additional model fitting, and tuning parameters for fitting the model, please see the help pages. Additional vignettes are forthcoming.
 
 \newpage
 

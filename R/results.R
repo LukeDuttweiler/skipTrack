@@ -122,8 +122,8 @@ skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
     dRes <- skipTrack.diagnostics(stFit = stFit, param)
 
     return(data.frame('Parameter' = param,
-                      'Effective Sample Size' = dRes@diagnostics$ess$Sum,
-                      'Gelman-Rubin' = dRes@diagnostics$gelmanRubin$`Point est.`,
+                      'Effective Sample Size' = dRes$diagnostics$ess$Sum,
+                      'Gelman-Rubin' = dRes$diagnostics$gelmanRubin$`Point est.`,
                       check.names = FALSE))
   })
   diags <- do.call('rbind', diags)

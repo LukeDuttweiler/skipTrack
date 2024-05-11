@@ -19,7 +19,7 @@ postCij(yijs, pi, muis, tauis)
 Integer vector
 }
 \description{
-In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i) The prior for
+In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i) The prior for
 c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij can
 take values 1, ..., k where k is the length of pi. This function samples from the
 full conditional posterior of all c_ijs, given vectors of equal length yijs, muis, tauis

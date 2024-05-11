@@ -19,7 +19,7 @@ postPhi(taui, thetai, currentPhi, rhoPhi = 1000)
 Numeric, new draw of phi
 }
 \description{
-In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
+In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i). The prior for tau_i
 is given as Gamma(thetai\emph{phi, phi). This function uses a MH step to draw a new sample of phi.
 Proposal distribution is Gamma(currentPhi}rhoPhi, rhoPhi).
 Note that we parameterize with RATE, not SCALE.

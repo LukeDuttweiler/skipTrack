@@ -87,7 +87,7 @@ postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = .01){
 
 #' Metropolis-Hastings step to draw a new value for phi.
 #'
-#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
+#' In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i). The prior for tau_i
 #' is given as Gamma(thetai*phi, phi). This function uses a MH step to draw a new sample of phi.
 #' Proposal distribution is Gamma(currentPhi*rhoPhi, rhoPhi).
 #' Note that we parameterize with RATE, not SCALE.
@@ -127,7 +127,7 @@ postPhi <- function(taui, thetai, currentPhi, rhoPhi = 1000){
 
 #' Sample a value from the full conditional posterior of rho
 #'
-#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
+#' In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i). The prior for mu_i
 #' is given as N(mu, rho). This function draws from the conditional posterior of rho, given
 #' that the prior on rho is a uniform prior on the standard deviation.
 #'
@@ -150,7 +150,7 @@ postRho <- function(muI, xib){
 
 #' Sample a value from the full conditional posterior of mu_i
 #'
-#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
+#' In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i). The prior for mu_i
 #' is given as N(x_i^T %*% beta, rho). This function draws from the conditional posterior of mu_i.
 #'
 #' Additionally, note that in order to vectorize the remainder of the MCMC algorithm
@@ -180,7 +180,7 @@ postMui <- function(yij, cij, taui, xib, rho){
 
 #' Sample a value from the full conditional posterior of tau_i
 #'
-#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for tau_i
+#' In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i). The prior for tau_i
 #' is given as Gamma(thetai*phi, phi). This function draws from the conditional
 #' posterior of tau_i. Note that we parameterize with RATE, not SCALE.
 #'
@@ -210,7 +210,7 @@ postTaui <- function(yij, cij, mui, thetai, phi = 1){
 
 #' Sample a vector of values from the full conditional posterior of the c_ij vector
 #'
-#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i) The prior for
+#' In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i) The prior for
 #'  c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij can
 #'  take values 1, ..., k where k is the length of pi. This function samples from the
 #'  full conditional posterior of all c_ijs, given vectors of equal length yijs, muis, tauis
@@ -238,7 +238,7 @@ postCij <- function(yijs, pi, muis, tauis){
 
 #' Sample a value from the full conditional posterior of pi
 #'
-#' In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i) The prior for
+#' In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i) The prior for
 #'  c_ij is a categorical prior with category probabilities pi1, ..., pik, and c_ij can
 #'  take values 1, ..., k where k is the length of pi. This function samples from the
 #'  posterior of pi = pi1, ..., pik, assuming that pi follows Dirichlet(priorAlphas)

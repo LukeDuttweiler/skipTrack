@@ -23,7 +23,7 @@ Must be one of: 'rho', 'phi', 'Betas', 'Gammas', 'muis', 'tauis', or 'cijs'.}
   Arguments passed on to \code{\link[genMCMCDiag:genDiagnostic]{genMCMCDiag::genDiagnostic}}
   \describe{
     \item{\code{diagnostics}}{A character vector or list of diagnostic functions to be evaluated. Options include 'traceplot', 'ess', 'gelmanRubin', or custom functions. See details.}
-    \item{\code{distance}}{Function for evaluating distance between MCMC draws if required by 'method'. Note that the lanfear and ts methods ALWAYS require a distance function.}
+    \item{\code{distance}}{Function for evaluating distance between MCMC draws if required by 'method'. This should be a pairwise distance function that operates on elements of the chains from mhDraws. Note that the lanfear and ts methods ALWAYS require a distance function.}
     \item{\code{verbose}}{If TRUE, informative messages are displayed.}
   }}
 }

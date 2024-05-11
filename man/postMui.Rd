@@ -22,7 +22,7 @@ values in cij indicate a sampled number of TRUE cycles in each cycle length give
 Numeric vector, repeated sampled value of length(yij)
 }
 \description{
-In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
+In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i). The prior for mu_i
 is given as N(x_i^T \%*\% beta, rho). This function draws from the conditional posterior of mu_i.
 }
 \details{

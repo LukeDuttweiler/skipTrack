@@ -15,7 +15,7 @@ postRho(muI, xib)
 Numeric
 }
 \description{
-In our model the data are drawn from LogN(mu_i + log(c_{ij}), tau_i). The prior for mu_i
+In our model the data are drawn from LogN(mu_i + log(c_ij), tau_i). The prior for mu_i
 is given as N(mu, rho). This function draws from the conditional posterior of rho, given
 that the prior on rho is a uniform prior on the standard deviation.
 }
