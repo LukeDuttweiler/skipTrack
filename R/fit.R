@@ -6,18 +6,26 @@
 #' @inheritDotParams skipTrack.MCMC
 #'
 #' @param chains Number of chains to run.
-#' @param useParallel Logical, indicating whether to use parallel processing. Default is TRUE.
+#' @param useParallel Logical, indicating whether to use parallel processing, as supported by doParallel. Default is FALSE.
 #'
 #' @return A list containing the results of skipTrack.MCMC for each chain.
 #' @export
 #'
 #' @seealso \code{\link{skipTrack.MCMC}}
 #'
+#' @examples
+#' #Simulated data
+#' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+#'
+#' #Run model fit
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' modFit
+#'
 skipTrack.fit <- function(Y,cluster,
                            X = matrix(1, nrow = length(cluster)),
                            Z = matrix(1, nrow = length(cluster)),
                            numSkips = 10,
-                           reps = 1000, chains, useParallel = TRUE,
+                           reps = 1000, chains, useParallel = FALSE,
                            ...){
   #Checks for hidden arguments for using method from Li et al. (2022)
   dotCalls <- match.call(expand.dots = FALSE)$...

@@ -20,13 +20,19 @@
 #'
 #'   Details on the genDiagnostic function can be found in the genMCMCDiag package.
 #'
-#' @examples
-#' #Example usage:
-#' #skipTrack.diagnostics(stFitObject, 'phi')
-#'
 #' @seealso \code{\link{genDiagnostic}}, \code{\link{skipTrack.fit}}
 #'
 #' @export
+#'
+#' @examples
+#' #Simulated data
+#' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+#'
+#' #Run model fit
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#'
+#' #Get diagnostics for cijs
+#' skipTrack.diagnostics(modFit, 'cijs')
 skipTrack.diagnostics <- function(stFit, param = c('rho', 'phi', 'Betas', 'Gammas', 'muis', 'tauis', 'cijs'),
                                   method = NULL, ...){
   #If class is skipTrack.model, extract chains, otherwise assume we have chains

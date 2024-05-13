@@ -52,12 +52,21 @@ skip probabilities, maximum cycles and covariates (depending on the model).
 It supports built-in models ('skipTrack', 'li', 'mixture') and custom models written as functions.
 }
 \examples{
-# Example usage of skipTrack.simulate function using the skipTrack generative model
+# Example simulation from the SkipTrack model
 resultSt <- skipTrack.simulate(1000, model = 'skipTrack', skipProb = c(.7, .2, .1))
+hist(resultSt$Y, breaks = 5:200)
 
-# Example usage using the li model
+# Example simulation from the Li model
 resultLi <- skipTrack.simulate(1000, model = 'li', maxCycles = 3)
+hist(resultLi$Y, breaks = 5:200)
 
+#Example simulation from the mixture model
+resultMix <- skipTrack.simulate(1000, model = 'mixture', skipProb = c(.7, .2, .1))
+hist(resultMix$Y, breaks = 5:200)
+
+}
+\references{
+Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
 }
 \seealso{
 \code{\link{stSim}}, \code{\link{liSim}}, \code{\link{mixSim}}

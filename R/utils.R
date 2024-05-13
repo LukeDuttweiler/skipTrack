@@ -8,6 +8,14 @@
 #' @return Invisible NULL. Prints plots from skipTrack.visualize
 #' @export
 #'
+#' @examples
+#' #Simulated data
+#' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+#'
+#' #Run model fit
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' plot(modFit)
+#'
 plot.skipTrack.model <- function(x, ...){
   plts <- skipTrack.visualize(x)
   plts$nrow <- 2
@@ -22,6 +30,15 @@ plot.skipTrack.model <- function(x, ...){
 #'
 #' @return Invisible NULL. Prints info about skipTrack.model object
 #' @export
+#'
+#' @examples
+#' #Simulated data
+#' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+#'
+#' #Run model fit
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' print(modFit)
+#'
 #'
 print.skipTrack.model <- function(x, ...){
   cat(paste0('-------------------------------------------\n',
@@ -46,6 +63,15 @@ print.skipTrack.model <- function(x, ...){
 #' @return Invisible NULL. Prints structure of skipTrack.model object
 #' @export
 #'
+#' @examples
+#' #Simulated data
+#' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+#'
+#' #Run model fit
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' str(modFit)
+#'
+#'
 str.skipTrack.model <- function(x){
   cat(paste0('skipTrack.model S3 Object (also a list)\n\n',
              'NChains:    ', length(x$fit), '\n',
@@ -61,6 +87,15 @@ str.skipTrack.model <- function(x){
 #' @return Invisible skipTrack.results. Prints info about skipTrack.model object
 #'
 #' @export
+#'
+#' @examples
+#' #Simulated data
+#' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+#'
+#' #Run model fit
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' summary(modFit, burnIn = 250)
+#'
 #'
 summary.skipTrack.model <- function(object, ...){
   #Get results

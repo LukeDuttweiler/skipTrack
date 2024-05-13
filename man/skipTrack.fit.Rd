@@ -12,7 +12,7 @@ skipTrack.fit(
   numSkips = 10,
   reps = 1000,
   chains,
-  useParallel = TRUE,
+  useParallel = FALSE,
   ...
 )
 }
@@ -31,7 +31,7 @@ skipTrack.fit(
 
 \item{chains}{Number of chains to run.}
 
-\item{useParallel}{Logical, indicating whether to use parallel processing. Default is TRUE.}
+\item{useParallel}{Logical, indicating whether to use parallel processing, as supported by doParallel. Default is FALSE.}
 
 \item{...}{
   Arguments passed on to \code{\link[=skipTrack.MCMC]{skipTrack.MCMC}}
@@ -47,6 +47,15 @@ A list containing the results of skipTrack.MCMC for each chain.
 }
 \description{
 This function fits the model using multiple instances of skipTrack.MCMC, either in parallel or sequentially.
+}
+\examples{
+#Simulated data
+simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+
+#Run model fit
+modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+modFit
+
 }
 \seealso{
 \code{\link{skipTrack.MCMC}}

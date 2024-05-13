@@ -15,3 +15,13 @@ Invisible NULL. Prints structure of skipTrack.model object
 \description{
 Report skipTrack.model structure to console
 }
+\examples{
+#Simulated data
+simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+
+#Run model fit
+modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+str(modFit)
+
+
+}

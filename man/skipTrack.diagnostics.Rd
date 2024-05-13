@@ -44,9 +44,14 @@ function with the specified or default method ('lanfear') and hammingDist as the
 Details on the genDiagnostic function can be found in the genMCMCDiag package.
 }
 \examples{
-#Example usage:
-#skipTrack.diagnostics(stFitObject, 'phi')
+#Simulated data
+simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 
+#Run model fit
+modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+
+#Get diagnostics for cijs
+skipTrack.diagnostics(modFit, 'cijs')
 }
 \seealso{
 \code{\link{genDiagnostic}}, \code{\link{skipTrack.fit}}

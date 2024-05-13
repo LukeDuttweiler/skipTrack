@@ -94,10 +94,7 @@ likVec <- function(pars = c(kappa = 180,
 #'
 #' @return A list containing the results of hyperparameter inference.
 #'
-#' @seealso
-#' Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
-#'
-#' @export
+#' @references Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
 liInference <- function(Y,cluster, S = 10,
                         startingParams = c(kappa = 180,
                                               gamma = 6,

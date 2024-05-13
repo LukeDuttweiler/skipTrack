@@ -26,12 +26,18 @@ It returns summaries such as credible intervals for Betas, Gammas, wald-type con
 Note that true values and converage are included in the output if trueVals is supplied, but otherwise not.
 }
 \examples{
-# Example usage with simulated data (which includes access to ground truth):
+#Simulated data
+simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
+
+#Run model fit
+modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+modFit
+
+# If using simulated data (which includes access to ground truth):
 #
-# skipTrack.results(stFitObject, trueVals = simulatedData, burnIn = 750)
+skipTrack.results(modFit, trueVals = simDat, burnIn = 250)
 #
-# Example usage with real data:
+# If not using simulated data:
 #
-# skipTrack.results(stFitObject, burnIn = 750)
 
 }

@@ -44,12 +44,12 @@ postBeta <- function(rhoBeta = .01, rho, Xi, muI){
 #'
 #' @return A list containing the new Gamma value and the corresponding thetai values.
 #'
-postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = .01){
+postGamma <- function(taui, Zi, currentGamma, phi = 1, rhoGamma = 1000){
   #make sure things are formatted correctly
   currentGamma <- matrix(currentGamma, nrow = 1)
 
   #Set proposal covariance matrix
-  sig <- diag(rhoGamma, ncol(currentGamma))
+  sig <- diag(1/rhoGamma, ncol(currentGamma))
 
   #Assuming Zi is (num Individuals)x(dimension of gamma) matrix of covariates
 

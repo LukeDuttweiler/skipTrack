@@ -30,6 +30,6 @@ and their tracked cycles, assuming the model specified in Li et al. (2022).
 Default starting values for hyperparameters and optimization tuning parameters
 are those given in Li et al.
 }
-\seealso{
+\references{
 Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
 }
