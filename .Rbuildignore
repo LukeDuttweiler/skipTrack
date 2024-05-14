@@ -7,3 +7,4 @@
 ^bibliography.bib$
 ^cran-comments\.md$
 ^\.github$
+^CRAN-SUBMISSION$
