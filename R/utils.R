@@ -12,8 +12,8 @@
 #' #Simulated data
 #' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 #'
-#' #Run model fit
-#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' #Run model fit (should typically run with much more than 50 reps)
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 50)
 #' plot(modFit)
 #'
 plot.skipTrack.model <- function(x, ...){
@@ -35,8 +35,8 @@ plot.skipTrack.model <- function(x, ...){
 #' #Simulated data
 #' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 #'
-#' #Run model fit
-#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' #Run model fit (should typically run with much more than 50 reps)
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 50)
 #' print(modFit)
 #'
 #'
@@ -58,7 +58,8 @@ print.skipTrack.model <- function(x, ...){
 
 #' Report skipTrack.model structure to console
 #'
-#' @param x skipTrack.model object from the function skipTrack.fit
+#' @param object skipTrack.model object from the function skipTrack.fit
+#' @param ... To match other str calls
 #'
 #' @return Invisible NULL. Prints structure of skipTrack.model object
 #' @export
@@ -67,15 +68,15 @@ print.skipTrack.model <- function(x, ...){
 #' #Simulated data
 #' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 #'
-#' #Run model fit
-#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' #Run model fit (should typically run with much more than 50 reps)
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 50)
 #' str(modFit)
 #'
 #'
-str.skipTrack.model <- function(x){
+str.skipTrack.model <- function(object, ...){
   cat(paste0('skipTrack.model S3 Object (also a list)\n\n',
-             'NChains:    ', length(x$fit), '\n',
-             'Model Type: ', x$model))
+             'NChains:    ', length(object$fit), '\n',
+             'Model Type: ', object$model))
   return(invisible())
 }
 
@@ -92,9 +93,9 @@ str.skipTrack.model <- function(x){
 #' #Simulated data
 #' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 #'
-#' #Run model fit
-#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
-#' summary(modFit, burnIn = 250)
+#' #Run model fit (should typically run with much more than 50 reps)
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 50)
+#' summary(modFit, burnIn = 25) #Recommended burnIn with real data is at least 750
 #'
 #'
 summary.skipTrack.model <- function(object, ...){

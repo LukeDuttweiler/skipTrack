@@ -18,17 +18,19 @@
 #' #Simulated data
 #' simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 #'
-#' #Run model fit
-#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#' #Run model fit (should typically run with much more than 50 reps)
+#' modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 50)
 #' modFit
 #'
 #' # If using simulated data (which includes access to ground truth):
 #' #
-#' skipTrack.results(modFit, trueVals = simDat, burnIn = 250)
+#' skipTrack.results(modFit, trueVals = simDat, burnIn = 25)
+#' #Recommended burnIn with real data is at least 750
 #' #
 #' # If not using simulated data:
 #' #
-#  skipTrack.results(modFit, burnIn = 250)
+#' skipTrack.results(modFit, burnIn = 25)
+#' #Recommended burnIn with real data is at least 750
 #'
 #' @export
 skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){

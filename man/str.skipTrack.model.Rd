@@ -4,10 +4,12 @@
 \alias{str.skipTrack.model}
 \title{Report skipTrack.model structure to console}
 \usage{
-\method{str}{skipTrack.model}(x)
+\method{str}{skipTrack.model}(object, ...)
 }
 \arguments{
-\item{x}{skipTrack.model object from the function skipTrack.fit}
+\item{object}{skipTrack.model object from the function skipTrack.fit}
+
+\item{...}{To match other str calls}
 }
 \value{
 Invisible NULL. Prints structure of skipTrack.model object
@@ -19,8 +21,8 @@ Report skipTrack.model structure to console
 #Simulated data
 simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 
-#Run model fit
-modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#Run model fit (should typically run with much more than 50 reps)
+modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 50)
 str(modFit)
 
 

@@ -47,8 +47,8 @@ Details on the genDiagnostic function can be found in the genMCMCDiag package.
 #Simulated data
 simDat <- skipTrack.simulate(n = 100, skipProb = c(.7, .2, .1))
 
-#Run model fit
-modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 500)
+#Run model fit (should typically run with much more than 50 reps)
+modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps = 50)
 
 #Get diagnostics for cijs
 skipTrack.diagnostics(modFit, 'cijs')

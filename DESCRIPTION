@@ -4,7 +4,7 @@ Version: 0.0.1
 Authors@R: 
     person("Luke", "Duttweiler", , "lduttweiler@hsph.harvard.edu", role = c("aut", "cre", 'cph'),
            comment = c(ORCID = "0000-0002-0467-995X"))
-Description: Implements a Bayesian hierarchical model designed to identify skips in mobiel menstrual cycle self-tracking on mobiel apps. Future developments will allow for the inclusion of covariates affecting cycle mean and regularity, as well as extra information regarding tracking non-adherence. Main methods to be outlined in a forthcoming paper, with alternative models from Li et al. (2022) <doi:10.1093/jamia/ocab182>.
+Description: Implements a Bayesian hierarchical model designed to identify skips in mobile menstrual cycle self-tracking on mobile apps. Future developments will allow for the inclusion of covariates affecting cycle mean and regularity, as well as extra information regarding tracking non-adherence. Main methods to be outlined in a forthcoming paper, with alternative models from Li et al. (2022) <doi:10.1093/jamia/ocab182>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
