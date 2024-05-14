@@ -7,13 +7,13 @@
 postLambdai(yij, sij, priorK, priorG)
 }
 \arguments{
-\item{yij}{Vector of observed values for lambda_i.}
+\item{yij}{Vector of observed values for individual i.}
 
-\item{sij}{Vector of indicators for lambda_i.}
+\item{sij}{Vector of cycle skip indicators for individual i.}
 
-\item{priorK}{Prior hyperparameter for K.}
+\item{priorK}{Prior hyperparameter kappa.}
 
-\item{priorG}{Prior hyperparameter for G.}
+\item{priorG}{Prior hyperparameter gamma.}
 }
 \value{
 A random draw from the posterior distribution of lambda_i.

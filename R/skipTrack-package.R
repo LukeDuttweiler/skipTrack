@@ -4,6 +4,7 @@
 ## usethis namespace: start
 #' @importFrom foreach %do%
 #' @importFrom foreach %dopar%
+#' @importFrom lifecycle deprecated
 #' @importFrom parallel detectCores
 #' @importFrom parallel makeCluster
 #' @importFrom stats dbeta

@@ -42,3 +42,6 @@ of the given hyperparameters for the generative model from Li et al. (2022).
 It samples M instances of the parameters from the given distributions
 and averages the the likelihoods, giving a marginal likelihood for the hyperparameters.
 }
+\references{
+Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
+}

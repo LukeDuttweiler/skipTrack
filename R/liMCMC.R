@@ -1,4 +1,40 @@
-#NEEDS DOCUMENTATION
+
+#' Runs MCMC algorithm for performing inference using the model from Li et al. (2022)
+#'
+#' @description
+#' This function performs inference on cycle length data, assuming the model from Li et al. (2022). It is important to note
+#' that Li et al. does not actually use this algorithm as they target a particular analytic posterior predictive distribution,
+#' and solve directly. However, we are targeting a different posterior and thus use this MCMC to perform inference.
+#'
+#' @inheritParams skipTrack.MCMC
+#'
+#' @param S Integer. The maximum number of skips to consider possible.
+#' @param hyperparams Named numeric vector of hyperparameters containing the
+#' elements: kappa, gamma, alpha, beta. NOTE: MUST BE IN CORRECT ORDER.
+#'   - \code{kappa}: Numeric value, shape parameter of Gamma distribution for Lambda_i.
+#'   - \code{gamma}: Numeric value, rate parameter of Gamma distribution for Lambda_i.
+#'   - \code{alpha}: Numeric value, shape1 parameter of Beta distribution for Pi_i.
+#'   - \code{beta}:  Numeric value, shape2 parameter of Beta distribution for Pi_i.
+#' @param initialParams A list of initial parameter values for the MCMC algorithm.
+#' Default values are provided for pi, lambdais, piis, ss.
+#'
+#' @return A list containing the MCMC draws for each parameter at each iteration. Each element
+#' in the list is itself a list containing:
+#' \describe{
+#'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, lambdais, piis, ss.}
+#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, lambdas, pis.}
+#'   \item{kappa}{Fixed value of hyperparameter kappa.}
+#'   \item{gamma}{Fixed value of hyperparameter gamma.}
+#'   \item{alpha}{Fixed value of hyperparameter alpha.}
+#'   \item{beta}{Fixed value of hyperparamter beta.}
+#'   \item{S}{Fixed input value S.}
+#'   \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
+#' }
+#'
+#' @seealso \code{\link{gibbsStepLi}}
+#'
+#' @references Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
+#'
 liMCMC <- function(Y,
                    cluster,
                    S,
@@ -43,6 +79,33 @@ liMCMC <- function(Y,
   return(fullDraws)
 }
 
+#' Gibbs Step Li - One MCMC step for the Li Model
+#'
+#'
+#'
+#' @param ijDat A data.frame with parameters at the individual-observation level: Individual, ys, lambdais, piis, ss.
+#' @param iDat A data.frame with parameters at the individual level: Individual, lambdas, pis.
+#' @param kappa Fixed value of hyperparameter kappa.
+#' @param gamma Fixed value of hyperparameter gamma.
+#' @param alpha Fixed value of hyperparameter alpha.
+#' @param beta Fixed value of hyperparamter beta.
+#' @param S Fixed input value S.
+#' @param indFirst A logical vector indicating the first occurrence of each individual.
+#'
+#' @return A list containing one MCMC draws for each parameter. Elements are:
+#' \describe{
+#'   \item{ijDat}{A data.frame with updated parameters at the individual-observation level: Individual, ys, lambdais, piis, ss.}
+#'   \item{iDat}{A data.frame with updated parameters at the individual level: Individual, lambdas, pis.}
+#'   \item{kappa}{Fixed value of hyperparameter kappa.}
+#'   \item{gamma}{Fixed value of hyperparameter gamma.}
+#'   \item{alpha}{Fixed value of hyperparameter alpha.}
+#'   \item{beta}{Fixed value of hyperparamter beta.}
+#'   \item{S}{Fixed input value S.}
+#'   \item{indFirst}{A logical vector indicating the first occurrence of each individual.}
+#' }
+#'
+#' @references Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
+#'
 gibbsStepLi <- function(ijDat, iDat, kappa, gamma, alpha, beta, S, indFirst){
   #Now i level
   newLambdais <- lapply(iDat$Individual, function(ind){

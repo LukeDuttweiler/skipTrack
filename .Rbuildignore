@@ -3,3 +3,7 @@
 ^LICENSE\.md$
 ^doc$
 ^Meta$
+^README\.Rmd$
+^bibliography.bib$
+^cran-comments\.md$
+^\.github$

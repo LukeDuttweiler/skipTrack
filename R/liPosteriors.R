@@ -4,10 +4,10 @@
 #' for lambda_i in the Li algorithm, given the observed values y_ij, the indicators s_ij,
 #' and the prior hyperparameters priorK and priorG.
 #'
-#' @param yij Vector of observed values for lambda_i.
-#' @param sij Vector of indicators for lambda_i.
-#' @param priorK Prior hyperparameter for K.
-#' @param priorG Prior hyperparameter for G.
+#' @param yij Vector of observed values for individual i.
+#' @param sij Vector of cycle skip indicators for individual i.
+#' @param priorK Prior hyperparameter kappa.
+#' @param priorG Prior hyperparameter gamma.
 #'
 #' @return A random draw from the posterior distribution of lambda_i.
 #'
@@ -24,9 +24,19 @@ postLambdai <- function(yij, sij, priorK, priorG){
   return(rep(dr, n))
 }
 
-#Function to compute random draw from posterior for pi_i in Li algorithm.
-#This one requires an MH step. Using the posterior of true geometric from the calculated hyperparameters as a proposal
-
+#' Compute M-H draw for pi_i in Li algorithm
+#'
+#' This performs a Metropolis-Hastings draw for pi_i, assuming s_ij follows a truncated geometric distribution with parameters
+#' pi_i and S. The proposal distribution for pi_i is Beta(alpha, beta).
+#'
+#' @param sij Vector of cycle skip indicators for individual i
+#' @param currentPii Current value of pi_i
+#' @param priorA Hyperparameter alpha.
+#' @param priorB Hyperparameter beta.
+#' @param S Maximum number of skips allowed in algorithm
+#'
+#' @return Draw for pi_i, repeated for the number of observations from individual i
+#'
 postPii <- function(sij, currentPii, priorA, priorB, S){
   #n is the number of cycles for this individual
   n <- length(sij)

@@ -4,9 +4,9 @@
 \name{skipTrack-package}
 \alias{skipTrack}
 \alias{skipTrack-package}
-\title{skipTrack: Bayesian Hierarchical Models Adjusting for Non-Adherence in Mobile Menstrual Cycle Tracking}
+\title{skipTrack: A Bayesian Hierarchical Model that Controls for Non-Adherence in Mobile Menstrual Cycle Tracking}
 \description{
-Implements a Bayesian hierarchical model of the same name designed to perform inference on cycle length mean and regularity given the possibility of non-adherence in cycle length self-tracking. Currently accepts baseline continuous covariates for cycle mean length and regularity. Future updates will include include categorical covariates, time-varying covariates, and the inclusion of external information regarding tracking skips.
+Implements a Bayesian hierarchical model designed to identify skips in mobiel menstrual cycle self-tracking on mobiel apps. Future developments will allow for the inclusion of covariates affecting cycle mean and regularity, as well as extra information regarding tracking non-adherence. Main methods to be outlined in a forthcoming paper, with alternative models from Li et al. (2022) \doi{10.1093/jamia/ocab182}.
 }
 \seealso{
 Useful links:
@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Luke Duttweiler \email{lduttweiler@hsph.harvard.edu} (\href{https://orcid.org/0000-0002-0467-995X}{ORCID})
+\strong{Maintainer}: Luke Duttweiler \email{lduttweiler@hsph.harvard.edu} (\href{https://orcid.org/0000-0002-0467-995X}{ORCID}) [copyright holder]
 
 }
 \keyword{internal}

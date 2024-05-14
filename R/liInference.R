@@ -19,6 +19,8 @@
 #'
 #' @return Numeric value representing the Monte Carlo estimate of the negative marginal log-likelihood.
 #'
+#' @references Li, Kathy, et al. "A predictive model for next cycle start date that accounts for adherence in menstrual self-tracking." Journal of the American Medical Informatics Association 29.1 (2022): 3-11.
+
 likVec <- function(pars = c(kappa = 180,
                             gamma = 6,
                             alpha = 2,
