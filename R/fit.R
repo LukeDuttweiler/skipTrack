@@ -62,7 +62,7 @@ skipTrack.fit <- function(Y,cluster,
     par <- tryCatch(liInference(Y = Y, cluster = cluster,
                                 S = numSkips, startingParams = liHyperparams),
                     error = function(e){
-                      print(e)
+                      warning(e)
                       return(liHyperparams)
                     })
   }
