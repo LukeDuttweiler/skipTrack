@@ -43,25 +43,25 @@ We present a short overview of the SkipTrack model and notation here.
 
 Let $y_{ij}$ be the $j$th recorded cycle length provided by participant $i$. We assume that 
 
-\[
-y_{ij} \sim \text{LogNormal}\Big(\mu_i + \log(c_{ij}), \tau_i\Big)
-\]
+$$
+y_{ij} \sim \text{LogNormal}\Big(\mu_i + \text{log}(c_{ij}), \tau_i\Big)
+$$
 
 where $\mu_i$ is the natural log of individual $i$'s cycle length median, $\tau_i$ is the precision of the distribution (providing a measure of regularity), and $c_{ij}$ is an integer-valued parameter that represents the number of **true** cycles occurring in recorded cycle $y_{ij}$. For example, if $c_{ij} = 1$, then $y_{ij}$ is a true cycle length, if $c_{ij} = 2$ then $y_{ij}$ is the length of two true cycles added together, and so on. 
 
 Then we assume,
 
-\[
+$$
 \mu_i \sim \text{Normal}(\mu, \rho) \mspace{100mu} \tau_i \sim \text{Gamma}(\theta, \phi)
-\]
+$$
 
 where the natural log of $\mu$ gives the overall population cycle length median, $\rho$ is a precision parameter, $\theta$ is the mean of the Gamma distribution and $\phi$ is the rate. 
 
 Finally, 
 
-\[
+$$
 c_{ij} \sim \text{Categorical}(\pi_1, \pi_2, \dots, \pi_{NS})
-\]
+$$
 
 where $pi_k = \text{Pr}(c_{ij} = k)$ and $NS$ is the maximum number of skips allowed in the model. 
 
