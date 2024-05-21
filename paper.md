@@ -1,7 +1,9 @@
 ---
-title: 'SkipTrack: An R package for Identifying Skips in Self-Tracked Mobile Menstrual Cycle Data'
+title: 'skipTrack: An R package for Identifying Skips in Self-Tracked Mobile Menstrual Cycle Data'
 tags:
   - menstrual cycle
+  - Bayesian hierarchical model
+  - MCMC
 authors:
   - name: Luke Duttweiler
     orcid: 0000-0002-0467-995X
@@ -24,75 +26,63 @@ bibliography: bibliography.bib
 
 # Summary
 
-Mobile apps that allow users to self-track menstrual cycle lengths and symptoms are now widely available and frequently used [@fox2010mobile]. Multiple studies (consider [@bull2019real; @li2020characterizing;@mahalingaiah2022design]) have taken advantage of these uniquely large data sets to gain insight on characteristics of the menstrual cycle, which is an important vital sign [@diaz2006menstruation]. Unfortunately, due to the self-tracking nature of the gathered data, recorded cycle lengths may be over-inflated as users fail to identify period dates in the app. A non-trivial number of incorrectly inflated cycle lengths in a data set will be damaging to the reliability and reproducibility of analysis results. 
+Mobile apps that allow users to self-track menstrual cycle lengths and symptoms are now widely available and frequently used [@fox2010mobile]. Multiple studies (consider [@bull2019real; @li2020characterizing;@mahalingaiah2022design]) have taken advantage of these uniquely large data sets to gain insight on characteristics of the menstrual cycle, which is an important vital sign [@diaz2006menstruation]. Unfortunately, due to the self-tracking nature of the gathered data, recorded cycle lengths may be inflated if users do not accurately document all period dates in the app. A non-trivial number of incorrectly inflated cycle lengths in a data set will be damaging to the reliability and reproducibility of analysis results. 
 
-Current solutions to this problem of non-adherence in cycle tracking include removing cycles that contain no user-app interaction [@li2020characterizing], identifying possibly inaccurate cycles based on user-specific average cycle lengths [@li2022predictive], or ad-hoc removal of cycles based on well-established menstrual cycle characteristics. The `SkipTrack` package adapts and advances the Bayesian approach of @li2022predictive by identifying possible skips in cycle tracking based on user-specific average cycle lengths *and* user-specific cycle regularity. 
+Current solutions to this problem of non-adherence in cycle tracking include removing cycles that exhibit no user-app interaction [@li2020characterizing], identifying possibly inaccurate cycles based on user-specific average cycle lengths [@li2022predictive], or *ad hoc* removal of cycles based on well-established menstrual cycle characteristics. The `skipTrack` package adapts and advances the Bayesian approach of @li2022predictive by identifying possible skips in cycle tracking based on user-specific average cycle lengths **and** user-specific cycle regularity. 
 
 # Statement of need
 
-`Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
-enables wrapping low-level languages (e.g., C) for speed without losing
-flexibility or ease-of-use in the user-interface. The API for `Gala` was
-designed to provide a class-based and user-friendly interface to fast (C or
-Cython-optimized) implementations of common operations such as gravitational
-potential and force evaluation, orbit integration, dynamical transformations,
-and chaos indicators for nonlinear dynamics. `Gala` also relies heavily on and
-interfaces well with the implementations of physical units and astronomical
-coordinate systems in the `Astropy` package [@astropy] (`astropy.units` and
-`astropy.coordinates`).
+Analyses involving large amount of user-tracked menstrual cycle data sets are becoming more prevalent. Identifying skips in cycle tracking is crucially important for maintaining the validity of these studies. The `skipTrack` package provides easy to use software in R that can identify skips in menstrual cycle data based on a pre-specified Bayesian hierarchical model. The resulting inference on possible skipped cycles may then be included by a researcher *a priori* in an analysis, or may be used to develop a multiple-imputation scheme. 
 
-`Gala` was designed to be used by both astronomical researchers and by
-students in courses on gravitational dynamics or astronomy. It has already been
-used in a number of scientific publications [@Pearson:2017] and has also been
-used in graduate courses on Galactic dynamics to, e.g., provide interactive
-visualizations of textbook material [@Binney:2008]. The combination of speed,
-design, and support for Astropy functionality in `Gala` will enable exciting
-scientific explorations of forthcoming data releases from the *Gaia* mission
-[@gaia] by students and experts alike.
+Additionally, while based on the Bayesian hierarchical model from [@li2022predicitve], the model used by `skipTrack` includes components for both cycle length mean and regularity. This allows the model to correctly adjust for individuals with irregular cycles who are often excluded from menstrual cycle analyses, despite the important information their data contains. 
+Finally, several extensions to the current `skipTrack` model and software are planned. These include the addition of regression models for both cycle length mean and regularity, an auto-regressive modeling structure for sequential cycle lengths from the same individual, and a method for the inclusion of user-app interaction or other external data to help with skip identification. These updates, along with open availability and ease-of-use, will provide researchers easy access to high level modeling techniques for mobile menstrual cycle data.
 
-# Mathematics
+# The SkipTrack Model
 
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
+We present a short overview of the SkipTrack model and notation here. 
 
-Double dollars make self-standing equations:
+Let $y_{ij}$ be the $j$th recorded cycle length provided by participant $i$. We assume that 
 
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
+\[
+y_{ij} \sim \text{LogNormal}\Big(\mu_i + \log(c_{ij}), \tau_i\Big)
+\]
 
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
+where $\mu_i$ is the natural log of individual $i$'s cycle length median, $\tau_i$ is the precision of the distribution (providing a measure of regularity), and $c_{ij}$ is an integer-valued parameter that represents the number of **true** cycles occurring in recorded cycle $y_{ij}$. For example, if $c_{ij} = 1$, then $y_{ij}$ is a true cycle length, if $c_{ij} = 2$ then $y_{ij}$ is the length of two true cycles added together, and so on. 
 
-# Citations
+Then we assume,
 
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
+\[
+\mu_i \sim \text{Normal}(\mu, \rho) \mspace{100mu} \tau_i \sim \text{Gamma}(\theta, \phi)
+\]
 
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
+where the natural log of $\mu$ gives the overall population cycle length median, $\rho$ is a precision parameter, $\theta$ is the mean of the Gamma distribution and $\phi$ is the rate. 
 
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
+Finally, 
 
-# Figures
+\[
+c_{ij} \sim \text{Categorical}(\pi_1, \pi_2, \dots, \pi_{NS})
+\]
 
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
+where $pi_k = \text{Pr}(c_{ij} = k)$ and $NS$ is the maximum number of skips allowed in the model. 
 
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
+# Package Description
+
+The `skipTrack` package contains tools for fitting the SkipTrack model, visualizing model results, diagnosing model convergence, and simulating example data. 
+
+The model fit is accomplished using an MCMC algorithm composed mainly of Gibbs sampling steps with a small number of Metropolis-Hastings steps. Model fitting is accomplished through an easy-to-use interface that allows users to select the number of MCMC chains to run, the number of iterations to run per chain, and the parameters used to initialize each chain. Model results may be visualized or retrived through standard interaction functions (`summary()`, `plot()`, etc.).
+
+MCMC convergence diagnostics are multivariate and multi-chain and are provided using the R package @genMCMCPackage. 
+
+Example data may be simulated from the SkipTrack model, the generative model provided in @li2022predictive, or a provided mixture model. 
+
+# Availability 
+
+A stable version of `skipTrack` is available on CRAN, and a development version is publicly available on GitHub (https://github.com/LukeDuttweiler/skipTrack).
 
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+Research reported in this publication was supported by the National Institute of Environmental Health Sciences of the National Institutes of Health (NIH) under award number T32ES007142.  The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH.
+
+(Shruthi, Brent, grant info?)
 
 # References
