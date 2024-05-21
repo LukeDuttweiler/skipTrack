@@ -63,7 +63,7 @@ $$
 c_{ij} \sim \text{Categorical}(\pi_1, \pi_2, \dots, \pi_{NS})
 $$
 
-where $pi_k = \text{Pr}(c_{ij} = k)$ and $NS$ is the maximum number of skips allowed in the model. 
+where $\pi_k = \text{Pr}(c_{ij} = k)$ and $NS$ is the maximum number of skips allowed in the model. 
 
 # Package Description
 
@@ -71,7 +71,7 @@ The `skipTrack` package contains tools for fitting the SkipTrack model, visualiz
 
 The model fit is accomplished using an MCMC algorithm composed mainly of Gibbs sampling steps with a small number of Metropolis-Hastings steps. Model fitting is accomplished through an easy-to-use interface that allows users to select the number of MCMC chains to run, the number of iterations to run per chain, and the parameters used to initialize each chain. Model results may be visualized or retrived through standard interaction functions (`summary()`, `plot()`, etc.).
 
-MCMC convergence diagnostics are multivariate and multi-chain and are provided using the R package @genMCMCPackage. 
+MCMC convergence diagnostics are multivariate and multi-chain and are provided using the R package `genMCMCDiag` @genMCMCPackage. 
 
 Example data may be simulated from the SkipTrack model, the generative model provided in @li2022predictive, or a provided mixture model. 
 
