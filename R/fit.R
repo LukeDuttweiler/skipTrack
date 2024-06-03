@@ -33,9 +33,11 @@ skipTrack.fit <- function(Y,cluster,
   li <- ifelse('li' %in% names(dotCalls), dotCalls$li, FALSE)
 
   if(li){
-    liHyperparams <- ifelse('liHyperparams' %in% names(dotCalls),
-                            dotCalls$liHyperparams,
-                            c(kappa = 180, gamma = 6, alpha = 2, beta = 20))
+    if('liHyperparams' %in% names(dotCalls)){
+      liHyperparams <- dotCalls$liHyperparams
+    }else{
+      liHyperparams <- c(kappa = 180, gamma = 6, alpha = 2, beta = 20)
+    }
   }
 
   if(!li & 'li' %in% names(dotCalls)){
