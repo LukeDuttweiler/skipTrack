@@ -99,7 +99,7 @@ skipTrack.fit <- function(Y,cluster,
 
     res <- foreach::foreach(1:chains) %do% {
       if(li){
-        liMCMC(Y = Y, cluster = cluster, reps = reps, hyperparams = par, S = numSkips)
+        liMCMC(Y = Y, cluster = cluster, reps = reps, hyperparams = par, S = numSkips, ...)
       }else{
         skipTrack.MCMC(Y = Y, cluster = cluster, X = X, Z = Z, numSkips = numSkips, reps = reps,
                       ...)
