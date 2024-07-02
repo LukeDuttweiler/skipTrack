@@ -53,6 +53,8 @@ cycle, a 20% probability of being two true cycles recorded as one, and a
 5% probability of being three true cycles recorded as one.
 
 ``` r
+set.seed(1)
+
 #Simulate data
 dat <- skipTrack.simulate(n = 100, model = 'skipTrack', skipProb = c(.75, .2, .05))
 ```
@@ -102,15 +104,15 @@ skipTrack.diagnostics(ft, param = 'cijs')
     #> 
     #> |Effective Sample Size: 
     #> |---------------------------
-    #> | Chain 1| Chain 2| Chain 3| Chain 4|    Sum|
-    #> |-------:|-------:|-------:|-------:|------:|
-    #> | 369.984| 151.771|  99.466|  139.51| 760.73|
+    #> | Chain 1| Chain 2| Chain 3| Chain 4|     Sum|
+    #> |-------:|-------:|-------:|-------:|-------:|
+    #> |  86.077|    81.6|  91.054| 114.178| 372.909|
     #> 
     #> |Gelman-Rubin Diagnostic: 
     #> |---------------------------
     #> | Point est.| Upper C.I.|
     #> |----------:|----------:|
-    #> |      1.001|      1.002|
+    #> |      1.001|      1.005|
 
 ### Visualization
 
@@ -132,57 +134,69 @@ Importantly, these results are based on a default chain burn-in value of
 750 draws. This can be changed using the parameter `burnIn` for either
 function.
 
+For example using `summary` with the default burnIn…
+
 ``` r
 summary(ft)
-#> ----------------------------------------------------
-#> Summary of skipTrack.fit using skipTrack model
-#> ----------------------------------------------------
-#> Mean Coefficients: 
-#> 
-#>             Estimate       95% CI Lower 95% CI Upper
-#> (Intercept)      3.4              3.376        3.423
-#> 
-#> ----------------------------------------------------
-#> Precision Coefficients: 
-#> 
-#>             Estimate       95% CI Lower 95% CI Upper
-#> (Intercept)    5.593              5.423        5.755
-#> 
-#> ----------------------------------------------------
-#> Diagnostics: 
-#> 
-#>        Effective Sample Size       Gelman-Rubin
-#> Betas                4004.00                  1
-#> Gammas                 21.74                  1
-#> cijs                  462.34                  1
-#> 
-#> ----------------------------------------------------
-
-summary(ft, burnIn = 500)
-#> ----------------------------------------------------
-#> Summary of skipTrack.fit using skipTrack model
-#> ----------------------------------------------------
-#> Mean Coefficients: 
-#> 
-#>             Estimate       95% CI Lower 95% CI Upper
-#> (Intercept)    3.399              3.375        3.423
-#> 
-#> ----------------------------------------------------
-#> Precision Coefficients: 
-#> 
-#>             Estimate       95% CI Lower 95% CI Upper
-#> (Intercept)    5.593              5.414        5.782
-#> 
-#> ----------------------------------------------------
-#> Diagnostics: 
-#> 
-#>        Effective Sample Size       Gelman-Rubin
-#> Betas                4004.00                  1
-#> Gammas                 21.78                  1
-#> cijs                  460.43                  1
-#> 
-#> ----------------------------------------------------
 ```
+
+produces the following output:
+
+    #> ----------------------------------------------------
+    #> Summary of skipTrack.fit using skipTrack model
+    #> ----------------------------------------------------
+    #> Mean Coefficients: 
+    #> 
+    #>             Estimate       95% CI Lower 95% CI Upper
+    #> (Intercept)    3.406              3.376        3.436
+    #> 
+    #> ----------------------------------------------------
+    #> Precision Coefficients: 
+    #> 
+    #>             Estimate       95% CI Lower 95% CI Upper
+    #> (Intercept)     5.36              5.134        5.593
+    #> 
+    #> ----------------------------------------------------
+    #> Diagnostics: 
+    #> 
+    #>        Effective Sample Size       Gelman-Rubin
+    #> Betas                 4004.0                  1
+    #> Gammas                  21.8                  1
+    #> cijs                   351.1                  1
+    #> 
+    #> ----------------------------------------------------
+
+On the other hand if we change the burnIn to 500…
+
+``` r
+summary(ft, burnIn = 500)
+```
+
+we see:
+
+    #> ----------------------------------------------------
+    #> Summary of skipTrack.fit using skipTrack model
+    #> ----------------------------------------------------
+    #> Mean Coefficients: 
+    #> 
+    #>             Estimate       95% CI Lower 95% CI Upper
+    #> (Intercept)    3.407              3.378        3.437
+    #> 
+    #> ----------------------------------------------------
+    #> Precision Coefficients: 
+    #> 
+    #>             Estimate       95% CI Lower 95% CI Upper
+    #> (Intercept)    5.342              5.125        5.569
+    #> 
+    #> ----------------------------------------------------
+    #> Diagnostics: 
+    #> 
+    #>        Effective Sample Size       Gelman-Rubin
+    #> Betas                4004.00                  1
+    #> Gammas                 21.77                  1
+    #> cijs                  460.23                  1
+    #> 
+    #> ----------------------------------------------------
 
 This introduction provides enough information to start fitting the
 SkipTrack model. For further information regarding different methods of
