@@ -33,7 +33,6 @@ Pull requests may be created as outlined in [this guide](https://docs.github.com
 
 In order for a change to be considered for skipTrack the pull request must include:
 
-<!--
 * [ ] One paragraph motivating the change in NEWS.
       In parentheses, please reference your github user name and the issue you are addressing:
       `(@LukeDuttweiler, #1234)`
@@ -41,4 +40,3 @@ In order for a change to be considered for skipTrack the pull request must inclu
 * [ ] Updated documentation with roxygen2 re-run.
 * [ ] A test for the addressed bug (if addressing a bug report).
 * [ ] A minimal example in documentation.
---->
