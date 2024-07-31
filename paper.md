@@ -30,7 +30,7 @@ Mobile apps that allow users to self-track menstrual cycle lengths and symptoms 
 
 Current solutions to this problem of non-adherence (skipped tracking) in cycle length reporting include removing implausibly long cycles that exhibit no user-app interaction [@li2020characterizing], identifying possibly inaccurate cycles based on user-specific average cycle lengths [@li2022predictive], or *ad hoc* removal of cycles based on well-established menstrual cycle characteristics such as average cycle length or cycle length difference. The `skipTrack` package implements a Bayesian hierarchical model that is the first to explicitly use information on both an individual's cycle length **and** regularity to identify errors in recorded cycle lengths that arise from user non-adherence in logging one or more bleeding events.
 
-# Statement of need
+# Statement of Need
 
 Analyses involving large amount of user-tracked menstrual cycle data sets are becoming more prevalent. Identifying recorded cycle lengths that result from skips in tracking one or more period bleeding events (hereafter referred to as 'skipped cycles') is crucially important for maintaining the validity of these studies. The `skipTrack` package provides easy to use software in R that can identify skipped cycles in menstrual cycle data based on a pre-specified Bayesian hierarchical model. The resulting inference on possible skipped cycles may then be included by a researcher *a priori* in an analysis, or may be used to develop a multiple-imputation scheme. 
 
@@ -69,11 +69,13 @@ where $\pi_k = \text{Pr}(c_{ij} = k)$ and $K$ is the maximum number of skips all
 
 The `skipTrack` package contains tools for fitting the SkipTrack model, visualizing model results, diagnosing model convergence, and simulating example data. 
 
-In order to fit the model, the code employs a Markov Chain Monte Carlo (MCMC) algorithm composed of Gibbs sampling steps. Model fitting is accomplished through an easy-to-use interface that allows users to select the number of MCMC chains to run, the number of iterations to run per chain, and the parameters used to initialize each chain. Model results may be visualized or retrived through standard reporting and visualization functions (`summary()`, `plot()`, etc.).
+ - **Model Fitting**: In order to fit the SkipTrack model, the code employs a Markov Chain Monte Carlo (MCMC) algorithm composed of Gibbs sampling steps. Model fitting may be accessed through the `skipTrack.fit()` function, and is accomplished through this easy-to-use interface that allows users to select the number of MCMC chains to run, the number of iterations to run per chain, and the parameters used to initialize each chain. 
+ 
+ - **Visualizing Results**: Model results may be visualized or retrieved through standard reporting and visualization functions (`summary()`, `plot()`, etc.).
 
-MCMC convergence diagnostics (traceplots, effective sample size, and the Gelman-Rubin potential scale reduction factor) are multivariate and multi-chain and are provided using the R package `genMCMCDiag` [@genMCMCPackage].
+ - **Diagnosing Convergence**: MCMC convergence diagnostics (traceplots, effective sample size, and the Gelman-Rubin potential scale reduction factor) are multivariate and multi-chain and are provided using the R package `genMCMCDiag` [@genMCMCPackage], accessible through `skipTrack.diagnostics()`.
 
-Functions are included which allow a user to simulate example data from the SkipTrack model, the generative model provided in @li2022predictive, or a provided mixture model. 
+ - **Simulating Data**: Data simulation options using `skipTrack.simulate()` are included which allow a user to simulate example data from the SkipTrack model, the generative model provided in @li2022predictive, or a provided mixture model. 
 
 # Availability 
 
