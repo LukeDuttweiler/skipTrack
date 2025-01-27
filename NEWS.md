@@ -1,6 +1,10 @@
 # skipTrack (development version)
 
-# skipTrack 0.1.1
+# skipTrack 0.1.2
+
+*Patch to align with parameter name changes from `genMCMCDiag`. 
+
+*No functionality changes.
 
 # skipTrack 0.1.1
 

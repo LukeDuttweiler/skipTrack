@@ -99,7 +99,7 @@ skipTrack.diagnostics(ft, param = 'cijs')
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;" />
 
     #> ----------------------------------------------------
-    #> Generalized MCMC Diagnostics using lanfear Method 
+    #> Generalized MCMC Diagnostics using Custom Method 
     #> ----------------------------------------------------
     #> 
     #> |Effective Sample Size: 
@@ -108,7 +108,7 @@ skipTrack.diagnostics(ft, param = 'cijs')
     #> |-------:|-------:|-------:|-------:|-------:|
     #> |  86.077|    81.6|  91.054| 114.178| 372.909|
     #> 
-    #> |Gelman-Rubin Diagnostic: 
+    #> |psrf: 
     #> |---------------------------
     #> | Point est.| Upper C.I.|
     #> |----------:|----------:|
@@ -215,6 +215,7 @@ Li, Kathy, Iñigo Urteaga, Amanda Shea, Virginia J Vitzthum, Chris H
 Wiggins, and Noémie Elhadad. 2022. “A Predictive Model for Next Cycle
 Start Date That Accounts for Adherence in Menstrual Self-Tracking.”
 *Journal of the American Medical Informatics Association* 29 (1): 3–11.
+<https://doi.org/10.1093/jamia/ocab182>.
 
 </div>
 
