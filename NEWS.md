@@ -1,4 +1,4 @@
-# skipTrack (development version)
+# skipTrack 0.1.2
 
 # skipTrack 0.1.2
 
