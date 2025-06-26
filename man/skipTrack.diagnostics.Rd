@@ -41,7 +41,7 @@ standard proximityMap. If the parameter is any of the other available options, t
 function extracts the corresponding values and calculates diagnostics using the genDiagnostic
 function with the specified or default proximityMap ('lanfear') and hammingDist as the distance function.
 
-Details on the genDiagnostic function can be found in the genMCMCDiag package.
+Details on genDiagnostic can be found in the genMCMCDiag package.
 }
 \examples{
 #Simulated data
@@ -54,5 +54,5 @@ modFit <- skipTrack.fit(Y = simDat$Y, cluster = simDat$cluster, chains = 2, reps
 skipTrack.diagnostics(modFit, 'cijs')
 }
 \seealso{
-\code{\link{genDiagnostic}}, \code{\link{skipTrack.fit}}
+\code{\link[genMCMCDiag:genDiagnostic]{genDiagnostic}}, \code{\link{skipTrack.fit}}
 }

@@ -18,9 +18,9 @@
 #'   function extracts the corresponding values and calculates diagnostics using the genDiagnostic
 #'   function with the specified or default proximityMap ('lanfear') and hammingDist as the distance function.
 #'
-#'   Details on the genDiagnostic function can be found in the genMCMCDiag package.
+#'   Details on genDiagnostic can be found in the genMCMCDiag package.
 #'
-#' @seealso \code{\link{genDiagnostic}}, \code{\link{skipTrack.fit}}
+#' @seealso \code{\link[genMCMCDiag:genDiagnostic]{genDiagnostic}}, \code{\link{skipTrack.fit}}
 #'
 #' @export
 #'
