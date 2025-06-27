@@ -32,6 +32,8 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("ys", "cijs", 'taus',
 #' @export
 #'
 skipTrack.visualize <- function(stFit){
+  #Get data results
+  stDat <- stFit$data
   #Get fit results
   stFit <- stFit$fit
 
@@ -127,6 +129,8 @@ skipTrack.visualize <- function(stFit){
     return(iOverDF$taus[iOverDF$Individual == ind])
   })
 
+  cijOverDF$ys <- stDat$Y
+
   cijChainDF <- do.call('rbind', ijList)
 
   ################
@@ -139,6 +143,7 @@ skipTrack.visualize <- function(stFit){
   cijOverLength <- cijOverLength + ggplot2::theme_minimal() + ggplot2::ggtitle('Estimated Cijs vs. Ys')
   cijOverLength <- cijOverLength + ggplot2::xlab('Reported Cycle Length') + ggplot2::ylab('Estimated Cij Values')
   cijOverLength <- cijOverLength + ggplot2::theme(plot.title = ggtext::element_textbox_simple())
+
 
   #Cijs vs tauis overall
   cijOverTaus <- ggplot2::ggplot(data = cijOverDF,

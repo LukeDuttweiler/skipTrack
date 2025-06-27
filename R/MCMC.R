@@ -131,6 +131,13 @@ skipTrack.MCMC <- function(Y,cluster,
   #Do gibbs steps
   for(t in 1:reps){
     fullDraws[[t+1]] <- do.call('sampleStep', fullDraws[[t]])
+
+    #Remove unecessary info from draws just used (to save space!!)
+    fullDraws[[t]]$X <- NULL
+    fullDraws[[t]]$Z <- NULL
+    fullDraws[[t]]$indFirst <- NULL
+    fullDraws[[t]]$ijDat$ys <- NULL
+
     if(verbose){utils::setTxtProgressBar(pb, t)}
   }
   return(fullDraws)
