@@ -88,14 +88,10 @@ skipTrack.MCMC <- function(Y,cluster,
   Z <- as.matrix(Z)
 
   #Make Z unique by individual (as currently expected by sampleStep)
-  #X <- as.matrix(unique(cbind(cluster, as.data.frame(X))))[,-1, drop = F]
   Z <- as.matrix(unique(cbind(cluster, as.data.frame(Z))))[,-1, drop = F]
 
-  #if(nrow(X) != length(unique(cluster))){
-  #  stop('X must be a num_individuals x num_covariates matrix')
-  #}
   if(nrow(Z) != length(unique(cluster))){
-    stop('Z must be a num_individuals x num_covariates matrix')
+    stop('Z cannot contain any time-varying covariates. Each row in Z associated with an individual must be identical to every other row for that individual.')
   }
 
 

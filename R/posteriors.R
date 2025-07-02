@@ -1,5 +1,5 @@
 #This document holds all of the functions that provide random draws from full conditional
-#posteriors for the 'duttweiler' algorithm.
+#posteriors for the skipTrack algorithm.
 
 #' Draw from Posterior Distribution for Beta Parameters
 #'
@@ -41,14 +41,6 @@ postBeta <- function(rhoBeta = .01, X, b, m, tau, indFirst){
   postPre <- (rhoBeta)*diag(1, dim(XTXs[[1]])[1]) +  Reduce('+', XTXs)
   postVar <- solve(postPre)
   postMean <- postVar %*% Reduce('+', meanSums)
-
-  #Assuming Xi is (num Individuals)x(dimension of beta) matrix of covariates
-  #XTX <- t(Xi) %*% Xi
-  #Xmu <- t(Xi) %*% muI
-
-  #postPre <- (rhoBeta)*diag(1, dim(XTX)[1]) + rho*XTX
-  #postVar <- solve(postPre)
-  #postMean <- postVar %*% (rho*Xmu)
 
   return(mvtnorm::rmvnorm(1, mean = postMean, postVar))
 }

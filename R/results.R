@@ -34,6 +34,7 @@
 #'
 #' @export
 skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
+  stObj <- stFit
   #Get fit results
   stFit <- stFit$fit
 
@@ -136,6 +137,10 @@ skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
                       check.names = FALSE))
   })
   diags <- do.call('rbind', diags)
+
+  #Make sure names pass through as well
+  betaQuants$Variable <- c('(Intercept)', colnames(stObj$data$X)[-1])
+  gammaQuants$Variable <- c('(Intercept)', colnames(stObj$data$Z)[-1])
 
   return(list('Betas' = betaQuants,
               'Gammas' = gammaQuants,
