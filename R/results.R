@@ -38,6 +38,11 @@ skipTrack.results <- function(stFit, trueVals = NULL, burnIn = 750){
   #Get fit results
   stFit <- stFit$fit
 
+  #Check to make sure burnIn is less than number of draws
+  if(burnIn >= length(stFit[[1]])){
+    stop('burnIn parameter is ', burnIn, '. Must be less than number of draws which is ', length(stFit[[1]]), '.')
+  }
+
   #Creates a dataframe with chain/draw specific betas and gammas
   betaDF <- lapply(1:length(stFit), function(chainI){
     #Extract and arrange

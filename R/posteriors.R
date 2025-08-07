@@ -25,7 +25,7 @@ postBeta <- function(rhoBeta = .01, X, b, m, tau, indFirst){
 
   #Extract Xi matrices from X
   Xi <- lapply(1:max(ind), function(i){
-    Xi <- X[ind == i,]
+    Xi <- X[ind == i,,drop = F]
   })
 
   #Build XTX matrices

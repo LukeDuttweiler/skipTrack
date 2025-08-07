@@ -49,7 +49,7 @@ skipTrack.MCMC <- function(Y,cluster,
                                                           length(unique(cluster))),
                                                bs = rep(0, length(unique(cluster))),
                                                rho = 1,
-                                               cijs = sample(1:3, length(Y), replace = TRUE),
+                                               cijs = rep(1, length(Y)),
                                                alphas = rep(1, numSkips +1),
                                                Beta = matrix(rep(0, ncol(as.matrix(X))),1),
                                                Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
@@ -66,7 +66,7 @@ skipTrack.MCMC <- function(Y,cluster,
                          length(unique(cluster))),
              bs = rep(0, length(unique(cluster))),
              rho = 1,
-             cijs = sample(1:3, length(Y), replace = TRUE),
+             cijs = rep(1, length(Y)),
              alphas = rep(1, numSkips +1),
              Beta = matrix(rep(0, ncol(as.matrix(X))),1),
              Gamma = matrix(rep(0, ncol(as.matrix(Z))),1),
@@ -93,7 +93,6 @@ skipTrack.MCMC <- function(Y,cluster,
   if(nrow(Z) != length(unique(cluster))){
     stop('Z cannot contain any time-varying covariates. Each row in Z associated with an individual must be identical to every other row for that individual.')
   }
-
 
   #Organize data into initial list
   iDat <- data.frame('Individual' = unique(cluster),
