@@ -6,7 +6,7 @@
 \usage{
 skipTrack.simulate(
   n,
-  model = c("skipTrack", "li", "mixture"),
+  model = c("skipTrack", "li", "mixture", "skipTrackCat"),
   skipProb = NULL,
   maxCycles = length(skipProb),
   trueBetas = NULL,
@@ -18,7 +18,7 @@ skipTrack.simulate(
 \arguments{
 \item{n}{Number of individuals to simulate data for.}
 
-\item{model}{model for data simulation. Can be a character ('skipTrack', 'li', 'mixture') or a custom function.}
+\item{model}{model for data simulation. Can be a character ('skipTrack', 'li', 'mixture', 'skipTrackCat') or a custom function.}
 
 \item{skipProb}{Vector of probabilities for number of true cycles per tracked cycle. For
 example, (.7, .2, .1) means that 70\% of observed cycles will contain one true cycle, 20\%

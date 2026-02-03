@@ -5,7 +5,7 @@
 #' It supports built-in models ('skipTrack', 'li', 'mixture') and custom models written as functions.
 #'
 #' @param n Number of individuals to simulate data for.
-#' @param model model for data simulation. Can be a character ('skipTrack', 'li', 'mixture') or a custom function.
+#' @param model model for data simulation. Can be a character ('skipTrack', 'li', 'mixture', 'skipTrackCat') or a custom function.
 #' @param skipProb Vector of probabilities for number of true cycles per tracked cycle. For
 #' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
 #' will contain 2 true cycles and 10% will contain 3 true cycles. Default is NULL. If
@@ -49,7 +49,7 @@
 #'
 #' @export
 skipTrack.simulate <- function(n,
-                         model = c('skipTrack', 'li', 'mixture'),
+                         model = c('skipTrack', 'li', 'mixture', 'skipTrackCat'),
                          skipProb = NULL,
                          maxCycles = length(skipProb),
                          trueBetas = NULL,
@@ -91,6 +91,13 @@ skipTrack.simulate <- function(n,
       simDat <- lapply(1:n, mixSim,
                        skipProb = skipProb,
                        maxCycles = maxCycles,
+                       trueBetas = trueBetas,
+                       trueGammas = trueGammas,
+                       overlap = overlap,
+                       avgCyclesPer = avgCyclesPer)
+      simDat <- do.call('rbind', simDat)
+    }else if(model[1] == 'skipTrackCat'){
+      simDat <- lapply(1:n, stSimCAT, skipProb = skipProb, maxCycles = maxCycles,
                        trueBetas = trueBetas,
                        trueGammas = trueGammas,
                        overlap = overlap,
@@ -191,6 +198,99 @@ stSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, avgCyc
     zi <- matrix(c(xi[1,whichX],
                    rnorm(length(trueGammas)-overlap, 0)), nrow = 1)
     precm <- exp(5.5 + zi %*% trueGammas)
+  }
+
+  #For each individual sample a mean (on the log scale) and precision (on the log scale)
+  phi0 <- .01 #Constant goes here for phi
+  prec <- max(4, rgamma(1, shape = precm*phi0, rate = phi0)) #Don't let precision get absurdly low
+  lmean <- rnorm(1, lm, .13)
+
+  #Sample c (true cycles per tracked cycle) values for number of cycles
+  cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)
+
+  #Sample tracked cycle lengths
+  ys <- round(rlnorm(numCycles, meanlog = lmean + log(cs), sdlog = sqrt(1/prec)))
+
+  xi <- as.data.frame(cbind(1, xi))
+  zi <- as.data.frame(cbind(1, zi))
+  names(xi) <- paste0('X', 0:(ncol(xi)-1))
+  names(zi) <- paste0('Z', 0:(ncol(zi)-1))
+
+  #Return as data.frame
+  df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
+                   'LogMean' = lmean, 'LogPrec' = prec, 'Beta0' = log(30), 'Gamma0' = 5.5)
+
+  df <- cbind(df, xi, zi)
+  return(df)
+}
+
+#' Simulate user tracked menstrual cycle data for an individual, based on the skipTrack model WITH CATEGORICAL COVARIATES
+#'
+#' This function generates synthetic data for user tracked menstrual cycles for a
+#' single individual, where the covariates are categorical. For this model Beta_0 = log(30), Gamma_0 = 5.5, and phi = .01.
+#'
+#' @param i Individual identifier. Character, numeric or integer.
+#' @param skipProb Vector of probabilities for number of true cycles per tracked cycle. For
+#' example, (.7, .2, .1) means that 70% of observed cycles will contain one true cycle, 20%
+#' will contain 2 true cycles and 10% will contain 3 true cycles.
+#' @param maxCycles Maximum number of true cycles per tracked cycle. Ignored for this model.
+#' @param trueBetas Optional. True values for the mean regression coefficients. Input as a list of vectors. Each list is one covariate, values of vectors give effects in that covariate.
+#' @param trueGammas Optional. True values for the precision regression coefficients. Input as a list of vectors. Each list is one covariate, values of vectors give effects in that covariate.
+#' @param overlap Optional. Number of (non-intercept) covariates shared between X and Z. Overlap is from top to bottom of list.
+#' @param avgCyclesPer Average number of cycles contributed by each individual. Actual number is drawn from Poisson for each person. Default is 7.
+#'
+#' @return
+#' \describe{
+#'   \item{'Individual'}{Individual identifiers.}
+#'   \item{'TrackedCycles'}{Tracked cycles.}
+#'   \item{'NumTrue'}{Number of true values.}
+#'   \item{'LogMean'}{Individual's mean of log(Y).}
+#'   \item{'LogPrec'}{Individual's precision of log(Y)}
+#'   \item{'Beta0'}{Beta0 true value.}
+#'   \item{'Gamma0'}{Gamma0 true value.}
+#'   \item{'X0',...,'XN'}{Covariate matrix for Mean, where N is the length of trueBetas. Note that these will be integer values giving the category of the covariate.}
+#'   \item{'Z0',...,'ZM'}{Covariate matrix for precision, where M is the length of trueGammas. Note that these will be integer values giving the category of the covariate.}
+#' }
+#'
+#' @seealso \code{\link{skipTrack.simulate}}
+stSimCAT <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, avgCyclesPer){
+  #For each individual, generate the number of (tracked) cycles from poisson(7)
+  #(restricted to > 0)
+  numCycles <- max(rpois(1, avgCyclesPer), 1)
+
+  #If trueBetas or trueGammas don't exist, set mean/precision to given average,
+  #otherwise, create the number of requested covariates and record effects
+  if(is.null(trueBetas)){
+    lm <- log(30)
+    xi <- NULL
+  }else{
+    #xi <- matrix(rnorm(length(trueBetas), 0), nrow = 1)
+    #lm <- log(30) + xi %*% trueBetas
+    xi <- matrix(sapply(trueBetas, function(b){sample(length(b), 1)}), nrow = 1)
+    fx <- sapply(1:length(trueBetas), function(i){return(trueBetas[[i]][xi[i]])})
+    lm <- log(30) + sum(fx)
+  }
+  if(is.null(trueGammas)){
+    precm <- exp(5.5)
+    zi <- NULL
+  }else{
+    #Which x to overlap?
+    if(overlap == 0){
+      whichX <- 0
+    }else{
+      whichX <- 1:overlap
+    }
+    stdf <- setdiff(1:length(trueGammas), whichX)
+    if(length(stdf > 0)){
+      zi <- matrix(c(xi[1,whichX],
+                     sapply(trueGammas[stdf],
+                            function(b){sample(length(b), 1)})), nrow = 1)
+    }else{
+      zi <- matrix(c(xi[1,whichX]), nrow = 1)
+    }
+    #precm <- exp(5.5 + zi %*% trueGammas)
+    fz <- sapply(1:length(trueGammas), function(i){return(trueGammas[[i]][zi[i]])})
+    precm <- exp(5.5 + sum(fz))
   }
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
