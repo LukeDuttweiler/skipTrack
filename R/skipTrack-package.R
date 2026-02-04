@@ -12,6 +12,7 @@
 #' @importFrom stats dlnorm
 #' @importFrom stats dnorm
 #' @importFrom stats dpois
+#' @importFrom stats model.matrix
 #' @importFrom stats qnorm
 #' @importFrom stats quantile
 #' @importFrom stats rbeta

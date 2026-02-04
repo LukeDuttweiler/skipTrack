@@ -132,7 +132,7 @@ skipTrack.simulate <- function(n,
   }
 
   #Change X and Z to model.matrix if doing categorical simulation
-  if(model %in% c('skipTrackCat')){
+  if(model[1] %in% c('skipTrackCat')){
     if(ncol(X) > 1){
       X <- as.data.frame(X)
       for(i in 1:ncol(X)){
@@ -151,13 +151,13 @@ skipTrack.simulate <- function(n,
   }
 
   #Change true betas and gammas if doing categorical simulation
-  if(model %in% c('skipTrackCat') & ncol(X) > 1){
+  if(model[1] %in% c('skipTrackCat') & ncol(X) > 1){
     trueBetas <- unlist(c(simDat$Beta0[1],
                    sapply(trueBetas[-1], function(i){
                      return(i[-1])
                    })))
   }
-  if(model %in% c('skipTrackCat') & ncol(Z) > 1){
+  if(model[1] %in% c('skipTrackCat') & ncol(Z) > 1){
     trueGammas <- unlist(c(simDat$Gamma0[1],
                           sapply(trueGammas[-1], function(i){
                             return(i[-1])
