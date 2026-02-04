@@ -131,6 +131,39 @@ skipTrack.simulate <- function(n,
     trueGammas <- c(simDat$Gamma0[1], trueGammas)
   }
 
+  #Change X and Z to model.matrix if doing categorical simulation
+  if(model %in% c('skipTrackCat')){
+    if(ncol(X) > 1){
+      X <- as.data.frame(X)
+      for(i in 1:ncol(X)){
+        X[,i] <- as.factor(X[,i])
+      }
+      X <- model.matrix(~., X[,-1])
+    }
+
+    if(ncol(Z) > 1){
+      Z <- as.data.frame(Z)
+      for(i in 1:ncol(Z)){
+        Z[,i] <- as.factor(Z[,i])
+      }
+      Z <- model.matrix(~., Z[,-1])
+    }
+  }
+
+  #Change true betas and gammas if doing categorical simulation
+  if(model %in% c('skipTrackCat') & ncol(X) > 1){
+    trueBetas <- unlist(c(simDat$Beta0[1],
+                   sapply(trueBetas[-1], function(i){
+                     return(i[-1])
+                   })))
+  }
+  if(model %in% c('skipTrackCat') & ncol(Z) > 1){
+    trueGammas <- unlist(c(simDat$Gamma0[1],
+                          sapply(trueGammas[-1], function(i){
+                            return(i[-1])
+                          })))
+  }
+
   #Return as list with specific components separated out
   return(list('Y' = simDat$TrackedCycles,
               'cluster' = simDat$Individual,
@@ -292,6 +325,7 @@ stSimCAT <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, avg
     fz <- sapply(1:length(trueGammas), function(i){return(trueGammas[[i]][zi[i]])})
     precm <- exp(5.5 + sum(fz))
   }
+
 
   #For each individual sample a mean (on the log scale) and precision (on the log scale)
   phi0 <- .01 #Constant goes here for phi
