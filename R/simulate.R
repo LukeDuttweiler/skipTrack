@@ -103,6 +103,11 @@ skipTrack.simulate <- function(n,
                        overlap = overlap,
                        avgCyclesPer = avgCyclesPer)
       simDat <- do.call('rbind', simDat)
+    }else if(model[1] == 'liCat'){
+      simDat <- lapply(1:n, liSimCAT, skipProb = skipProb, maxCycles = maxCycles,
+                       trueBetas = trueBetas, trueGammas = trueGammas,
+                       avgCyclesPer = avgCyclesPer)
+      simDat <- do.call('rbind', simDat)
     }else{
       stop('specified model is unknown.')
     }
@@ -132,7 +137,7 @@ skipTrack.simulate <- function(n,
   }
 
   #Change X and Z to model.matrix if doing categorical simulation
-  if(model[1] %in% c('skipTrackCat')){
+  if(model[1] %in% c('skipTrackCat', 'liCat')){
     if(ncol(X) > 1){
       X <- as.data.frame(X)
       for(i in 1:ncol(X)){
@@ -151,13 +156,13 @@ skipTrack.simulate <- function(n,
   }
 
   #Change true betas and gammas if doing categorical simulation
-  if(model[1] %in% c('skipTrackCat') & ncol(X) > 1){
+  if(model[1] %in% c('skipTrackCat', 'liCat') & ncol(X) > 1){
     trueBetas <- unlist(c(simDat$Beta0[1],
                    sapply(trueBetas[-1], function(i){
                      return(i[-1])
                    })))
   }
-  if(model[1] %in% c('skipTrackCat') & ncol(Z) > 1){
+  if(model[1] %in% c('skipTrackCat', 'liCat') & ncol(Z) > 1){
     trueGammas <- unlist(c(simDat$Gamma0[1],
                           sapply(trueGammas[-1], function(i){
                             return(i[-1])
@@ -402,6 +407,83 @@ liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL, avgCycle
   }else{
     xi <- matrix(rnorm(length(trueBetas), 0), nrow = 1)
     chnge <- xi %*% trueBetas
+  }
+
+  #Adjust based on change (on log scale)
+  indMean <- as.numeric(exp(log(indMean) + chnge))
+
+  #For each tracked cycle, draw a length (dependent on numSkips)
+  ys <- rpois(numCycles, indMean*(1+numSkips))
+
+  #Return as data.frame
+  #NOTE: Beta0 is log(30) here as skipTrack model assumes a distribution on log(Y) not just Y,
+  df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = numSkips + 1,
+                   'Mean' = indMean, 'SkipProb' = indSkip,
+                   'Z0' = 1, Beta0 = log(30), Gamma0 = NA)
+
+  xi <- as.data.frame(cbind(1, xi))
+  names(xi) <- paste0('X', 0:(ncol(xi)-1))
+
+
+  df <- cbind(df, xi)
+
+  return(df)
+}
+
+#' Simulate user tracked menstrual cycle data for an individual using the li model.
+#'
+#' This function generates synthetic data for user tracked menstrual cycles for a
+#' single individual using the li model. For this model Beta0 = log(30), and Gamma0 doesn't really make sense.
+#'
+#' @param i Individual identifier. Character, numeric or integer.
+#' @param skipProb Vector, ignored for this model.
+#' @param maxCycles Integer, Maximum possible number of true cycles per tracked cycle.
+#' @param trueBetas Optional. True values for generated mean regression coefficients.
+#' @param trueGammas NULL, left for consistency. Will throw error if specified.
+#' @param avgCyclesPer Average number of cycles contributed by each individual. Actual number is drawn from Poisson for each person. Default is 7.
+#'
+#' @return
+#' \describe{
+#'   \item{'Individual'}{Individual identifiers.}
+#'   \item{'TrackedCycles'}{Tracked cycles.}
+#'   \item{'NumTrue'}{Number of true values.}
+#'   \item{'SkipProb'}{Individual's probability of skipping tracking a cycle}
+#'   \item{'Mean'}{Individual's mean values.}
+#'   \item{'Beta0'}{Beta0 true value.}
+#'   \item{'Gamma0}{NA}
+#'   \item{'Z0'}{1}
+#'   \item{'X0',...,'XN'}{Covariate matrix for Mean, where N is the length of trueBetas.}
+#' }
+#' @seealso \code{\link{skipTrack.simulate}}
+liSimCAT <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL, avgCyclesPer){
+  if(!is.null(trueGammas)){
+    warning('Li data generation model does not take covs for precision, trueGamma input will be ignored')
+  }
+
+  #For each individual, generate the number of (tracked) cycles from poisson(7)
+  #(restricted to > 0)
+  numCycles <- max(rpois(1, avgCyclesPer), 1)
+
+  #For each individual sample a mean
+  indMean <- rgamma(1, 180, 6)
+
+  #For each individual sample a skip probability
+  indSkip <- rbeta(1, 2, 20)
+
+  #For each tracked cycle, sample the number of skipped cycles, cap at maxCycles
+  numSkips <- rgeom(numCycles, 1-indSkip)
+  numSkips <- pmin(numSkips, rep(maxCycles-1, numCycles))
+
+  #If there are trueBeta values, adjust individual mean for those
+  if(is.null(trueBetas)){
+    chnge <- 0
+    xi <- NULL
+  }else{
+    #xi <- matrix(rnorm(length(trueBetas), 0), nrow = 1)
+    #chnge <- xi %*% trueBetas
+    xi <- matrix(sapply(trueBetas, function(b){sample(length(b), 1)}), nrow = 1)
+    fx <- sapply(1:length(trueBetas), function(i){return(trueBetas[[i]][xi[i]])})
+    chnge <- sum(fx)
   }
 
   #Adjust based on change (on log scale)
