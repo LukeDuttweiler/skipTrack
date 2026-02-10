@@ -438,7 +438,7 @@ liSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas = NULL, avgCycle
 #' @param i Individual identifier. Character, numeric or integer.
 #' @param skipProb Vector, ignored for this model.
 #' @param maxCycles Integer, Maximum possible number of true cycles per tracked cycle.
-#' @param trueBetas Optional. True values for generated mean regression coefficients.
+#' @param trueBetas Optional. True values for the mean regression coefficients. Input as a list of vectors. Each list is one covariate, values of vectors give effects in that covariate.
 #' @param trueGammas NULL, left for consistency. Will throw error if specified.
 #' @param avgCyclesPer Average number of cycles contributed by each individual. Actual number is drawn from Poisson for each person. Default is 7.
 #'
