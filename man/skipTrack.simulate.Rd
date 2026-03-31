@@ -6,7 +6,7 @@
 \usage{
 skipTrack.simulate(
   n,
-  model = c("skipTrack", "li", "mixture", "skipTrackCat"),
+  model = c("skipTrack", "li", "mixture", "skipTrackCat", "liCat", "mixtureCat"),
   skipProb = NULL,
   maxCycles = length(skipProb),
   trueBetas = NULL,

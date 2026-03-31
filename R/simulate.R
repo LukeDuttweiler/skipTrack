@@ -49,7 +49,7 @@
 #'
 #' @export
 skipTrack.simulate <- function(n,
-                         model = c('skipTrack', 'li', 'mixture', 'skipTrackCat'),
+                         model = c('skipTrack', 'li', 'mixture', 'skipTrackCat', 'liCat', 'mixtureCat'),
                          skipProb = NULL,
                          maxCycles = length(skipProb),
                          trueBetas = NULL,
@@ -107,6 +107,11 @@ skipTrack.simulate <- function(n,
       simDat <- lapply(1:n, liSimCAT, skipProb = skipProb, maxCycles = maxCycles,
                        trueBetas = trueBetas, trueGammas = trueGammas,
                        avgCyclesPer = avgCyclesPer)
+      simDat <- do.call('rbind', simDat)
+    }else if(model[1] == 'mixtureCat'){
+      simDat <- lapply(1:n, mixSimCAT, skipProb = skipProb, maxCycles = maxCycles,
+                       trueBetas = trueBetas, trueGammas = trueGammas,
+                       avgCyclesPer = avgCyclesPer, overlap = overlap)
       simDat <- do.call('rbind', simDat)
     }else{
       stop('specified model is unknown.')
@@ -599,6 +604,139 @@ mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, avgCy
                    'Mean' = indMean, Beta0 = log(30), Gamma0 = 15)
 
   #Attach covariate info
+  df <- cbind(df, xi, zi)
+
+  return(df)
+}
+
+
+#' Simulate user tracked menstrual cycle data for an individual using the mixture model (categorical covariates).
+#'
+#' This function generates synthetic data for user tracked menstrual cycles for a
+#' single individual using the mixture model, where all covariates are categorical.
+#' Each covariate is represented as a set of discrete levels, and effects are applied
+#' by indexing into user-specified coefficient vectors.
+#'
+#' For this model Beta_0 is set to log(30) and Gamma_0 is set to 15, although for the
+#' skipTrack model this lacks direct interpretation.
+#'
+#' @param i Individual identifier. Character, numeric, or integer.
+#' @param skipProb Vector of probabilities for the number of true cycles per tracked cycle.
+#' @param maxCycles Maximum number of true cycles per tracked cycle.
+#' @param trueBetas Optional. List of vectors. Each list element corresponds to a categorical
+#' covariate for the mean model, and vector entries give level-specific effects.
+#' @param trueGammas Optional. List of vectors. Each list element corresponds to a categorical
+#' covariate for the precision model, and vector entries give level-specific effects.
+#' @param overlap Optional. Number of (non-intercept) covariates shared between X and Z.
+#' Shared covariates reuse the same sampled category.
+#' @param avgCyclesPer Average number of cycles contributed by each individual.
+#'
+#' @return
+#' \describe{
+#'   \item{'Individual'}{Individual identifiers.}
+#'   \item{'TrackedCycles'}{Tracked cycles.}
+#'   \item{'NumTrue'}{Number of true cycles contributing to each observed cycle.}
+#'   \item{'Mean'}{Individual's mean value.}
+#'   \item{'Beta0'}{Beta0 true value.}
+#'   \item{'Gamma0'}{Gamma0 true value.}
+#'   \item{'X0',...,'XN'}{Categorical covariates for mean (stored as integer levels).}
+#'   \item{'Z0',...,'ZM'}{Categorical covariates for precision (stored as integer levels).}
+#' }
+#'
+#' @seealso \code{\link{skipTrack.simulate}}
+mixSimCAT <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, avgCyclesPer){
+
+  # Number of observed cycles
+  numCycles <- max(rpois(1, avgCyclesPer), 1)
+
+  # Number of true cycles per observed cycle
+  cs <- sample(1:maxCycles, numCycles, replace = TRUE, prob = skipProb)
+
+  ### --- Mean model (categorical X) ---
+  if(is.null(trueBetas)){
+    m <- 30
+    xi <- NULL
+  } else {
+    # Sample category levels for each covariate
+    xi <- matrix(sapply(trueBetas, function(b){ sample(length(b), 1) }), nrow = 1)
+
+    # Extract effects and sum
+    fx <- sapply(seq_along(trueBetas), function(j){
+      trueBetas[[j]][xi[j]]
+    })
+
+    m <- 30 + sum(fx)
+  }
+
+  # Individual mean
+  indMean <- round(rgamma(1, m*5, 5))
+
+  ### --- Precision model (categorical Z) ---
+  if(is.null(trueGammas)){
+    p <- 0.5
+    zi <- NULL
+  } else {
+
+    # Determine overlap indices
+    if(overlap == 0){
+      shared_idx <- integer(0)
+    } else {
+      shared_idx <- seq_len(overlap)
+    }
+
+    # Build zi
+    zi <- numeric(length(trueGammas))
+
+    for(j in seq_along(trueGammas)){
+      if(j %in% shared_idx && !is.null(xi)){
+        # Share category with X
+        zi[j] <- xi[j]
+      } else {
+        # Sample independently
+        zi[j] <- sample(length(trueGammas[[j]]), 1)
+      }
+    }
+
+    zi <- matrix(zi, nrow = 1)
+
+    # Compute linear predictor
+    gz <- sapply(seq_along(trueGammas), function(j){
+      trueGammas[[j]][zi[j]]
+    })
+
+    linComp <- sum(gz)
+    p <- exp(linComp) / (1 + exp(linComp))
+  }
+
+  # Draw latent category (0,1,2)
+  indCat <- rbinom(1, 2, p)
+
+  ### --- Outcome generation ---
+  if(indCat == 0){
+    ys <- rpois(numCycles, lambda = indMean * cs)
+  } else if(indCat == 1){
+    ys <- sapply(cs, function(drC){
+      indMean * drC + sum(sample((-2:2), drC, replace = TRUE,
+                                 prob = c(.05, .25, .4, .25, .05)))
+    })
+  } else if(indCat == 2){
+    ys <- indMean * cs
+  }
+
+  ### --- Assemble output ---
+  xi <- as.data.frame(cbind(1, xi))
+  zi <- as.data.frame(cbind(1, zi))
+
+  names(xi) <- paste0('X', 0:(ncol(xi)-1))
+  names(zi) <- paste0('Z', 0:(ncol(zi)-1))
+
+  df <- data.frame('Individual' = i,
+                   'TrackedCycles' = ys,
+                   'NumTrue' = cs,
+                   'Mean' = indMean,
+                   Beta0 = log(30),
+                   Gamma0 = 15)
+
   df <- cbind(df, xi, zi)
 
   return(df)
