@@ -142,7 +142,7 @@ skipTrack.simulate <- function(n,
   }
 
   #Change X and Z to model.matrix if doing categorical simulation
-  if(model[1] %in% c('skipTrackCat', 'liCat')){
+  if(model[1] %in% c('skipTrackCat', 'liCat', 'mixtureCat')){
     if(ncol(X) > 1){
       X <- as.data.frame(X)
       for(i in 1:ncol(X)){
@@ -161,13 +161,13 @@ skipTrack.simulate <- function(n,
   }
 
   #Change true betas and gammas if doing categorical simulation
-  if(model[1] %in% c('skipTrackCat', 'liCat') & ncol(X) > 1){
+  if(model[1] %in% c('skipTrackCat', 'liCat', 'mixtureCat') & ncol(X) > 1){
     trueBetas <- unlist(c(simDat$Beta0[1],
                    sapply(trueBetas[-1], function(i){
                      return(i[-1])
                    })))
   }
-  if(model[1] %in% c('skipTrackCat', 'liCat') & ncol(Z) > 1){
+  if(model[1] %in% c('skipTrackCat', 'liCat', 'mixtureCat') & ncol(Z) > 1){
     trueGammas <- unlist(c(simDat$Gamma0[1],
                           sapply(trueGammas[-1], function(i){
                             return(i[-1])
@@ -666,6 +666,11 @@ mixSimCAT <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, av
     })
 
     m <- 30 + sum(fx)
+
+    xi <- matrix(sapply(trueBetas, function(b){sample(length(b), 1)}), nrow = 1)
+    fx <- sapply(1:length(trueBetas), function(i){return(trueBetas[[i]][xi[i]])})
+    lm <- log(30) + sum(fx)
+
   }
 
   # Individual mean
