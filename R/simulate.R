@@ -601,7 +601,7 @@ mixSim <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, avgCy
 
 
   df <- data.frame('Individual' = i, 'TrackedCycles' = ys, 'NumTrue' = cs,
-                   'Mean' = indMean, Beta0 = log(30), Gamma0 = 15)
+                   'Mean' = indMean, 'PrecCat' = indCat, Beta0 = log(30), Gamma0 = 15)
 
   #Attach covariate info
   df <- cbind(df, xi, zi)
