@@ -739,6 +739,7 @@ mixSimCAT <- function(i, skipProb, maxCycles, trueBetas, trueGammas, overlap, av
                    'TrackedCycles' = ys,
                    'NumTrue' = cs,
                    'Mean' = indMean,
+                   'PrecCat' = indCat,
                    Beta0 = log(30),
                    Gamma0 = 15)
 
